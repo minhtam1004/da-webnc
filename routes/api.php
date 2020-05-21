@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::apiResource('transfer', 'Api\TransferController')->only(['store'])->middleware('CheckBank');
+Route::apiResource('user', 'Api\UserController')->only(['show'])->middleware('CheckBank');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
