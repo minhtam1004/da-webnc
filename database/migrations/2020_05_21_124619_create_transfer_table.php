@@ -15,10 +15,10 @@ class CreateTransferTable extends Migration
     {
         Schema::create('transfer', function (Blueprint $table) {
             $table->id();
-            $table->sendId();
-            $table->sendBank();
-            $table->receivedId();
-            $table->amount();
+            $table->string('sendId');
+            $table->string('sendBank');
+            $table->string('receivedId');
+            $table->bigInteger('amount');
             $table->timestamps();
         });
     }
