@@ -78,7 +78,7 @@ class UserController extends Controller
      * @param  \App\Transfer  $transfer
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Transfer $transfer)
+    public function destroy(User $user)
     {
         //
     }
