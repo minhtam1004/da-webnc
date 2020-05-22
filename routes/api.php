@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckBank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,8 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::apiResource('transfer', 'Api\TransferController')->only(['store'])->middleware('CheckBank');
-Route::apiResource('user', 'Api\UserController')->only(['show'])->middleware('CheckBank');
+Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
+Route::get('users/{user}', 'UserController@show');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
