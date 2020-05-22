@@ -13,7 +13,7 @@ class CreateTransferTable extends Migration
      */
     public function up()
     {
-        Schema::create('transfer', function (Blueprint $table) {
+        Schema::create('transfers', function (Blueprint $table) {
             $table->id();
             $table->string('sendId');
             $table->string('sendBank');
