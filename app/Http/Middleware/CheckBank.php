@@ -20,12 +20,13 @@ class CheckBank
         $bank = Bank::findOrFail($request->header('X-BANK'));
         if(!$request->header('X-TIME')) return response()->json(['message' => 'dont have time'],422);
         if(!$request->header('X-SIG')) return response()->json(['message' => 'dont have signature'],422);
-        //if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);
+        if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);
         $rsa = new RSA();
         $rsa->loadKey($bank->key);
         $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
         if(!$rsa->verify($request->header('X-TIME').json_encode($request->all()),base64_decode($request->header('X-SIG'))))
         return response()->json(['message'=> 'not correct key'],422);
+        $request->request->add(['sendBank'=>$bank->name,'receivedBank'=>null]);
         return $next($request);
     }
 }
