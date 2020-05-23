@@ -25,6 +25,7 @@ class BankController extends Controller
         if ($validatedData->fails()) {
             return response()->json(['error'=>'Parameter error'],422);
         }
+        
     }
 
     /**
