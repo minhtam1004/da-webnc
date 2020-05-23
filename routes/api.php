@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Validator;
 |
 */
 
-Route::post('transfers', 'TransferController@store')->middleware('checkbank,logtransfer');
+Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
 Route::post('sendMoney','BankController@sendMoney')->middleware('logtransfer');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
