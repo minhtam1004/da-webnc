@@ -23,7 +23,7 @@ class checkUser
         if(!$request->header('X-TIME')) return response()->json(['message' => 'dont have time'],422);
         if(!$request->header('X-HASH')) return response()->json(['message' => 'dont have hash'],422);
         if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);
-        if(!hash('sha256',$request->header('X-TIME').$bank->secret_key)== $request->header('X-HASH'))
+        if(!base64_encode(hash('sha256',$request->header('X-TIME').$bank->secret_key))== $request->header('X-HASH'))
         return response()->json(['message'=> 'not correct key'],422);
         return $next($request);
     }

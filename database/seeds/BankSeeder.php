@@ -13,19 +13,19 @@ class BankSeeder extends Seeder
     public function run()
     {
         DB::table('banks')->insert([
-            'bank_code'=> 'partner19',
-            'name' => 'nhom34',
+            'bank_code'=> 'partner34',
+            'name' => 'nhom19',
             'key' => 'nhom34.pem',
             'api_trans' => 'https://nhom34bank.herokuapp.com/api/noptien',
             'api_user' => 'https://nhom34bank.herokuapp.com/api/taikhoan',
-            'secret_key' => 'nhom19banking',
+            'secret_key' => 'nhom34banking',
             'rsa' => false
         ]);
         DB::table('banks')->insert([
-            'bank_code'=> 'nhom5banking',
+            'bank_code'=> 'partner5',
             'name' => 'nhom5',
             'key' => 'nhom5.pem',
-            'api_trans' => 'https://nhom5bank.herokuapp.com/api/noptien',
+            'api_trans' => 'https://w-internet-banking.herokuapp.com/api/partner',
             'api_user' => 'https://nhom5bank.herokuapp.com/api/taikhoan',
             'secret_key' => 'nhom5banking',
             'rsa' => true
