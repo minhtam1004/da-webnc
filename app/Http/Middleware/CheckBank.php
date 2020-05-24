@@ -23,8 +23,7 @@ class CheckBank
         if(!$request->header('X-TIME')) return response()->json(['message' => 'dont have time'],422);
         if(!$request->header('X-SIG')) return response()->json(['message' => 'dont have signature'],422);
         if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);
-        $key = file_get_contents(public_path('rsa/'.$bank->key));
-        dd($key);
+        $key = file_get_contents(public_path('key/Rsakey/'.$bank->key));
         $rsa = new RSA();
         $rsa->loadKey($key);
         $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
