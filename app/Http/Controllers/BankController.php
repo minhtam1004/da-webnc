@@ -9,10 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
-use OpenPGP;
+use OpenPGP_Crypt_RSA;
 use OpenPGP_LiteralDataPacket;
 use OpenPGP_Message;
-use OpenPGP_SignaturePacket;
 
 class BankController extends Controller
 {
@@ -41,7 +40,6 @@ class BankController extends Controller
         ]);
         $bank = Bank::find($request->receivedBank);
         if(!$bank) return response()->json(['error'=>'bank not connected'],422);
-        $user = User::find($request->sendId);
         $time = Carbon::now()->timestamp;
         if($bank->rsa){
             openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key/Rsakey/PivateKey.txt')),OPENSSL_ALGO_SHA512);
@@ -54,23 +52,58 @@ class BankController extends Controller
                 ['amount'=>$request->amount,'name'=>$user->name,'note'>'testnote']);
             return $response;
         }else{
-            $data = $request->amount.$request->receivedId.$time;
+            $data = $request->amount.','.$request->receivedId.','.$time;
             $key = OpenPGP_Message::parse(file_get_contents(public_path('key/Pgpkey/PivateKey.txt')));
             $key = $key[0];
             $data = new OpenPGP_LiteralDataPacket($data);
-            $gpg = new OpenPGP_SignaturePacket($key);
-            $signature = $gpg->sign_data($data);
+            $gpg = new OpenPGP_Crypt_RSA($key);
+            $signature = $gpg->sign($data);
             $response = Http::withHeaders([
                 'bank-code' => 'partner19',
                 'time' => $time,
-                'sig' => hash('sha256',$time.'nhom19banking'),
+                'sig' => hash('sha256',$time.json_encode($request->all()).'nhom19banking'),
                 'signature-pgp'=> $signature])
                 ->put('https://nhom34bank.herokuapp.com/api/noptien',
                 ['SoTien'=>$request->amount,'SoTaiKhoan'=>$request->receivedId]);
             return $response;
         }
     }
-
+    public function viewuser($request)
+    {
+        $validatedData = Validator::make($request->all(),[
+            'id' => 'required|string|length:16',
+            'bankId'=> 'required|max:255'
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error'=>'Parameter error'],422);
+        }
+        $bank = Bank::find($request->bankId);
+        if(!$bank) return response()->json(['error'=>'bank not connected'],422);
+        $user = User::find($request->bankId);
+        $time = Carbon::now()->timestamp;
+        if($bank->rsa){
+            $response = Http::withHeaders([
+                'X-API-KEY' => 'PGP_123456789',
+                'X-REQUEST-TIME' => $time,
+                'X-HASH'=> hash('sha256',$time.'Te@B@nk')])
+                ->get('https://w-internet-banking.herokuapp.com/api/partner/accounts/'.$request->id);
+            return $response;
+        }else{
+            $data = $request->amount.','.$request->receivedId.','.$time;
+            $key = OpenPGP_Message::parse(file_get_contents(public_path('key/Pgpkey/PivateKey.txt')));
+            $key = $key[0];
+            $data = new OpenPGP_LiteralDataPacket($data);
+            $gpg = new OpenPGP_Crypt_RSA($key);
+            $signature = $gpg->sign($data);
+            $response = Http::withHeaders([
+                'bank-code' => 'partner19',
+                'time' => $time,
+                'sig' => hash('sha256',$time.'nhom19banking')
+                ])
+                ->get('https://nhom34bank.herokuapp.com/api/taikhoan/'.$request->id);
+            return $response;
+        }
+    }
     /**
      * Show the form for creating a new resource.
      *
