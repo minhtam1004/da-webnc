@@ -13,7 +13,7 @@ class BankSeeder extends Seeder
     public function run()
     {
         DB::table('banks')->insert([
-            'bank_code'=> 'nhom34banking',
+            'bank_code'=> 'partner19',
             'name' => 'nhom34',
             'key' => 'nhom34.pem',
             'api_trans' => 'https://nhom34bank.herokuapp.com/api/noptien',

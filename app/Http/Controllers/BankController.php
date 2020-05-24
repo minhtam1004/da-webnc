@@ -34,7 +34,7 @@ class BankController extends Controller
         if(!$bank) return response()->json(['error'=>'bank not connected'],422);
         $user = User::find($request->sendId);
         $time = Carbon::now()->timestamp;
-        $response = Http::withHeaders(['bank-code' => $bank->bank_code,'time' => $time,'sig'=> hash('sha256',$time.$bank->secret_key),'signature-pgp' => ])
+        //$response = Http::withHeaders(['bank-code' => $bank->bank_code,'time' => $time,'sig'=> hash('sha256',$time.$bank->secret_key),'signature-pgp' => ])
     }
 
     /**
