@@ -18,7 +18,8 @@ class checkUser
     public function handle($request, Closure $next)
     {
         if(!$request->header('X-BANK')) return response()->json(['message' => 'bank not allow to connect to this info'],422);
-        $bank = Bank::findOrFail($request->header('X-BANK'));
+        $bank = Bank::where('bank_code',$request->header('X-BANK'))->first();
+        if(!$bank) return response()->json(['error'=>'bank not connected'],422); 
         if(!$request->header('X-TIME')) return response()->json(['message' => 'dont have time'],422);
         if(!$request->header('X-HASH')) return response()->json(['message' => 'dont have hash'],422);
         if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);

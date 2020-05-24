@@ -13,14 +13,14 @@ class BankSeeder extends Seeder
     public function run()
     {
         DB::table('banks')->insert([
-            'id'=> 'nhom34banking',
+            'bank_code'=> 'nhom34banking',
             'name' => 'nhom34',
-            'key' => 'nhom19banking',
+            'key' => 'nhom34.asc',
             'secret_key' => 'nhom34banking',
             'rsa' => false
         ]);
         DB::table('banks')->insert([
-            'id'=> 'nhom5banking',
+            'bank_code'=> 'nhom5banking',
             'name' => 'nhom5',
             'key' => 'nhom19banking',
             'secret_key' => 'nhom5banking',

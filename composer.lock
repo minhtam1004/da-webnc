@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0ecf8bbebaca05cb7f0cda0c0ee265f",
+    "content-hash": "d015ccbfbe79f0346e3c0677205f436b",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2124,6 +2124,53 @@
                 }
             ],
             "time": "2020-03-29T20:13:32+00:00"
+        },
+        {
+            "name": "singpolyma/openpgp-php",
+            "version": "0.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/singpolyma/openpgp-php.git",
+                "reference": "67aba786991e3cb3e555025b6d357779ab32a0ab"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/singpolyma/openpgp-php/zipball/67aba786991e3cb3e555025b6d357779ab32a0ab",
+                "reference": "67aba786991e3cb3e555025b6d357779ab32a0ab",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.6 || ^7.0",
+                "phpseclib/phpseclib": "^2.0 !=2.0.8"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.0"
+            },
+            "suggest": {
+                "ext-mcrypt": "required if you use encryption cast5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Unlicense"
+            ],
+            "authors": [
+                {
+                    "name": "Arto Bendiken",
+                    "email": "arto.bendiken@gmail.com"
+                },
+                {
+                    "name": "Stephen Paul Weber",
+                    "email": "singpolyma@singpolyma.net"
+                }
+            ],
+            "description": "Pure-PHP implementation of the OpenPGP Message Format (RFC 4880)",
+            "time": "2019-08-01T18:11:09+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
