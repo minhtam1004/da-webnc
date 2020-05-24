@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Middleware;
+
 use App\Bank;
 use Closure;
-use Illuminate\Support\Facades\Storage;
 use phpseclib\Crypt\RSA;
 
-class CheckBank
+class checkUser
 {
     /**
      * Handle an incoming request.
@@ -21,16 +21,10 @@ class CheckBank
         $bank = Bank::where('bank_code',$request->header('X-BANK'))->first();
         if(!$bank) return response()->json(['error'=>'bank not connected'],422); 
         if(!$request->header('X-TIME')) return response()->json(['message' => 'dont have time'],422);
-        if(!$request->header('X-SIG')) return response()->json(['message' => 'dont have signature'],422);
+        if(!$request->header('X-HASH')) return response()->json(['message' => 'dont have hash'],422);
         if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);
-        $key = file_get_contents(public_path('rsa/'.$bank->key));
-        dd($key);
-        $rsa = new RSA();
-        $rsa->loadKey($key);
-        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-        if(!$rsa->verify($request->header('X-TIME').json_encode($request->all()),base64_decode($request->header('X-SIG'))))
+        if(!hash('sha256',$request->header('X-TIME').$bank->secret_key)== $request->header('X-HASH'))
         return response()->json(['message'=> 'not correct key'],422);
-        $request->request->add(['sendBank'=>$bank->name,'receivedBank'=>null]);
         return $next($request);
     }
 }

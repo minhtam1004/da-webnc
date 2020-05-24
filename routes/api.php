@@ -3,6 +3,8 @@
 use App\Http\Middleware\CheckBank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
-Route::get('users/{user}', 'UserController@show');
+Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
+Route::post('sendMoney','BankController@sendMoney')->middleware('logtransfer');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

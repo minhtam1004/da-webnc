@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTransferTable extends Migration
+class CreateAccountsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateTransferTable extends Migration
      */
     public function up()
     {
-        Schema::create('transfers', function (Blueprint $table) {
+        Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->string('sendId');
-            $table->string('sendBank')->nullable();
-            $table->string('receivedId');
-            $table->string('receivedBank')->nullable();
-            $table->bigInteger('amount');
-            $table->text('reason');
+            $table->foreignId('userId');
+            $table->string('accountNumber',10)->unique();
+            $table->bigInteger('excess');
             $table->timestamps();
         });
     }
@@ -32,6 +29,6 @@ class CreateTransferTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('transfer');
+        Schema::dropIfExists('accounts');
     }
 }
