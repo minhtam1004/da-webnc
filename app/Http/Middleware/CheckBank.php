@@ -26,7 +26,7 @@ class CheckBank
         // openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key\Rsakey\'.$bank->key)), OPENSSL_ALGO_SHA512);
         // $signature = base64_encode($rawSignature);
 
-        $key = file_get_contents(public_path('key\Rsakey\\'.$bank->key));
+        $key = file_get_contents(public_path('key/Rsakey/'.$bank->key));
         $rsa = new RSA();
         $rsa->loadKey($key);
         $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);

@@ -49,7 +49,7 @@ class BankController extends Controller
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
         if($bank->rsa){
             //dd(file_get_contents(public_path('key\Rsakey\PrivateKey.txt')));
-            openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key\Rsakey\PrivateKey.txt')), OPENSSL_ALGO_SHA512);
+            openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key/Rsakey/PrivateKey.txt')), OPENSSL_ALGO_SHA512);
             $signature = base64_encode($rawSignature);
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -62,7 +62,7 @@ class BankController extends Controller
         }else{
             $time=$time*1000;
             $data = $request->amount.','.$request->receivedId.','.$time;
-            $file = file_get_contents(public_path('key\Pgpkey\PrivateKey.asc'));
+            $file = file_get_contents(public_path('key/Pgpkey/PrivateKey.asc'));
             $key = OpenPGP_Message::parse(OpenPGP::unarmor($file,'PGP PRIVATE KEY BLOCK'));
             $key = OpenPGP_Crypt_Symmetric::decryptSecretKey('Minhtam1234',$key->packets[0]);
             $data = new OpenPGP_LiteralDataPacket($data);
