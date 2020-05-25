@@ -25,7 +25,7 @@ class CheckBank
         if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);
         // openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key\Rsakey\'.$bank->key)), OPENSSL_ALGO_SHA512);
         // $signature = base64_encode($rawSignature);
-
+        if(!file_exists(public_path('key/Rsakey/'.$bank->key))) return response()->json(['dont have key file'],400);
         $key = file_get_contents(public_path('key/Rsakey/'.$bank->key));
         $rsa = new RSA();
         $rsa->loadKey($key);
