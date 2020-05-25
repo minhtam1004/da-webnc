@@ -45,6 +45,7 @@ class TransferController extends Controller
             'receivedId' => 'required|max:255',
             'receivedBank' => 'max:255',
             'amount' => 'required|numeric|min:10000|max:1000000000',
+            'reason' => 'required|max:10000'
         ]);
         if ($validatedData->fails()) {
             return response()->json('Parameter error',422);
