@@ -52,6 +52,7 @@ class BankController extends Controller
             openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key\Rsakey\PrivateKey.txt')), OPENSSL_ALGO_SHA512);
             $signature = base64_encode($rawSignature);
             $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
                 'X-API-KEY' => 'RSA_123456789',
                 'X-REQUEST-TIME' => $time,
                 'X-SIGNATURE'=> $signature])
@@ -143,11 +144,11 @@ class BankController extends Controller
         if(!$bank) return response()->json(['error'=>'bank not connected'],422);
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
         if($bank->rsa){
-            
+
             $hash = hash('sha512',$time.'!@#$%^&*(');
 
             $response = Http::withHeaders([
-                'Content-Type: application/json',
+                'Content-Type' => 'application/json',
                 'X-API-KEY' => 'RSA_123456789',
                 'X-REQUEST-TIME' => $time,
                 'X-HASH'=> $hash])
