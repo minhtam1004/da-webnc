@@ -6,6 +6,7 @@ use App\Bank;
 use App\User;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
@@ -47,14 +48,15 @@ class BankController extends Controller
         if(!$bank) return response()->json(['error'=>'bank not connected'],422);
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
         if($bank->rsa){
-            openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key/Rsakey/PivateKey.txt')),OPENSSL_ALGO_SHA512);
+            //dd(file_get_contents(public_path('key\Rsakey\PrivateKey.txt')));
+            openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key\Rsakey\PrivateKey.txt')), OPENSSL_ALGO_SHA512);
             $signature = base64_encode($rawSignature);
             $response = Http::withHeaders([
-                'X-API-KEY' => 'PGP_123456789',
+                'X-API-KEY' => 'RSA_123456789',
                 'X-REQUEST-TIME' => $time,
                 'X-SIGNATURE'=> $signature])
                 ->post('https://w-internet-banking.herokuapp.com/api/partner/deposits/'.$request->receivedId,
-                ['amount'=>$request->amount,'name'=>$user->name,'note'>'testnote']);
+                ['amount'=>$request->amount,'name'=>$user->name,'note'=>'testnote']);
             return $response;
         }else{
             $time=$time*1000;
@@ -69,22 +71,36 @@ class BankController extends Controller
             $packets = $signature->signatures()[0];
             $sign = "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n".preg_replace("/^-/", "- -", $packets[0]->data) . "\n".OpenPGP::enarmor($packets[1][0]->to_bytes(), "PGP SIGNATURE");
             $body = json_encode(['SoTien'=>$request->amount,'SoTaiKhoan'=>$request->receivedId]);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL,'https://nhom34bank.herokuapp.com/api/noptien');
-            curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-            curl_setopt($ch, CURLOPT_HTTP_CONTENT_DECODING, false);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'bank-code:'.'partner19',
-                    'time:'.$time,
-                    'sig:'.hash('sha256',$time.json_encode($request->all()).'nhom19banking'),
-                    'signature-pgp:'.$sign
+            dd($body);
+            // $ch = curl_init();
+            // curl_setopt($ch, CURLOPT_URL,'https://nhom34bank.herokuapp.com/api/noptien');
+            // curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+            // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            // curl_setopt($ch, CURLOPT_HTTP_CONTENT_DECODING, false);
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+            // curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            //     'Content-Type: application/json',
+            //     'bank-code:'.'partner19',
+            //         'time:'.$time,
+            //         'sig:'.hash('sha256',$time.json_encode($request->all()).'nhom19banking'),
+            //         'signature-pgp:'.$sign
+            // ]);
+            // $responseBody=curl_exec($ch);
+            // $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            // dd($responseBody);
+            $client = new \GuzzleHttp\Client();
+            dd('asdas');
+            $response = $client->put('https://nhom34bank.herokuapp.com/api/noptien',[
+                RequestOptions::BODY => $body,
+                RequestOptions::HEADERS => [
+                    'Content-Type: application/json',
+                    'bank-code' => 'partner19',
+                    'time' => $time,
+                    'sig' => hash('sha256',$time.json_encode($request->all()).'nhom19banking'),
+                    'signature-pgp'=> $sign
+                ],
             ]);
-            $responseBody=curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            dd($responseBody);
+            dd($response);
             // $req = new \GuzzleHttp\Psr7\Request('PUT',
             //     'https://nhom34bank.herokuapp.com/api/noptien',[
             //         'bank-code' => 'partner19',
@@ -127,10 +143,12 @@ class BankController extends Controller
         if(!$bank) return response()->json(['error'=>'bank not connected'],422);
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
         if($bank->rsa){
-            $hash = hash('sha256',$time.'Te@B@nk');
+            
+            $hash = hash('sha512',$time.'!@#$%^&*(');
 
             $response = Http::withHeaders([
-                'X-API-KEY' => 'PGP_123456789',
+                'Content-Type: application/json',
+                'X-API-KEY' => 'RSA_123456789',
                 'X-REQUEST-TIME' => $time,
                 'X-HASH'=> $hash])
                 ->get('https://w-internet-banking.herokuapp.com/api/partner/accounts/'.$request->id);

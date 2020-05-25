@@ -20,10 +20,14 @@ class CheckBank
         if(!$request->header('X-BANK')) return response()->json(['message' => 'bank not allow to connect to this info'],422);
         $bank = Bank::where('bank_code',$request->header('X-BANK'))->first();
         if(!$bank) return response()->json(['error'=>'bank not connected'],422); 
+        dd(public_path('key\Rsakey\\'.$bank->key));
         if(!$request->header('X-TIME')) return response()->json(['message' => 'dont have time'],422);
         if(!$request->header('X-SIG')) return response()->json(['message' => 'dont have signature'],422);
         if($request->header('X-TIME') > time() + 300) return response()->json(['expires data'],403);
-        $key = file_get_contents(public_path('key/Rsakey/'.$bank->key));
+        // openssl_sign($time.$body,$rawSignature,file_get_contents(public_path('key\Rsakey\'.$bank->key)), OPENSSL_ALGO_SHA512);
+        // $signature = base64_encode($rawSignature);
+
+        $key = file_get_contents(public_path('key\Rsakey\\'.$bank->key));
         $rsa = new RSA();
         $rsa->loadKey($key);
         $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
