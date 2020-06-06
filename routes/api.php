@@ -16,7 +16,19 @@ use Illuminate\Support\Facades\Validator;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::group([
 
+    'middleware' => 'api',
+    'prefix' => 'auth'
+
+], function ($router) {
+
+    Route::post('login', 'AuthController@login');
+    Route::post('logout', 'AuthController@logout');
+    Route::post('refresh', 'AuthController@refresh');
+    Route::post('me', 'AuthController@me');
+
+});
 Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
 Route::post('sendMoney','BankController@sendMoney')->middleware('logtransfer');

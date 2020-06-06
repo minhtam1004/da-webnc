@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
         for ($i = 0; $i < $limit; $i++) {
             DB::table('users')->insert([
                 'username' => 'user'.$i,
-                'password' =>  hash('sha256','123456'),
+                'password' =>  bcrypt('123456'),
                 'name' => 'name'.$i,
                 'email' => 'email'.$i.'@gmail.com',
                 'birthday' => Carbon::now(),
