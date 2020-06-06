@@ -5,7 +5,7 @@ window.Vue = require('vue');
 import Vuetify from 'vuetify';
 import VueRouter from 'vue-router'
 import { routes }  from './index';
-
+import App from './App.vue';
 Vue.use(VueRouter)
 Vue.use(Vuetify);
 
@@ -14,8 +14,8 @@ const router = new VueRouter({
     routes
 })
 
-const app = new Vue({
-    el: '#app',
+new Vue({
+    router,
     vuetify: new Vuetify(),
-    router
-});
+    render: h => h(App)
+}).$mount('#app');
