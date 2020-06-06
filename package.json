@@ -11,9 +11,8 @@
     },
     "devDependencies": {
         "@mdi/font": "^5.3.45",
-        "axios": "^0.19",
+        "axios": "^0.19.2",
         "bootstrap": "^4.0.0",
-        "cross-env": "^7.0",
         "deepmerge": "^4.2.2",
         "fibers": "^5.0.0",
         "jquery": "^3.2",
@@ -21,13 +20,14 @@
         "lodash": "^4.17.13",
         "popper.js": "^1.12",
         "resolve-url-loader": "^2.3.1",
-        "sass": "^1.26.5",
-        "sass-loader": "^8.0.2",
+        "sass": "^1.20.1",
+        "sass-loader": "^8.0.0",
         "vue": "^2.5.17",
         "vue-template-compiler": "^2.6.10",
         "vuex": "^3.4.0"
     },
     "dependencies": {
+        "EventEmitter": "^1.0.0",
         "vue-router": "^3.2.0",
         "vuetify": "^2.2.29"
     }

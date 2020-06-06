@@ -11,7 +11,7 @@
                         prominent
                         flat
                     >
-                        <v-toolbar-title>Đăng nhập</v-toolbar-title>
+                        <v-toolbar-title>Đăng kí</v-toolbar-title>
                     </v-toolbar>
                     <v-card-text>
                         <v-form>
@@ -37,15 +37,39 @@
                                     isShowingPassword = !isShowingPassword
                                 "
                             ></v-text-field>
+
+                            <v-text-field
+                                label="Họ và tên"
+                                v-model="name"
+                                append-icon="mdi-rename-box"
+                                type="text"
+                                outlined
+                            ></v-text-field>
+
+                            <v-text-field
+                                v-model="email"
+                                label="Địa chỉ email"
+                                append-icon="mdi-email"
+                                type="text"
+                                outlined
+                            ></v-text-field>
+
+                            <v-text-field
+                                v-model="phone"
+                                label="Số điện thoại"
+                                append-icon="mdi-phone"
+                                type="text"
+                                outlined
+                            ></v-text-field>
                         </v-form>
                     </v-card-text>
                     <v-card-actions style="justify-content: center;">
                         <v-row>
                             <v-col md="6" sm="6" cols="12" class="text-right">
-                                <v-btn color="primary" outlined @click="$router.push({ name: 'Register'})">Đăng kí</v-btn>
+                                <v-btn color="primary" outlined>Hủy bỏ</v-btn>
                             </v-col>
                             <v-col md="6" sm="6" cols="12">
-                                <v-btn color="primary" @click="login()">Đăng nhập</v-btn>
+                                <v-btn color="primary">Tạo tài khoản</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-actions>
@@ -61,6 +85,9 @@ export default {
         return {
             isShowingPassword: false,
             password: "",
+            name: "",
+            email: "",
+            phone: "",
             rules: {
                 required: value => !!value || "Mật khẩu không được bỏ trống",
                 min: v =>
@@ -68,11 +95,6 @@ export default {
                     "Mật khẩu từ 6 đến 32 kí tự"
             }
         };
-    },
-    methods: {
-      login() {
-        
-      }
     }
 };
 </script>
