@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -27,6 +28,11 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $validatedData = Validator::make($request->all(),[
+            'username' => 'required|max:255',
+            'password' => 'required|min:6|max:255',
+        ]);
+
         $credentials = $request->only('username', 'password');
         if ($token = auth('api')->attempt($credentials)) {
             return $this->respondWithToken($token);

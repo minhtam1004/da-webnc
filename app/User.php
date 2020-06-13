@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,7 +18,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'roleId'
     ];
 
     /**
@@ -26,7 +27,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token','created_at','updated_at'
+        'password', 'remember_token', 'created_at', 'updated_at'
     ];
 
     /**
@@ -45,14 +46,19 @@ class User extends Authenticatable implements JWTSubject
 
     public function account()
     {
-        return $this->attributes['account'] = $this->hasOne('App\Account','userId','id');
+        return $this->attributes['account'] = $this->hasOne('App\Account', 'userId', 'id');
     }
+    public function role()
+    {
+        return $this->belongsTo('App\Role', 'id', 'roleId');
+    }
+
     public function setPasswordAttribute($password)
     {
-        if ( !empty($password) ) {
+        if (!empty($password)) {
             $this->attributes['password'] = bcrypt($password);
         }
-    }   
+    }
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -71,5 +77,31 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function authorizeRoles($roles)
+    {
+        if (is_array($roles)) {
+            return $this->hasAnyRole($roles) ||
+                abort(401, 'This action is unauthorized.');
+        }
+        return $this->hasRole($roles) ||
+            abort(401, 'This action is unauthorized.');
+    }
+    /**
+     * Check multiple roles
+     * @param array $roles
+     */
+    public function hasAnyRole($roles)
+    {
+        return null !== $this->roles()->whereIn('name', $roles)->first();
+    }
+    /**
+     * Check one role
+     * @param string $role
+     */
+    public function hasRole($role)
+    {
+        return null !== $this->roles()->where('name', $role)->first();
     }
 }
