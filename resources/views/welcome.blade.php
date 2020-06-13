@@ -6,6 +6,7 @@
         <!-- Main styles for this application -->
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
         <meta id="csrf-token" name="csrf-token" value="{{ csrf_token() }}">
+        <script src='//google.com/recaptcha/api.js'></script>
     </head>
     <body>
         <div id="app">
