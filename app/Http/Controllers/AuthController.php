@@ -32,7 +32,6 @@ class AuthController extends Controller
             'username' => 'required|max:255',
             'password' => 'required|min:6|max:255',
         ]);
-
         $credentials = $request->only('username', 'password');
         if ($token = auth('api')->attempt($credentials)) {
             return $this->respondWithToken($token);
