@@ -12,6 +12,7 @@ import "@babel/polyfill";
 import store from './store'
 import VueToast from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-default.css';
+import Vuelidate from 'vuelidate'
 Vue.use(VueGoogleMaps, {
   load: {
     key: "NHAP-API-KEY-O-DAY",
@@ -21,6 +22,7 @@ Vue.use(VueGoogleMaps, {
 Vue.use(VueToast);
 Vue.use(VueRouter)
 Vue.use(Vuetify);
+Vue.use(Vuelidate)
 const router = new VueRouter({
     mode: 'history',
     routes

@@ -11,27 +11,6 @@
               <label for="name" class="grey-text">Họ và tên</label>
               <input type="text" v-model="profile.name" readonly class="form-control" />
               <br />
-
-              <label
-                for="example-date-input"
-                class="col-2 pl col-form-label"
-                style="padding-left: 0px"
-              >Ngày sinh</label>
-              <div class="col-10" style="padding-left: 0px">
-                <input
-                  class="form-control"
-                  type="date"
-                  v-model="profile.birthday"
-                  id="example-date-input"
-                />
-              </div>
-
-              <label for="defaultFormRegisterEmailEx" class="grey-text">Ngày sinh</label>
-              <input type="date" v-model="date" readonly class="form-control" />
-              <br />
-              <label for="address" class="grey-text">Địa chỉ</label>
-              <input type="text" readonly v-model="profile.address" class="form-control" />
-              <br />
               <label for="phone" class="grey-text">Số điện thoại</label>
               <input type="text" readonly v-model="profile.phone" class="form-control" />
               <br />
@@ -64,14 +43,9 @@ export default {
     };
   },
   created() {
-    this.profile.birthday = this.formatDate(this.profile.birthday);
     console.log("mimi", this.$store.state.user.authUser);
   },
   methods: {
-    formatDate(date) {
-      date = date.split(" ");
-      return date[0];
-    }
   }
 };
 </script>

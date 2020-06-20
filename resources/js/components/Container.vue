@@ -2,49 +2,57 @@
   <div class="flexible-content">
     <!--Navbar-->
     <mdb-navbar class="flexible-navbar white" light position="top" scrolling>
-      <mdb-navbar-brand href="https://mdbootstrap.com/docs/vue/" target="_blank">MDB</mdb-navbar-brand>
+      <mdb-navbar-brand target="_blank">KLXBank</mdb-navbar-brand>
       <mdb-navbar-toggler>
         <mdb-navbar-nav left>
-          <mdb-nav-item to="/" waves-fixed active class="active">Home</mdb-nav-item>
-          <mdb-nav-item
-            href="https://mdbootstrap.com/docs/vue/getting-started/quick-start/"
-            waves-fixed
-          >About MDB</mdb-nav-item>
-          <mdb-nav-item
-            href="https://mdbootstrap.com/docs/vue/getting-started/download/"
-            waves-fixed
-          >Free download</mdb-nav-item>
-          <mdb-nav-item
-            href="https://mdbootstrap.com/education/bootstrap/"
-            waves-fixed
-          >Free tutorials</mdb-nav-item>
+          <mdb-nav-item to="/dashboard" waves-fixed active class="active">Dashborad</mdb-nav-item>
+          <mdb-nav-item waves-fixed to="/profile">Thông tin cá nhân</mdb-nav-item>
+          <mdb-nav-item to="/account-info" waves-fixed>Thông tin tài khoản</mdb-nav-item>
+          <mdb-nav-item to="/transactions" waves-fixed>Lịch sử giao dịch</mdb-nav-item>
         </mdb-navbar-nav>
         <mdb-navbar-nav right>
-          <mdb-nav-item href="#!" waves-fixed>
-            <mdb-icon fab class="text-black" icon="facebook-square" />
-          </mdb-nav-item>
-          <mdb-nav-item href="#!" waves-fixed>
-            <mdb-icon fab icon="twitter" />
-          </mdb-nav-item>
-          <mdb-nav-item
-            href="https://github.com/mdbootstrap/bootstrap-material-design"
-            waves-fixed
-            class="border border-light rounded mr-1"
-            target="_blank"
-          >
-            <mdb-icon fab icon="github" class="mr-2" />MDB GitHub
-          </mdb-nav-item>
-          <mdb-nav-item
-            href="https://mdbootstrap.com/products/vue-ui-kit/"
-            waves-fixed
-            class="border border-light rounded"
-            target="_blank"
-          >
-            <mdb-icon icon="gem" far class="mr-2" />Go Pro
-          </mdb-nav-item>
+           <mdb-btn tag="a" gradient="blue" floating size="sm" @click="logout()"><mdb-icon icon="sign-out-alt"/></mdb-btn>
         </mdb-navbar-nav>
       </mdb-navbar-toggler>
     </mdb-navbar>
+    <!-- <nav class="navbar navbar-expand-lg navbar-light bg-light" style="display: flex;">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown" style="place-content: flex-end;">
+        <ul class="navbar-nav">
+          <li class="nav-item active"></li>
+          <li class="nav-item dropdown edit-dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <img
+                src="https://mdbootstrap.com/img/Others/documentation/img%20(75)-mini.jpg"
+                alt="thumbnail"
+                class="img-thumbnail"
+                style="width: 40px;height:40px;border-radius: 50%"
+              />
+              {{ $store.state.user.authUser.name}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" @click="logout()">Đăng xuất</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>-->
     <!--/.Navbar-->
     <!-- Sidebar -->
     <div class="sidebar-fixed position-fixed">
@@ -59,17 +67,17 @@
         </router-link>
         <router-link to="/profile" @click.native="activeItem = 2">
           <mdb-list-group-item :action="true" :class="activeItem === 2 && 'active'">
-            <mdb-icon icon="user" class="mr-3" />Personal Information
+            <mdb-icon icon="user" class="mr-3" />Thông tin cá nhân
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/account-info" @click.native="activeItem = 3">
+        <router-link v-if="isCustomer" to="/account-info" @click.native="activeItem = 3">
           <mdb-list-group-item :action="true" :class="activeItem === 3 && 'active'">
-            <mdb-icon icon="user-md" class="mr-3" />Account Information
+            <mdb-icon icon="user-md" class="mr-3" />Thông tin tài khoản
           </mdb-list-group-item>
         </router-link>
-          <router-link to="/topup" @click.native="activeItem = 4">
+        <router-link to="/topup" @click.native="activeItem = 4">
           <mdb-list-group-item :action="true" :class="activeItem === 4 && 'active'">
-            <mdb-icon icon="dollar-sign" class="mr-3" />Topup
+            <mdb-icon icon="dollar-sign" class="mr-3" />Chuyển tiền
           </mdb-list-group-item>
         </router-link>
         <router-link to="/transactions" @click.native="activeItem = 5">
@@ -77,9 +85,14 @@
             <mdb-icon icon="hand-holding-usd" class="mr-3" />Transaction
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/maps" @click.native="activeItem = 6">
+        <!-- <router-link to="/maps" @click.native="activeItem = 6">
           <mdb-list-group-item :action="true" :class="activeItem === 6 && 'active'">
             <mdb-icon icon="map" class="mr-3" />Maps
+          </mdb-list-group-item>
+        </router-link>-->
+        <router-link v-if="!isCustomer" to="/register-customer" @click.native="activeItem = 6">
+          <mdb-list-group-item :action="true" :class="activeItem === 6 && 'active'">
+            <mdb-icon icon="user-plus" class="mr-3" />Đăng kí tài khoản
           </mdb-list-group-item>
         </router-link>
         <router-link to="/404" @click.native="activeItem = 7">
@@ -91,7 +104,7 @@
     </div>
     <!-- /Sidebar  -->
     <main>
-      <div class="mt-5 p-5">
+      <div class="p-5">
         <router-view></router-view>
       </div>
       <ftr color="primary-color-dark" class="text-center font-small darken-2"></ftr>
@@ -113,7 +126,12 @@ import {
   mdbFooter,
   waves
 } from "mdbvue";
-
+import {
+  mdbDropdown,
+  mdbDropdownItem,
+  mdbDropdownMenu,
+  mdbDropdownToggle
+} from "mdbvue";
 export default {
   name: "AdminTemplate",
   components: {
@@ -126,15 +144,45 @@ export default {
     mdbListGroup,
     mdbListGroupItem,
     mdbIcon,
-    ftr: mdbFooter
+    ftr: mdbFooter,
+    mdbDropdown,
+    mdbDropdownItem,
+    mdbDropdownMenu,
+    mdbDropdownToggle
   },
   data() {
     return {
-      activeItem: 1
+      activeItem: 1,
+      isCustomer: false
     };
+  },
+  created() {
+    console.log(this.$store.state.user.authUser.roleId);
+    if (this.$store.state.user.authUser.roleId === 3) {
+      this.isCustomer = true;
+    }
   },
   beforeMount() {
     this.activeItem = this.$route.matched[0].props.default.page;
+  },
+  methods: {
+    logout() {
+      axios
+        .post("api/auth/logout", {
+          headers: {
+            Authorization: "bearer" + this.$store.state.user.access_token
+          }
+        })
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          return this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error"
+          });
+        });
+    }
   },
   mixins: [waves]
 };
@@ -150,6 +198,9 @@ export default {
 </style>
 
 <style scoped>
+.edit-dropdown {
+  max-height: 40px;
+}
 main {
   background-color: #ededee;
 }

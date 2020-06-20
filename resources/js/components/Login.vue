@@ -1,22 +1,29 @@
 <template>
   <!-- Default form login -->
-  <div class="container-login">
+  <div id="app" class="container-login">
+      <form v-on:submit.prevent="checkIfRecaptchaVerified" role="form">
     <p class="h4 text-center mb-4">Sign in</p>
-    <label for="name" class="grey-text">Username</label>
-    <input type="text" v-model="username" class="form-control" />
+
+    <div class="form-group has-error">
+    <label for="name" class="grey-text control-label">Username</label>
+    <input type="text" v-model="username" required class="form-control" />
+    <span class="help-block">{{msg.username}}</span>
+    <div class="help-block"><strong>{{ loginForm.pleaseTickRecaptchaMessage }}</strong></div>
+    </div>
     <br />
-    <label for="password" class="grey-text">Password</label>
+    <label for="password" class="grey-text" required>Password</label>
     <input type="password" v-model="password" class="form-control" />
 
     <br />
-    <vue-recaptcha sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7" :loadRecaptchaScript="true"></vue-recaptcha>
-
+    <vue-recaptcha @verify="markRecaptchaAsVerified" sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7" :loadRecaptchaScript="true"></vue-recaptcha>
+    <button>Submit form</button>
     <div class="text-center mt-4">
-      <button class="btn btn-indigo" :disabled="loading" @click="login()">
+      <button class="btn btn-indigo" :disabled="loading">
         <i v-if="loading" class="fa fa-spinner fa-spin"></i>
         Login
       </button>
     </div>
+      </form>
   </div>
   <!-- Default form login -->
 </template>
@@ -24,17 +31,104 @@
 </script>
 <script>
 import VueRecaptcha from "vue-recaptcha";
+import {
+  required,
+  minLength,
+  maxLength,
+  numeric
+} from "vuelidate/lib/validators";
 export default {
   components: { VueRecaptcha },
+   el: '#app',
   data() {
     return {
       username: "",
       password: "",
       show: false,
-      loading: false
+      loading: false,
+      msg: [],
+      loginForm: {
+      recaptchaVerified: false,
+      pleaseTickRecaptchaMessage: ''
+    }
     };
   },
+  computed: {
+    validateName() {
+      if (this.$v.username.$dirty) {
+        if (!this.$v.username.required) {
+          return `Tên đăng nhập không được để trống`;
+        }
+        if (!this.$v.username.minLength) {
+          return `Tên đăng nhập phải từ ${this.$v.username.$params.minLength.min} đến ${this.$v.username.$params.maxLength.max} kí tự`;
+        }
+        if (!this.$v.username.maxLength) {
+          return `Tên đăng nhập phải từ ${this.$v.username.$params.minLength.min} đến ${this.$v.username.$params.maxLength.max} kí tự`;
+        }
+        if (this.$v.error_code === 422) {
+          return `Tên đăng nhập hoặc mật khẩu không đúng`;
+        }
+
+        if (!this.$v.username.isCorrectFormat) {
+          return `Tên đăng nhập không đúng định dạng`;
+        }
+      }
+      return "";
+    }
+  },
+  validations() {
+    const validate = {
+      username: {
+        required,
+        minLength: minLength(6),
+        maxLength: maxLength(32),
+        isCorrectFormat: function() {
+          var specialChars = "<>@!#$%^&*()+[]{}?:;|'\"\\,/~`-=";
+          for (let i = 0; i < specialChars.length; i++) {
+            if (this.username.indexOf(specialChars[i]) !== -1) {
+              return false;
+            }
+          }
+          return true;
+        }
+      }
+    };
+
+    if (this.required2fa) {
+      validate.f2a_code = {
+        required,
+        numeric,
+        length: value => typeof value === "string" && value.length === 6
+      };
+    }
+    return validate;
+  },
+  watch: {
+    username(value) {
+      // binding this to the data value in the email input
+      this.username = value;
+      this.validateUsername(value);
+    }
+  },
   methods: {
+    validateUsername(value) {
+      if (value.length > 0) {
+        this.msg["username"] = "";
+      } else {
+        this.msg["username"] = "Username không được bỏ trống";
+      }
+    },
+    markRecaptchaAsVerified(response) {
+      this.loginForm.pleaseTickRecaptchaMessage = "";
+      this.loginForm.recaptchaVerified = true;
+    },
+    checkIfRecaptchaVerified() {
+      if (!this.loginForm.recaptchaVerified) {
+        this.loginForm.pleaseTickRecaptchaMessage = "Please tick recaptcha.";
+        return true;
+      }
+      this.login()
+    },
     login() {
       console.log(this.username, this.password);
       this.loading = true;
@@ -52,7 +146,6 @@ export default {
             message: "Đăng nhập thành công",
             type: "success"
           });
-          this.$router.push({ name: "Dashboard" });
         })
         .catch(error => {
           if (error.response.status === 401) {
@@ -74,6 +167,7 @@ export default {
         .then(response => {
           console.log(response);
           this.$store.dispatch("setUserObject", response.data);
+           this.$router.push({ name: "Dashboard" });
         })
         .catch(error => {
           return this.$toast.open({
