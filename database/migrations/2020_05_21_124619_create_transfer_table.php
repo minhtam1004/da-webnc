@@ -23,7 +23,7 @@ class CreateTransferTable extends Migration
             $table->text('reason');
             $table->boolean('isConfirm')->default(false);
             $table->string('OPTCode');
-            $table->timestamps('expiresAt');
+            $table->timestamp('expiresAt');
             $table->timestamps();
         });
     }

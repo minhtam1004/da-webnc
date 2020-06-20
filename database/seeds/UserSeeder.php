@@ -21,9 +21,7 @@ class UserSeeder extends Seeder
                 'password' =>  bcrypt('123456'),
                 'name' => 'name'.$i,
                 'email' => 'email'.$i.'@gmail.com',
-                'birthday' => Carbon::now(),
                 'phone' => '123123123',
-                'address' => 'AASSSAASASASASASAS'
             ]);
         }
     }

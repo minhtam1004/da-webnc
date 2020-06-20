@@ -49,7 +49,8 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        if(auth('api')->user && auth('api')->user->role > 2)
+        $user = auth('api')->user();
+        if($user && $user->roleId > 2)
         {
             return response()->json(['error'=>'Do not have permission to access this'],401);
         }
@@ -58,22 +59,30 @@ class AuthController extends Controller
             'password' => 'required|min:6|max:255',
             'name' => 'required|min:6|max:255',
             'email' => 'required|min:6|max:255',
-            'phone' => 'required|length:10',
+            'phone' => 'required|digits:10',
         ]);
         
         if ($validatedData->fails()) {
-            return response()->json('Parameter error', 422);
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        if (User::where('username',$request->username)->first())
+        {
+            return response()->json(['error' => 'user exist'], 422);
+        }
+        if (User::where('email',$request->username)->first())
+        {
+            return response()->json(['error' => 'email exist'], 422);
         }
         $user = User::create($request->all());
-        $rand = $user->id+1234567890;
-        while(Account::find('accountNumber',$rand))
+        $rand = $user->id+1134567890;
+        while(Account::where('accountNumber',$rand)->first())
         {
-            $rand+=200;
+            $rand=($rand + 200)%10000000000;
         }
-        $data=['userId'=>$user->id,'accuntNumber'=>$rand];
+        $data=['userId'=>$user->id,'accountNumber'=>$rand,'excess' => 0];
         $acc = Account::create($data);
-
-        return $user;
+        $user->account();
+        return response()->json($user);
     }
     /**
      * Get the authenticated User
