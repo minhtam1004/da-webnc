@@ -4,17 +4,70 @@ import Profile from './components/Profile'
 import Login from './components/Login'
 import Register from './components/Register'
 import AuthContainer from "./components/AuthContainer"
-import CategoryCreateView from './components/CategoryCreateView'
+import Container from './components/Container'
 
+import Dashboard from './components/Dashboard'
+import Tables from './components/Tables'
+import Maps from './components/Maps'
+import BadGateway from './components/BadGateway'
+import AccountInfo from './components/AccountInfo'
+import Transaction from './components/Transaction'
+import Topup from './components/Topup'
 export const routes = [
-    { path: '/', name: 'Home', component: Home },
-    { path: '/profile', name: 'Profile', component: Profile },
-    { path: '/categories/create', name: 'Create', component: CategoryCreateView },
+ 
+  { path: '/', name: 'Login', component: Login },
+  { path: '/register', name: 'Register', component: Register },
     {
-        path: '', component: AuthContainer,
+        path: '', component: Container,
         children: [
-          { path: '/login', name: 'Login', component: Login },
-          { path: '/register', name: 'Register', component: Register }
+          {
+            path: '/dashboard',
+            name: 'Dashboard',
+            component: Dashboard,
+            props: { page: 1 },
+            alias: '/dashboard'
+          },
+          {
+            path: '/profile',
+            name: 'Profile',
+            props: { page: 2 },
+            component: Profile
+          },
+          {
+            path: '/account-info',
+            name: 'AccountInfo',
+            props: { page: 3 },
+            component: AccountInfo
+          },
+          {
+            path: '/topup',
+            name: 'Topup',
+            props: { page: 4 },
+            component: Topup
+          },
+          {
+            path: '/transactions',
+            name: 'Transactions',
+            props: { page: 5 },
+            component: Transaction
+          },
+          {
+            path: '/maps',
+            name: 'Maps',
+            props: { page: 6 },
+            component: Maps
+          },
+          {
+            path: '/404',
+            name: 'BadGateway',
+            props: { page: 7 },
+            component: BadGateway
+          },
+          {
+            path: '*',
+            props: { page: 8 },
+            redirect: '/404'
+          },
         ]
       },
 ];

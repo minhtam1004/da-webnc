@@ -1,82 +1,98 @@
 <template>
-  <v-container class="fill-height" fluid>
-    <v-row align="center" justify="center">
-      <v-col cols="12" sm="7" md="7">
-        <v-card class="elevation-12">
-          <v-toolbar
-            style="justify-content: center!important"
-            color="primary"
-            dark
-            src="https://cdn.vuetifyjs.com/images/backgrounds/vbanner.jpg"
-            prominent
-            flat
-          >
-            <v-toolbar-title>Đăng nhập</v-toolbar-title>
-          </v-toolbar>
-          <v-card-text>
-            <v-form ref="form" v-model="valid" lazy-validation>
-              <v-text-field label="Tên đăng nhập" append-icon="mdi-account" type="text" outlined></v-text-field>
+  <!-- Default form login -->
+  <div class="container-login">
+    <p class="h4 text-center mb-4">Sign in</p>
+    <label for="name" class="grey-text">Username</label>
+    <input type="text" v-model="username" class="form-control" />
+    <br />
+    <label for="password" class="grey-text">Password</label>
+    <input type="password" v-model="password" class="form-control" />
 
-              <v-text-field
-                v-model="password"
-                :append-icon="
-                                    isShowingPassword
-                                        ? 'mdi-eye'
-                                        : 'mdi-eye-off'
-                                "
-                :rules="[rules.required, rules.min]"
-                :type="isShowingPassword ? 'text' : 'password'"
-                outlined
-                label="Mật khẩu"
-                @click:append="
-                                    isShowingPassword = !isShowingPassword
-                                "
-              ></v-text-field>
+    <br />
+    <vue-recaptcha sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7" :loadRecaptchaScript="true"></vue-recaptcha>
 
-              <vue-recaptcha
-                sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7"
-                :loadRecaptchaScript="true"
-              ></vue-recaptcha>
-            </v-form>
-          </v-card-text>
-          <v-card-actions style="justify-content: center;">
-            <v-row>
-              <v-col md="6" sm="6" cols="12" class="text-right">
-                <v-btn color="primary" outlined @click="$router.push({ name: 'Register' })">Đăng kí</v-btn>
-              </v-col>
-              <v-col md="6" sm="6" cols="12">
-                <v-btn color="primary" @click="login()">Đăng nhập</v-btn>
-              </v-col>
-            </v-row>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+    <div class="text-center mt-4">
+      <button class="btn btn-indigo" :disabled="loading" @click="login()">
+        <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+        Login
+      </button>
+    </div>
+  </div>
+  <!-- Default form login -->
 </template>
-
 <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer>
 </script>
-
 <script>
 import VueRecaptcha from "vue-recaptcha";
 export default {
   components: { VueRecaptcha },
   data() {
     return {
-      valid: true,
-      isShowingPassword: false,
-      sitekey: process.env.RECAPTCHA_SITE_KEY,
+      username: "",
       password: "",
-      rules: {
-        required: value => !!value || "Mật khẩu không được bỏ trống",
-        min: v =>
-          (v.length < 6 && v.length > 32) || "Mật khẩu từ 6 đến 32 kí tự"
-      }
+      show: false,
+      loading: false
     };
   },
   methods: {
-    login() {},
+    login() {
+      console.log(this.username, this.password);
+      this.loading = true;
+      axios
+        .post("api/auth/login", {
+          username: this.username,
+          password: this.password
+        })
+        .then(response => {
+          console.log(response);
+          this.$store.dispatch("setAccessToken", response.data.access_token);
+          this.loading = false;
+          this.getUser();
+          this.$toast.open({
+            message: "Đăng nhập thành công",
+            type: "success"
+          });
+          this.$router.push({ name: "Dashboard" });
+        })
+        .catch(error => {
+          if (error.response.status === 401) {
+            this.loading = false;
+            return this.$toast.open({
+              message: "Tên đăng nhập hoặc mật khẩu không đúng",
+              type: "error"
+            });
+          }
+        });
+    },
+    getUser() {
+      axios
+        .get("api/auth/me", {
+          headers: {
+            Authorization: "bearer" + this.$store.state.user.access_token
+          }
+        })
+        .then(response => {
+          console.log(response);
+          this.$store.dispatch("setUserObject", response.data);
+        })
+        .catch(error => {
+          return this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error"
+          });
+        });
+    }
   }
 };
 </script>
+<style scoped>
+.container-login {
+  width: 50%;
+  margin: auto;
+}
+
+.placement {
+  position: absolute;
+  right: 0;
+}
+</style>
