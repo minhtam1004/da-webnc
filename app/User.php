@@ -18,7 +18,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'roleId'
+        'name', 'email', 'password', 'roleId', 'birthday'
     ];
 
     /**
@@ -50,7 +50,22 @@ class User extends Authenticatable implements JWTSubject
     }
     public function role()
     {
-        return $this->belongsTo('App\Role', 'id', 'roleId');
+        return $this->attributes['role'] = $this->belongsTo('App\Role', 'id', 'roleId');
+    }
+
+    public function receivedTransfer()
+    {
+        return $this->attributes['receivedTransfer'] = $this->hasMany('App\Transfer', 'receivedId', 'id');
+    }
+
+    public function sendTransfer()
+    {
+        return $this->attributes['sendTransfer'] = $this->hasMany('App\Transfer', 'sendId', 'id');
+    }
+
+    public function remembers()
+    {
+        return $this->attributes['remember'] = $this->hasMany('App\RememberList', 'ownerId', 'id');
     }
 
     public function setPasswordAttribute($password)

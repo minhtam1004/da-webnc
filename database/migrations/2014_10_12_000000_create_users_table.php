@@ -20,9 +20,9 @@ class CreateUsersTable extends Migration
             $table->string('name', 60);
             $table->string('email', 60)->unique();
             $table->timestamp('birthday');
-            $table->string('phone');
+            $table->string('phone')->nullable();
             $table->string('address');
-            $table->integer('roleId');
+            $table->integer('roleId')->default(1);
             $table->timestamps();
         });
     }

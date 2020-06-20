@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -37,10 +39,43 @@ class AuthController extends Controller
         if ($token = auth('api')->attempt($credentials)) {
             return $this->respondWithToken($token);
         }
-
         return response()->json(['error' => 'Unauthorized'], 401);
     }
+    /**
+     * Get a JWT token via given credentials.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function register(Request $request)
+    {
+        if(auth('api')->user && auth('api')->user->role > 2)
+        {
+            return response()->json(['error'=>'Do not have permission to access this'],401);
+        }
+        $validatedData = Validator::make($request->all(),[
+            'username' => 'required|max:255',
+            'password' => 'required|min:6|max:255',
+            'name' => 'required|min:6|max:255',
+            'email' => 'required|min:6|max:255',
+            'phone' => 'required|length:10',
+        ]);
+        
+        if ($validatedData->fails()) {
+            return response()->json('Parameter error', 422);
+        }
+        $user = User::create($request->all());
+        $rand = $user->id+1234567890;
+        while(Account::find('accountNumber',$rand))
+        {
+            $rand+=200;
+        }
+        $data=['userId'=>$user->id,'accuntNumber'=>$rand];
+        $acc = Account::create($data);
 
+        return $user;
+    }
     /**
      * Get the authenticated User
      *

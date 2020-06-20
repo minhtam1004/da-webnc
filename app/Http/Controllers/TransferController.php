@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\Bank;
+use App\Mail\OTPMail;
 use App\Transfer;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class TransferController extends Controller
@@ -39,7 +41,7 @@ class TransferController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = Validator::make($request->all(),[
+        $validatedData = Validator::make($request->all(), [
             'sendId' => 'required|max:255',
             'sendBank' => 'max:255',
             'receivedId' => 'required|max:255',
@@ -48,14 +50,26 @@ class TransferController extends Controller
             'reason' => 'required|max:200'
         ]);
         if ($validatedData->fails()) {
-            return response()->json('Parameter error',422);
+            return response()->json('Parameter error', 422);
         }
-        $acc = Account::where('accountNumber',$request->receivedId)->first();
-        if(!$acc) return response()->json(['error'=>'account doesnt exist'],200);
-        $acc->excess += $request->amount;
-        $acc->save();
+        $acc = null;
+        if (!$request->sendBank) {
+            $acc = Account::where('accountNumber', $request->sendId)->first();
+            if (!$acc) {
+                return response()->json(['error' => 'account doesnt exist'], 200);
+            }
+            Mail::to($acc->user->email)->send(new OTPMail);
+        }
+        if (!$request->receivedBank) {
+            $acc = Account::where('accountNumber', $request->receivedId)->first();
+            if (!$acc) {
+                $acc->excess -= $request->amount;
+                $acc->save();
+            }
+        }
+        if (!$acc) return response()->json(['error' => 'account doesnt exist'], 200);
         $transfer = Transfer::create($request->all());
-        return response()->json(['message' => 'Transfer has been added'],200);
+        return response()->json(['message' => 'Transfer has been added'], 200);
     }
 
     /**
@@ -66,7 +80,7 @@ class TransferController extends Controller
      */
     public function show(Transfer $transfer)
     {
-        //
+        return $transfer;
     }
 
     /**

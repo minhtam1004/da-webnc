@@ -25,6 +25,7 @@ Route::group([
 
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
+    Route::post('register', 'AuthController@register');
     Route::post('refresh', 'AuthController@refresh');
     Route::get('me', 'AuthController@me');
 
@@ -33,6 +34,3 @@ Route::post('transfers', 'TransferController@store')->middleware('checkbank','lo
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
 Route::post('sendMoney','BankController@sendMoney')->middleware('logtransfer');
 Route::get('viewuser','BankController@viewuser');
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
