@@ -84,6 +84,7 @@ class TransferController extends Controller
             $request->request->add(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
             $request->request->add(['expiresAt' => time() + 60]);    
         }
+        return dd($acc->user->email);
 
         if (!$acc) return response()->json(['error' => 'wrong logic'], 422);
 
