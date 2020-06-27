@@ -68,7 +68,7 @@ class TransferController extends Controller
             if (!$acc) {
                 return response()->json(['error' => 'account doesnt exist'], 204);
             }
-            Mail::to('charatsu98@gmail.com')->send(new OTPMail($OTPString));
+            Mail::to($acc->user()->email)->send(new OTPMail($OTPString));
             $transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
             if ($transfer) {
                 $transfer->sendBank = $request->sendBank;
@@ -88,7 +88,7 @@ class TransferController extends Controller
         if (!$acc) return response()->json(['error' => 'wrong logic'], 422);
 
         $transfer = Transfer::create($request->all());
-        return response()->json(['message' => 'Transfer has been added', 'trasferId' => $transfer->id,'OTPCode' => 'send to charatsu98@gmail.com'], 201);
+        return response()->json(['message' => 'Transfer has been added', 'trasferId' => $transfer->id,'OTPCode' => 'send to '.$acc->user()->email], 201);
     }
 
     public function confirm(Request $request)

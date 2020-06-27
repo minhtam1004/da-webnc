@@ -18,7 +18,8 @@ class CreateDebtListsTable extends Migration
             $table->integer('ownerId');
             $table->integer('otherId');
             $table->bigInteger('debt');
-            $table->string('reason');
+            $table->boolean('ispaid')->default(false);
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

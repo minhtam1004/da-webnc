@@ -14,6 +14,6 @@ class RememberList extends Model
     }
     public function other()
     {
-        return $this->belongsTo('App\User','otherId','id');
+        return $this->belongsTo('App\User','accountId','id');
     }
 }
