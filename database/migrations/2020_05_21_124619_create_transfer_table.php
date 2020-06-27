@@ -22,7 +22,7 @@ class CreateTransferTable extends Migration
             $table->bigInteger('amount');
             $table->text('reason');
             $table->boolean('isConfirm')->default(false);
-            $table->string('OPTCode');
+            $table->string('OTPCode')->nullable();
             $table->timestamp('expiresAt');
             $table->timestamps();
         });

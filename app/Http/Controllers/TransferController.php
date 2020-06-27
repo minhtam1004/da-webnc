@@ -10,6 +10,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class TransferController extends Controller
 {
@@ -20,7 +21,8 @@ class TransferController extends Controller
      */
     public function index()
     {
-        //
+        auth('api')->user()->roleId === 1;
+        return Transfer::where('isConfirm', true);
     }
 
     /**
@@ -53,23 +55,70 @@ class TransferController extends Controller
             return response()->json('Parameter error', 422);
         }
         $acc = null;
+        $OTPCode = rand(0, 999999);
+        $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
+        if (!$request->receivedBank) {
+            $acc = Account::where('accountNumber', $request->receivedId)->first();
+            if (!$acc) return response()->json(['error' => 'account doesnt exist'], 204);
+            $acc->excess += $request->amount;
+            $acc->save();
+        }
         if (!$request->sendBank) {
             $acc = Account::where('accountNumber', $request->sendId)->first();
             if (!$acc) {
-                return response()->json(['error' => 'account doesnt exist'], 200);
+                return response()->json(['error' => 'account doesnt exist'], 204);
             }
-            Mail::to($acc->user->email)->send(new OTPMail);
-        }
-        if (!$request->receivedBank) {
-            $acc = Account::where('accountNumber', $request->receivedId)->first();
-            if (!$acc) {
-                $acc->excess -= $request->amount;
-                $acc->save();
+            Mail::to('charatsu98@gmail.com')->send(new OTPMail($OTPString));
+            $transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
+            if ($transfer) {
+                $transfer->sendBank = $request->sendBank;
+                $transfer->receivedId = $request->receivedId;
+                $transfer->receivedBank = $request->receivedBank;
+                $transfer->amount = $request->amount;
+                $transfer->reason = $request->reason;
+                $transfer->OTPCode = $OTPString;
+                $transfer->expiresAt = time() + 60;
+                $transfer->save();
+                return response()->json(['message' => 'Transfer has been added', 'trasferId' => $transfer->id], 200);
             }
+            $request->request->add(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
+            $request->request->add(['expiresAt' => time() + 60]);    
         }
-        if (!$acc) return response()->json(['error' => 'account doesnt exist'], 200);
+
+        if (!$acc) return response()->json(['error' => 'wrong logic'], 422);
+
         $transfer = Transfer::create($request->all());
-        return response()->json(['message' => 'Transfer has been added'], 200);
+        return response()->json(['message' => 'Transfer has been added', 'trasferId' => $transfer->id,'OTPCode' => 'send to charatsu98@gmail.com'], 201);
+    }
+
+    public function confirm(Request $request)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'OTPCode' => 'required|max:255',
+            'transferId' => 'required|max:255',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json('Parameter error', 422);
+        }
+        $transfer = Transfer::find($request->transferId);
+        if (!$transfer || $transfer->isConfirm) {
+            return response()->json('confirm error', 422);
+        }
+        if ($transfer->OTPCode !== $request->OTPCode) {
+            return response()->json('wrong code', 403);
+        }
+        if (Carbon::parse($transfer->expiresAt, 'Asia/Ho_Chi_Minh')->timestamp < Carbon::now('Asia/Ho_Chi_Minh')->timestamp) {
+            return response()->json('code is expires', 403);
+        }
+        $transfer->isConfirm = true;
+        $transfer->save();
+        $acc = $transfer->sender();
+        $acc->excess -= $transfer->amount;
+        $acc->save();
+        $acc = $transfer->receiver();
+        $acc->excess += $transfer->amount;
+        $acc->save();
+        return response()->json("success", 200);
     }
 
     /**

@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transfer extends Model
 {
-    protected $fillable = ['sendId','sendBank','receivedId','receivedBank','amount','reason','OTPCode'];
+    protected $fillable = ['sendId','sendBank','receivedId','receivedBank','amount','reason','OTPCode', 'expiresAt'];
+    protected $casts = [
+        'expiresAt' => 'datetime',
+    ];
     public function sender()
     {
         return $this->belongsTo('App\Account', 'sendId', 'id');

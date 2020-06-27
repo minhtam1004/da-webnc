@@ -48,7 +48,7 @@ class AccountController extends Controller
     {
         $account = Account::where('accountNumber',$id)->first();
         if(!$account) return response()->json(['error' => 'account doest exist'],404);
-        return  response()->json(['name'=> $account->user->name, 'birthday' =>$account->user->birthday],200);
+        return  response()->json(['name'=> $account->user->name, 'email' =>$account->user->email],200);
     }
 
     /**

@@ -10,15 +10,15 @@ use Illuminate\Queue\SerializesModels;
 class OTPMail extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $OTPCode;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($OTPCode)
     {
-        //
+        $this->OTPCode = $OTPCode;
     }
 
     /**
@@ -28,6 +28,6 @@ class OTPMail extends Mailable
      */
     public function build()
     {
-        return $this->view('view.name');
+        return $this->subject('Mail confirm OTP from KLXBanking')->view('emails.OTPMail');
     }
 }

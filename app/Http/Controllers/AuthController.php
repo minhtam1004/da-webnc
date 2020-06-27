@@ -34,6 +34,9 @@ class AuthController extends Controller
             'username' => 'required|max:255',
             'password' => 'required|min:6|max:255',
         ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
         $credentials = $request->only('username', 'password');
         if ($token = auth('api')->attempt($credentials)) {
             return $this->respondWithToken($token);
@@ -69,7 +72,7 @@ class AuthController extends Controller
         {
             return response()->json(['error' => 'user exist'], 422);
         }
-        if (User::where('email',$request->username)->first())
+        if (User::where('email',$request->email)->first())
         {
             return response()->json(['error' => 'email exist'], 422);
         }
@@ -81,7 +84,7 @@ class AuthController extends Controller
         }
         $data=['userId'=>$user->id,'accountNumber'=>$rand,'excess' => 0];
         $acc = Account::create($data);
-        $user->account();
+        $user->account = $acc;
         return response()->json($user);
     }
     /**

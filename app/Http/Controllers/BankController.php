@@ -44,6 +44,9 @@ class BankController extends Controller
         if ($user->excess < $request->amount) return response(['error' => 'not enoungh money'], 422);
         $bank = Bank::find($request->receivedBank);
         if (!$bank) return response()->json(['error' => 'bank not connected'], 422);
+        $request->OTPCode = '121212';
+        $transfer = Transfer::create($request->all());
+        return response()->json(['id'=>$transfer->id,'error'=>'validate OTP'],200);
     }
     public function send(Request $request)
     {

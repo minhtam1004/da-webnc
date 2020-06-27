@@ -30,7 +30,17 @@ Route::group([
     Route::get('me', 'AuthController@me');
 
 });
+Route::group([
+    'middleware' => 'auth',
+    'prefix' => 'remembers'
+], function ($router) {
+    Route::post('add', 'RememberController@store');
+    Route::post('search', 'RememberController@show');
+});
+Route::get('bank/accounts/{id}','AccountController@show')->middleware('auth');
 Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
+Route::post('bank/transfers', 'TransferController@store');
+Route::post('confirm/transfers', 'TransferController@confirm')->middleware('logtransfer');
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
 Route::post('sendMoney','BankController@sendMoney')->middleware('logtransfer');
 Route::get('viewuser','BankController@viewuser');
