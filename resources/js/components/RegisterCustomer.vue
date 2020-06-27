@@ -71,38 +71,60 @@ export default {
     checkValidateRegisterForm() {
       this.register();
     },
+    reset() {
+      (this.username = ""),
+        (this.password = ""),
+        (this.name = ""),
+        (this.email = ""),
+        (this.phone = "");
+    },
     register() {
-      console.log("Vo");
-      console.log(
-        this.username,
-        this.password,
-        this.name,
-        this.email,
-        this.phone
-      );
-      console.log(this.$store.state.user.access_token);
       this.loading = true;
-
-      axios({
-        method: "post",
-        url: "api/auth/register",
+      var data = {
+        username: this.username,
+        password: this.password,
+        name: this.name,
+        email: this.email,
+        phone: this.phone
+      };
+      const options = {
         headers: {
-          "Content-Type": `application/json`,
+          "Content-Type": "application/json",
           Authorization: "bearer" + this.$store.state.user.access_token
-        },
-        data: {
-          username: this.username,
-          password: this.password,
-          name: this.name,
-          email: this.email,
-          phone: this.phone
         }
-      })
+      };
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "bearer" + this.$store.state.user.access_token
+      };
+      axios
+        .post("api/auth/register", data, options)
         .then(response => {
-          console.log(response);
+          console.log("RESPONSE RECEIVED: ", response);
+          if (response.data !== null) {
+            this.$toast.open({
+              message: "Thêm mới khách hàng thành công",
+              type: "success"
+            });
+          }
         })
         .catch(error => {
-          console.log(error);
+          console.log("AXIOS ERROR: ", error);
+          if (error.response.data.error === "Parameter error") {
+            return this.$toast.open({
+              message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
+              type: "error"
+            });
+          }
+          if (error.response.data.error === "user exist") {
+            return this.$toast.open({
+              message: "Tài khoản khách hàng đã tồn tại",
+              type: "error"
+            });
+          }
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         });
     },
     getUser() {

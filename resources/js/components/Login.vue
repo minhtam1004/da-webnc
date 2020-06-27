@@ -16,7 +16,6 @@
 
     <br />
     <vue-recaptcha @verify="markRecaptchaAsVerified" sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7" :loadRecaptchaScript="true"></vue-recaptcha>
-    <button>Submit form</button>
     <div class="text-center mt-4">
       <button class="btn btn-indigo" :disabled="loading">
         <i v-if="loading" class="fa fa-spinner fa-spin"></i>
