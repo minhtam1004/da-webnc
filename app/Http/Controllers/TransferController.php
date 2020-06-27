@@ -80,7 +80,7 @@ class TransferController extends Controller
                 $transfer->OTPCode = $OTPString;
                 $transfer->expiresAt = time() + 60;
                 $transfer->save();
-                return response()->json(['message' => 'Transfer has been added', 'trasferId' => $transfer->id,'OTPCode' => 'send to '.$email], 200);
+                return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id,'OTPCode' => 'send to '.$email], 200);
             }
             $request->request->add(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
             $request->request->add(['expiresAt' => time() + 60]);    
