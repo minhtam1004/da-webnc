@@ -16,6 +16,15 @@ class Account extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User','userId','id');
+        return $this->attributes['user'] = $this->belongsTo('App\User','userId');
+    }
+    public function receivedTransfer()
+    {
+        return $this->attributes['receivedTransfer'] = $this->hasMany('App\Transfer', 'receivedId', 'accountNumber');
+    }
+
+    public function sendTransfer()
+    {
+        return $this->attributes['sendTransfer'] = $this->hasMany('App\Transfer', 'sendId', 'accountNumber');
     }
 }
