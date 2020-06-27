@@ -12,11 +12,11 @@ class Transfer extends Model
     ];
     public function sender()
     {
-        return $this->belongsTo('App\Account', 'sendId', 'id');
+        return $this->attributes['sender'] = $this->belongsTo('App\Account', 'sendId', 'accountNumber');
     }
     public function receiver()
     {
-        return $this->belongsTo('App\Account', 'receivedId', 'id');
+        return $this->attributes['receiver'] = $this->belongsTo('App\Account', 'receivedId', 'accountNumber');
     }
     public function Bank()
     {

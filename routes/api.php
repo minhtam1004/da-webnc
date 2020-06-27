@@ -44,6 +44,8 @@ Route::group([
     Route::post('add', 'DebtController@store');
     Route::get('/', 'DebtController@index');
     Route::get('/{id}', 'DebtController@show');
+    Route::post('/{id}/paid','DebtController@paid');
+    Route::delete('/{id}', 'DebtController@destroy');
 });
 Route::get('bank/accounts/{id}','AccountController@show')->middleware('auth');
 Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
