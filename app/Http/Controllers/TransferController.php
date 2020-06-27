@@ -89,7 +89,7 @@ class TransferController extends Controller
         if (!$acc) return response()->json(['error' => 'wrong logic'], 422);
 
         $transfer = Transfer::create($request->all());
-        return response()->json(['message' => 'Transfer has been added', 'trasferId' => $transfer->id,'OTPCode' => 'send to '.$acc->user->email], 201);
+        return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id,'OTPCode' => 'send to '.$acc->user->email], 201);
     }
 
     public function confirm(Request $request)
@@ -113,10 +113,10 @@ class TransferController extends Controller
         }
         $transfer->isConfirm = true;
         $transfer->save();
-        $acc = $transfer->sender();
+        $acc = Account::find($transfer->sender->id);
         $acc->excess -= $transfer->amount;
         $acc->save();
-        $acc = $transfer->receiver();
+        $acc = Account::find($transfer->receiver->id);
         $acc->excess += $transfer->amount;
         $acc->save();
         return response()->json("success", 200);
