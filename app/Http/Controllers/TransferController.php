@@ -49,21 +49,20 @@ class TransferController extends Controller
             'receivedId' => 'required|max:255',
             'receivedBank' => 'max:255',
             'amount' => 'required|numeric|min:10000|max:1000000000',
-            'reason' => 'required|max:200'
+            'reason' => 'required|max:200',
+            'payer' => 'boolean'
         ]);
         if ($validatedData->fails()) {
             return response()->json('Parameter error', 422);
         }
         $acc = null;
-        $OTPCode = rand(0, 999999);
-        $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
         if (!$request->receivedBank) {
             $acc = Account::where('accountNumber', $request->receivedId)->first();
             if (!$acc) return response()->json(['error' => 'account doesnt exist'], 204);
-            $acc->excess += $request->amount;
-            $acc->save();
         }
         if (!$request->sendBank) {
+            $OTPCode = rand(0, 999999);
+            $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);    
             $acc = Account::where('accountNumber', $request->sendId)->first();
             if (!$acc) {
                 return response()->json(['error' => 'account doesnt exist'], 204);
@@ -84,11 +83,14 @@ class TransferController extends Controller
             }
             $request->request->add(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
             $request->request->add(['expiresAt' => time() + 60]);    
+            $transfer = Transfer::create($request->all());
+            return response()->json(['message' => 'Transfer has been added','transferId' => $transfer->id,'OTPCode' => 'send to '.$email], 201);
         }
         if (!$acc) return response()->json(['error' => 'wrong logic'], 422);
-
+        $acc->excess += $request->amount;
+        $acc->save();
         $transfer = Transfer::create($request->all());
-        return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id,'OTPCode' => 'send to '.$email], 201);
+        return response()->json(['message' => 'Transfer has been added'], 201);
     }
 
     public function confirm(Request $request)
@@ -121,6 +123,22 @@ class TransferController extends Controller
         return response()->json("success", 200);
     }
 
+    public function getOTP($id)
+    {
+        $transfer = Transfer::find($id);
+        if (!$transfer) {
+            return response()->json('transfer does not exist', 422);
+        }
+        if ($transfer->isConfirm) {
+            return response()->json('transfer is confirm', 422);
+        }
+        $OTPCode = rand(0, 999999);
+        $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);    
+        $transfer->OTPCode = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
+        $transfer->expiresAt = time() + 60;    
+        $transfer->save();
+        return response()->json(['message' => 'OTP is refresh','transferId' => $transfer->id,'OTPCode' => 'send to '.$transfer->sender->user->email], 201);
+    }
     /**
      * Display the specified resource.
      *
