@@ -54,5 +54,6 @@ Route::post('bank/transfers', 'TransferController@store')->middleware('auth');
 Route::post('confirm/transfers', 'TransferController@confirm')->middleware('auth','logtransfer');
 Route::post('refresh/transfers/{id}', 'TransferController@getOTP')->middleware('auth');
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
-Route::post('sendMoney','BankController@sendMoney')->middleware('logtransfer');
+Route::post('sendMoney','BankController@sendMoney');
 Route::get('viewuser','BankController@viewuser');
+Route::post('confirm','BankController@send')->middleware('logtransfer');
