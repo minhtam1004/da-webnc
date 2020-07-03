@@ -23,12 +23,20 @@ class UserSeeder extends Seeder
             'roleId' => 1
         ]);
         DB::table('users')->insert([
-            'username' => 'user0',
+            'username' => 'employee',
             'password' =>  bcrypt('123456'),
             'name' => 'employee',
             'email' => 'email0@gmail.com',
             'phone' => '123123123',
             'roleId'=> 2,
+        ]);
+        DB::table('users')->insert([
+            'username' => 'user0',
+            'password' =>  bcrypt('123456'),
+            'name' => 'employee',
+            'email' => 'lehoangminhtam10498@gmail.com',
+            'phone' => '123123123',
+            'roleId'=> 3,
         ]);
         $limit = 8;
         for ($i = 1; $i <= $limit; $i++) {
