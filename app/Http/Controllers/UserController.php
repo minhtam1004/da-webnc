@@ -21,7 +21,10 @@ class UserController extends Controller
         if(!$request->limit) $request->merge(['limit',10]);
         if(!$request->page) $request->merge(['page',1]);
         if(!$request->keyword) $request->merge(['keyword','']);
-        return User::where('roleId', 2)->where('name', 'LIKE', "%{$request->keyword}%")->get();
+        return User::where('roleId', 2)->where(function($query)use($request){
+            $query->where('name','LIKE',"%{$request->keyword}%")
+            ->orWhere('id','LIKE',"%{$request->keyword}%");
+        })->get();
     }
     /**
      * Show the form for creating a new resource.

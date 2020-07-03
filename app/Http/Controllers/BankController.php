@@ -63,8 +63,8 @@ class BankController extends Controller
     public function send(Request $request)
     {
         $validatedData = Validator::make($request->all(), [
-            'transferId' => 'require',
-            'OTPCode' => 'required|length:6',
+            'transferId' => 'required',
+            'OTPCode' => 'required|size:6',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
@@ -104,7 +104,7 @@ class BankController extends Controller
                 'X-SIGNATURE' => $signature
             ])
                 ->post(
-                    'https://w-internet-banking.herokuapp.com/api/partner/deposits/' . $request->receivedId,
+                    'https://w-internet-banking.herokuapp.com/api/partner/deposits/' . $trans->receivedId,
                     ['amount' => $trans->amount, 'name' => $user->name, 'note' => $trans->reason]
                 );
             if ($response->status() === 200) {
