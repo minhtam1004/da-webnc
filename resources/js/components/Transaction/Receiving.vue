@@ -3,52 +3,56 @@
     <mdb-row>
       <mdb-col md="12">
         <mdb-card cascade narrow>
-         
           <mdb-card-body>
-           
+            <!-- Editable table -->
 
-          
-         <!-- Editable table -->
-
-    <div id="table" class="table-editable">
-      <span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success"><i
-            class="fas fa-plus fa-2x" aria-hidden="true"></i></a></span>
-      <table class="table table-bordered table-responsive-md table-striped text-center">
-        <thead>
-          <tr>
-            <th class="text-center">Mã giao dịch</th>
-            <th class="text-center">Người gửi</th>
-            <th class="text-center">Người nhận</th>
-            <th class="text-center">Số tiền</th>
-            <th class="text-center">Phí</th>
-            <th class="text-center">Thời gian giao dịch</th>
-            <th class="text-center">Trạng thái</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in 4" :key="index">
-            <td class="pt-3-half" contenteditable="true">Aurelia Vega</td>
-            <td class="pt-3-half" contenteditable="true">30</td>
-            <td class="pt-3-half" contenteditable="true">Deepends</td>
-            <td class="pt-3-half" contenteditable="true">Spain</td>
-            <td class="pt-3-half" contenteditable="true">Madrid</td>
-            <td class="pt-3-half">
-              <span class="table-up"><a href="#!" class="indigo-text"><i class="fas fa-long-arrow-alt-up"
-                    aria-hidden="true"></i></a></span>
-              <span class="table-down"><a href="#!" class="indigo-text"><i class="fas fa-long-arrow-alt-down"
-                    aria-hidden="true"></i></a></span>
-            </td>
-            <td>
-              <span class="table-remove"><button type="button"
-                  class="btn btn-danger btn-rounded btn-sm my-0">Remove</button></span>
-            </td>
-          </tr>
-        
-        </tbody>
-      </table>
-    
-</div>
-<!-- Editable table -->
+            <div id="table" class="table-editable">
+              <span class="table-add float-right mb-3 mr-2">
+                <a href="#!" class="text-success">
+                  <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
+                </a>
+              </span>
+              <table class="table table-bordered table-responsive-md table-striped text-center">
+                <thead>
+                  <tr>
+                    <th class="text-center">Mã giao dịch</th>
+                    <th class="text-center">Người gửi</th>
+                    <th class="text-center">Người nhận</th>
+                    <th class="text-center">Số tiền</th>
+                    <th class="text-center">Phí</th>
+                    <th class="text-center">Thời gian giao dịch</th>
+                    <th class="text-center">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in 4" :key="index">
+                    <td class="pt-3-half" contenteditable="true">Aurelia Vega</td>
+                    <td class="pt-3-half" contenteditable="true">30</td>
+                    <td class="pt-3-half" contenteditable="true">Deepends</td>
+                    <td class="pt-3-half" contenteditable="true">Spain</td>
+                    <td class="pt-3-half" contenteditable="true">Madrid</td>
+                    <td class="pt-3-half">
+                      <span class="table-up">
+                        <a href="#!" class="indigo-text">
+                          <i class="fas fa-long-arrow-alt-up" aria-hidden="true"></i>
+                        </a>
+                      </span>
+                      <span class="table-down">
+                        <a href="#!" class="indigo-text">
+                          <i class="fas fa-long-arrow-alt-down" aria-hidden="true"></i>
+                        </a>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="table-remove">
+                        <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">Remove</button>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Editable table -->
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
@@ -57,10 +61,10 @@
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from 'mdbvue'
+import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 
 export default {
-  name: 'Tables',
+  name: "Tables",
   components: {
     mdbRow,
     mdbCol,
@@ -69,18 +73,18 @@ export default {
     mdbCardBody,
     mdbTbl
   },
-  
-  data () {
+
+  data() {
     return {
       data: []
-    }
+    };
   },
   created() {
-   const $tableID = $('#table');
- const $BTN = $('#export-btn');
- const $EXPORT = $('#export');
+    const $tableID = $("#table");
+    const $BTN = $("#export-btn");
+    const $EXPORT = $("#export");
 
- const newTr = `
+    const newTr = `
 <tr class="hide">
   <td class="pt-3-half" contenteditable="true">Example</td>
   <td class="pt-3-half" contenteditable="true">Example</td>
@@ -96,80 +100,80 @@ export default {
   </td>
 </tr>`;
 
- $('.table-add').on('click', 'i', () => {
+    $(".table-add").on("click", "i", () => {
+      const $clone = $tableID
+        .find("tbody tr")
+        .last()
+        .clone(true)
+        .removeClass("hide table-line");
 
-   const $clone = $tableID.find('tbody tr').last().clone(true).removeClass('hide table-line');
+      if ($tableID.find("tbody tr").length === 0) {
+        $("tbody").append(newTr);
+      }
 
-   if ($tableID.find('tbody tr').length === 0) {
+      $tableID.find("table").append($clone);
+    });
 
-     $('tbody').append(newTr);
-   }
+    $tableID.on("click", ".table-remove", function() {
+      $(this)
+        .parents("tr")
+        .detach();
+    });
 
-   $tableID.find('table').append($clone);
- });
+    $tableID.on("click", ".table-up", function() {
+      const $row = $(this).parents("tr");
 
- $tableID.on('click', '.table-remove', function () {
+      if ($row.index() === 0) {
+        return;
+      }
 
-   $(this).parents('tr').detach();
- });
+      $row.prev().before($row.get(0));
+    });
 
- $tableID.on('click', '.table-up', function () {
+    $tableID.on("click", ".table-down", function() {
+      const $row = $(this).parents("tr");
+      $row.next().after($row.get(0));
+    });
 
-   const $row = $(this).parents('tr');
+    // A few jQuery helpers for exporting only
+    jQuery.fn.pop = [].pop;
+    jQuery.fn.shift = [].shift;
 
-   if ($row.index() === 0) {
-     return;
-   }
+    $BTN.on("click", () => {
+      const $rows = $tableID.find("tr:not(:hidden)");
+      const headers = [];
+      const data = [];
 
-   $row.prev().before($row.get(0));
- });
+      // Get the headers (add special header logic here)
+      $($rows.shift())
+        .find("th:not(:empty)")
+        .each(function() {
+          headers.push(
+            $(this)
+              .text()
+              .toLowerCase()
+          );
+        });
 
- $tableID.on('click', '.table-down', function () {
+      // Turn all existing rows into a loopable array
+      $rows.each(function() {
+        const $td = $(this).find("td");
+        const h = {};
 
-   const $row = $(this).parents('tr');
-   $row.next().after($row.get(0));
- });
+        // Use the headers from earlier to name our hash keys
+        headers.forEach((header, i) => {
+          h[header] = $td.eq(i).text();
+        });
 
- // A few jQuery helpers for exporting only
- jQuery.fn.pop = [].pop;
- jQuery.fn.shift = [].shift;
+        data.push(h);
+      });
 
- $BTN.on('click', () => {
-
-   const $rows = $tableID.find('tr:not(:hidden)');
-   const headers = [];
-   const data = [];
-
-   // Get the headers (add special header logic here)
-   $($rows.shift()).find('th:not(:empty)').each(function () {
-
-     headers.push($(this).text().toLowerCase());
-   });
-
-   // Turn all existing rows into a loopable array
-   $rows.each(function () {
-     const $td = $(this).find('td');
-     const h = {};
-
-     // Use the headers from earlier to name our hash keys
-     headers.forEach((header, i) => {
-
-       h[header] = $td.eq(i).text();
-     });
-
-     data.push(h);
-   });
-
-   // Output the result
-   $EXPORT.text(JSON.stringify(data));
-
-});
+      // Output the result
+      $EXPORT.text(JSON.stringify(data));
+    });
   },
-  methods: {
-    
-  }
-}
-
+  methods: {}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -183,6 +187,6 @@ export default {
   margin-bottom: 0;
 }
 .pt-3-half {
-padding-top: 1.4rem;
+  padding-top: 1.4rem;
 }
 </style>

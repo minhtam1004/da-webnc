@@ -178,7 +178,7 @@ export default {
       name: "",
       otpcode: "",
       timer: null,
-      totalTime: 10,
+      totalTime: 10 * 60,
       resetButton: false,
       transferId: null,
       showModal: false,
@@ -371,7 +371,7 @@ export default {
         .then(response => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data) {
-            if (response.data === "success") {
+            if (response.data.status === 200) {
               this.showModal = true;
               this.typeModal = "success";
               this.messageModal = "Khách hàng đã chuyển tiền thành công";
