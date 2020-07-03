@@ -31,6 +31,7 @@
     "dependencies": {
         "@babel/plugin-syntax-class-properties": "^7.10.1",
         "@babel/polyfill": "^7.10.1",
+        "@trevoreyre/autocomplete-vue": "^2.2.0",
         "EventEmitter": "^1.0.0",
         "bootstrap-vue": "^2.0.0-rc.1",
         "core-js": "^3.4.4",

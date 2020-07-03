@@ -113,7 +113,7 @@
                         khoản
                     </mdb-list-group-item>
                 </router-link>
-                <router-link to="/topup" @click.native="activeItem = 4">
+                <router-link to="/transfers" @click.native="activeItem = 4">
                     <mdb-list-group-item
                         :action="true"
                         :class="activeItem === 4 && 'active'"

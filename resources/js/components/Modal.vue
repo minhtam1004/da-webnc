@@ -45,14 +45,6 @@
 <script>
 export default {
   props: {
-    width: {
-      style: String,
-      default: "120vmin"
-    },
-    height: {
-      tyle: String,
-      default: "0vmin"
-    },
     title: {
       tyle: String,
       default: ""
@@ -64,16 +56,11 @@ export default {
     message: {
       tyle: String,
       default: ""
-    },
-    paddingY: {
-      style: String,
-      default: "0vmin"
     }
   },
   data() {
     return {
       isShowing: false,
-      items: ["Group 5 banks", "Group 34 banks"],
       isShowingAfterTransfers: true
     };
   },

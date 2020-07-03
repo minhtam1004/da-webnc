@@ -9,14 +9,30 @@
           <mdb-card-body>
             <form v-on:submit.prevent="checkAccountInfo" v-if="!isShowingMoney">
               <label for="accountnumber" class="grey-text">Số tài khoản hoặc tên gợi nhớ</label>
-              <input type="text" v-model="accountNumber" class="form-control" />
-              <button type="button" class="btn btn-primary px-3">
-                <i class="fab fa-android" aria-hidden="true"></i>
-              </button>
-              <div class="text-center mt-4">
-                <button class="btn btn-unique" data-toggle="modal" data-target="#centralModalSuccess">Kiểm tra</button>
-                <!-- <button class="btn btn-unique" v-if="isShowingMoney">Xác nhận</button> -->
+              <div class="form-row mb-4">
+                <div class="col-10">
+                  <input type="text" v-model="accountNumber" class="form-control" />
+                </div>
+                <div class="col">
+                  <button
+                    type="button"
+                    class="btn-floating purple-gradient px-3"
+                    style="height:100%;border-radius: 0.5vmin"
+                    @click="showSearchName = true"
+                  >
+                    <i class="fas fa-address-book" aria-hidden="true"></i>
+                  </button>
+                </div>
               </div>
+
+              <div class="text-center mt-4">
+                <button
+                  class="btn btn-unique"
+                  data-toggle="modal"
+                  data-target="#centralModalSuccess"
+                >Kiểm tra</button>
+              </div>
+              <SearchName v-if="showSearchName" @close-modal="showSearchName = false" />
             </form>
 
             <form v-on:submit.prevent="transfers" v-if="isShowingMoney && !isShowingOPT">
@@ -37,8 +53,12 @@
 
               <div class="text-center mt-4">
                 <button class="btn btn-unique">Hủy bỏ</button>
-                <button class="btn btn-indigo">Xác nhận</button>
-                <!-- <button class="btn btn-unique" v-if="isShowingMoney">Xác nhận</button> -->
+                <button
+                  type="button"
+                  id="btn-one"
+                  class="btn btn-primary"
+                  @click="transfers"
+                >Xác nhận</button>
               </div>
             </form>
 
@@ -54,10 +74,15 @@
               </div>
               <div class="text-center mt-4">
                 <button class="btn btn-unique">Chuyển tiền</button>
-                <!-- <button class="btn btn-unique" v-if="isShowingMoney">Xác nhận</button> -->
               </div>
             </form>
-              <Modal v-if="showModal" @close-modal="showModal = false" />
+            <Modal
+              v-if="showModal"
+              :type="typeModal"
+              :title="titleModal"
+              :message="messageModal"
+              @close-modal="showModal = false"
+            />
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
@@ -66,6 +91,7 @@
 </template>
 <script>
 import Modal from "./Modal";
+import SearchName from "./SearchName";
 import {
   mdbRow,
   mdbCol,
@@ -85,15 +111,15 @@ export default {
     mdbCardBody,
     mdbTbl,
     mdbBtn,
-    Modal
+    Modal,
+    SearchName
   },
   data() {
     return {
       account: this.$store.state.user.authUser.account,
       isShowingMoney: false,
       isShowingOPT: false,
-      loading: false,
-      accountNumber: 0,
+      accountNumber: this.$store.state.transfer.accountNumber,
       reason: "",
       amount: 0,
       name: "",
@@ -102,7 +128,13 @@ export default {
       totalTime: 10 * 60,
       resetButton: false,
       transferId: null,
-      showModal: true
+      showModal: false,
+      typeModal: "",
+      titleModal: "",
+      messageModal: "",
+      disabled: false,
+      loading: false,
+      showSearchName: false
     };
   },
   computed: {
@@ -111,11 +143,14 @@ export default {
     },
     seconds: function() {
       return this.padTime(this.totalTime - this.minutes * 60);
+    },
+    accountNum: function() {
+      return this.$store.state.transfer.accountNumber;
     }
   },
   methods: {
     checkAccountInfo() {
-      this.loading = true;
+      this.turnOnLoading();
       const options = {
         headers: {
           "Content-Type": "application/json",
@@ -123,7 +158,7 @@ export default {
         }
       };
       axios
-        .get("api/bank/accounts/" + this.accountNumber, {
+        .get("api/bank/accounts/" + (this.accountNum > 0 ? this.accountNum : this.accountNumber), {
           headers: {
             Authorization: "bearer" + this.$store.state.user.access_token
           }
@@ -133,27 +168,48 @@ export default {
           if (response.data !== null) {
             this.isShowingMoney = true;
             this.name = response.data.name;
+            this.showModal = true;
+            this.typeModal = "success";
+            this.messageModal = "Số tài khoản hợp lệ";
+            this.titleModal = "Thao tác thành công";
+            this.turnOffLoading();
           }
         })
         .catch(error => {
+          this.turnOffLoading();
+          this.loading = false;
+          this.disabled = false;
           console.log("AXIOS ERROR: ", error);
+          this.showModal = true;
+          this.typeModal = "danger";
+          this.titleModal = "Thao tác thất bại";
           if (error.response.status === 404) {
-            return this.$toast.open({
-              message: "Số tài khoản không đúng! Vui lòng kiểm tra lại",
-              type: "error"
-            });
+            this.messageModal =
+              "Số tài khoản không hợp lệ! Vui lòng kiểm tra lại";
+
+            return;
           }
           if (error.response.status === 422) {
-            return this.$toast.open({
-              message: "Bạn không có quyền thực hiện thao tác",
-              type: "error"
-            });
+            this.messageModal = "Bạn không có quyền thực hiện thao tác";
+            return;
           }
         });
+        this.$emit("check-info");
     },
 
+    turnOnLoading() {
+      $("#btn-one")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoading() {
+      $("#btn-one").removeClass("disabled");
+      $("#btn-one span").remove();
+    },
     transfers() {
-      this.loading = true;
+      this.turnOnLoading();
       var data = {
         sendId: this.$store.state.user.authUser.account.accountNumber,
         receivedId: this.accountNumber,
@@ -171,37 +227,36 @@ export default {
         .then(response => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
-            this.$toast.open({
-              message: "Khách hàng vui lòng kiểm tra mail và nhập mã OPT",
-              type: "success"
-            });
-            this.transferId = response.data.trasferId;
+            this.turnOffLoading();
+            this.showModal = true;
+            this.typeModal = "success";
+            this.messageModal =
+              "Khách hàng vui lòng kiểm tra mail và nhập mã OPT";
+            this.titleModal = "Thao tác thành công";
+            this.transferId = response.data.transferId;
             this.isShowingOPT = true;
             this.startTimer();
           }
         })
         .catch(error => {
           console.log("AXIOS ERROR: ", error);
+          this.turnOffLoading();
+          this.showModal = true;
+          this.typeModal = "danger";
+          this.titleModal = "Thao tác thất bại";
           if (error.response.data.error === "Parameter error") {
-            return this.$toast.open({
-              message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
-              type: "error"
-            });
+            this.messageModal = "Dữ liệu không hợp lệ vui lòng kiểm tra lại";
+            return;
           }
           if (error.response.data.error === "user exist") {
-            return this.$toast.open({
-              message: "Tài khoản khách hàng đã tồn tại",
-              type: "error"
-            });
+            this.messageModal = "Tài khoản khách hàng đã tồn tại";
+            return;
           }
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
         });
     },
 
     sendOPT() {
-      this.loading = true;
+      this.turnOnLoading();
       var data = {
         transferId: this.transferId,
         OTPCode: this.otpcode
@@ -216,32 +271,33 @@ export default {
         .post("api/confirm/transfers", data, options)
         .then(response => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
-            this.$toast.open({
-              message: "Khách hàng vui lòng kiểm tra mail và nhập mã OPT",
-              type: "success"
-            });
-            this.isShowingOPT = true;
-            this.startTimer();
+          if (response.data) {
+            if (response.data === "success") {
+              this.showModal = true;
+              this.typeModal = "success";
+              this.messageModal = "Khách hàng đã chuyển tiền thành công";
+              this.titleModal = "Thao tác thành công";
+            }
+            this.turnOffLoading();
+            this.isShowingOPT = false;
+            this.isShowingMoney = false;
+            this.$router.push({ name: "Topup" });
           }
         })
         .catch(error => {
+          this.turnOffLoading();
+          this.showModal = true;
+          this.typeModal = "danger";
+          this.titleModal = "Thao tác thất bại";
           console.log("AXIOS ERROR: ", error);
           if (error.response.data.error === "Parameter error") {
-            return this.$toast.open({
-              message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
-              type: "error"
-            });
+            this.messageModal = "Dữ liệu không hợp lệ vui lòng kiểm tra lại";
+            return;
           }
-          if (error.response.data.error === "user exist") {
-            return this.$toast.open({
-              message: "Tài khoản khách hàng đã tồn tại",
-              type: "error"
-            });
+          if (error.response.data.error === "confirm error") {
+            this.messageModal = "Mã OTP không đúng vui lòng kiểm tra lại";
+            return;
           }
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
         });
     },
 
@@ -260,6 +316,9 @@ export default {
 </script>
 
 <style scoped>
+button:focus {
+  outline: 0;
+}
 #timer {
   font-size: 4vmin;
   color: blue;

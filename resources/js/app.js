@@ -13,6 +13,9 @@ import store from './store'
 import VueToast from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-default.css';
 import Vuelidate from 'vuelidate'
+import Autocomplete from '@trevoreyre/autocomplete-vue'
+import '@trevoreyre/autocomplete-vue/dist/style.css'
+
 Vue.use(VueGoogleMaps, {
   load: {
     key: "NHAP-API-KEY-O-DAY",
@@ -23,6 +26,7 @@ Vue.use(VueToast);
 Vue.use(VueRouter)
 Vue.use(Vuetify);
 Vue.use(Vuelidate)
+Vue.use(Autocomplete)
 const router = new VueRouter({
     mode: 'history',
     routes

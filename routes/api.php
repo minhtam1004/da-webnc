@@ -31,7 +31,6 @@ Route::group([
 
 });
 Route::group([
-    'middleware' => 'auth',
     'prefix' => 'remembers'
 ], function ($router) {
     Route::post('add', 'RememberController@store');

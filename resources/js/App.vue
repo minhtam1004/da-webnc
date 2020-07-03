@@ -15,3 +15,8 @@
 
 export default {}
 </script>
+<style scoped>
+button:focus {
+  outline: 0;
+}
+</style>

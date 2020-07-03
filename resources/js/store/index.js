@@ -5,7 +5,7 @@ import screen from'./modules/screen'
 import chat from './modules/chat';
 import loading from './modules/loading';
 import game from './modules/game'
-
+import transfer from "./modules/transfer"
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -20,6 +20,7 @@ export default new Vuex.Store({
     screen,
     chat,
     loading,
-    game
+    game,
+    transfer
   }
 })

@@ -39,7 +39,7 @@ export const routes = [
                 component: AccountInfo
             },
             {
-                path: "/topup",
+                path: "/transfers",
                 name: "Topup",
                 props: { page: 4 },
                 component: Topup
@@ -66,7 +66,7 @@ export const routes = [
                 path: "/404",
                 name: "BadGateway",
                 props: { page: 7 },
-                component: BadGateway
+                component: Tables
             },
             {
                 path: "*",
