@@ -55,6 +55,7 @@ class TransferController extends Controller
         if ($validatedData->fails()) {
             return response()->json('Parameter error', 422);
         }
+        if (!$request->payer) $request->merge(['payer' => false]);
         $acc = null;
         if (!$request->receivedBank) {
             $acc = Account::where('accountNumber', $request->receivedId)->first();
@@ -62,29 +63,31 @@ class TransferController extends Controller
         }
         if (!$request->sendBank) {
             $OTPCode = rand(0, 999999);
-            $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);    
+            $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
             $acc = Account::where('accountNumber', $request->sendId)->first();
             if (!$acc) {
                 return response()->json(['error' => 'account doesnt exist'], 204);
             }
-            $email = $acc->user->email;   
+            if ($acc->excess < $request->amount) return response(['error' => 'not enoungh money'], 422);
+            $email = $acc->user->email;
             Mail::to($email)->send(new OTPMail($OTPString));
             $transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
             if ($transfer) {
                 $transfer->sendBank = $request->sendBank;
                 $transfer->receivedId = $request->receivedId;
                 $transfer->receivedBank = $request->receivedBank;
-                $transfer->amount = $request->amount;
+                $transfer->amount = $request->payer ? $request->amount : $request->amount - 3000;
                 $transfer->reason = $request->reason;
                 $transfer->OTPCode = $OTPString;
                 $transfer->expiresAt = time() + 60;
+                $transfer->payer = $request->payer;
                 $transfer->save();
-                return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id,'OTPCode' => 'send to '.$email], 200);
+                return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
             }
-            $request->request->add(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
-            $request->request->add(['expiresAt' => time() + 60]);    
+            $request->merge(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
+            $request->merge(['expiresAt' => time() + 60]);
             $transfer = Transfer::create($request->all());
-            return response()->json(['message' => 'Transfer has been added','transferId' => $transfer->id,'OTPCode' => 'send to '.$email], 201);
+            return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 201);
         }
         if (!$acc) return response()->json(['error' => 'wrong logic'], 422);
         $acc->excess += $request->amount;
@@ -115,7 +118,7 @@ class TransferController extends Controller
         $transfer->isConfirm = true;
         $transfer->save();
         $acc = Account::find($transfer->sender->id);
-        $acc->excess -= $transfer->amount;
+        $acc->excess -= $transfer->payer ? $transfer->amount + 3000 : $transfer->amount;
         $acc->save();
         $acc = Account::find($transfer->receiver->id);
         $acc->excess += $transfer->amount;
@@ -133,11 +136,10 @@ class TransferController extends Controller
             return response()->json('transfer is confirm', 422);
         }
         $OTPCode = rand(0, 999999);
-        $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);    
         $transfer->OTPCode = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
-        $transfer->expiresAt = time() + 60;    
+        $transfer->expiresAt = time() + 60;
         $transfer->save();
-        return response()->json(['message' => 'OTP is refresh','transferId' => $transfer->id,'OTPCode' => 'send to '.$transfer->sender->user->email], 201);
+        return response()->json(['message' => 'OTP is refresh', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $transfer->sender->user->email], 201);
     }
     /**
      * Display the specified resource.
