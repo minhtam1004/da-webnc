@@ -7,11 +7,12 @@ import AuthContainer from "./components/AuthContainer";
 import Container from "./components/Container";
 
 import Dashboard from "./components/Dashboard";
-import Tables from "./components/Tables";
+import Tables from "./components/Transaction/Receiving";
 import Maps from "./components/Maps";
 import BadGateway from "./components/BadGateway";
 import AccountInfo from "./components/AccountInfo";
 import Transaction from "./components/Transaction";
+import TransferInterbank from "./components/TransferInterbank";
 import Topup from "./components/Topup";
 export const routes = [
     { path: "/", name: "Login", component: Login },
@@ -45,9 +46,15 @@ export const routes = [
                 component: Topup
             },
             {
+                path: "/transfers-interbank",
+                name: "TransferInterbank",
+                props: { page: 5 },
+                component: TransferInterbank
+            },
+            {
                 path: "/transactions",
                 name: "Transactions",
-                props: { page: 5 },
+                props: { page: 6 },
                 component: Transaction
             },
             // {
@@ -59,18 +66,18 @@ export const routes = [
             {
                 path: "/register-customer",
                 name: "RegisterCustomer",
-                props: { page: 6 },
+                props: { page: 7 },
                 component: RegisterCustomer
             },
             {
                 path: "/404",
                 name: "BadGateway",
-                props: { page: 7 },
+                props: { page: 8 },
                 component: Tables
             },
             {
                 path: "*",
-                props: { page: 8 },
+                props: { page: 9 },
                 redirect: "/404"
             }
         ]

@@ -150,7 +150,9 @@ class BankController extends Controller
             'bankId' => 'required|max:255'
         ]);
         if ($validatedData->fails()) {
+            
             return response()->json(['error' => 'Parameter error'], 422);
+            
         }
         $bank = Bank::find($request->bankId);
         if (!$bank) return response()->json(['error' => 'bank not connected'], 422);

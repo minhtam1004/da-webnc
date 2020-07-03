@@ -4,10 +4,10 @@
       <mdb-col md="12">
         <mdb-card cascade narrow class="mt-5">
           <mdb-view class="gradient-card-header blue darken-2">
-            <h4 class="h4-responsive text-white">Nạp tiền</h4>
+            <h4 class="h4-responsive text-white">Chuyển khoản nội bộ</h4>
           </mdb-view>
           <mdb-card-body>
-            <form v-on:submit.prevent="checkAccountInfo" v-if="!isShowingMoney">
+            <form v-if="!isShowingMoney">
               <label for="accountnumber" class="grey-text">Số tài khoản hoặc tên gợi nhớ</label>
               <div class="form-row mb-4">
                 <div class="col-10">
@@ -30,12 +30,14 @@
                   class="btn btn-unique"
                   data-toggle="modal"
                   data-target="#centralModalSuccess"
+                  type="button"
+                  @click="checkAccountInfo"
                 >Kiểm tra</button>
               </div>
               <SearchName v-if="showSearchName" @close-modal="showSearchName = false" />
             </form>
 
-            <form v-on:submit.prevent="transfers" v-if="isShowingMoney && !isShowingOPT">
+            <form v-if="isShowingMoney && !isShowingOPT">
               <label for="accountnumber" class="grey-text">Số tài khoản người nhận</label>
               <input type="text" v-model="accountNumber" readonly class="form-control" />
               <br />
@@ -51,8 +53,31 @@
               <label for="reason" class="grey-text">Ghi chú</label>
               <textarea class="form-control rounded-0" v-model="reason" rows="3"></textarea>
 
+              <br />
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="defaultUnchecked" />
+                <label class="custom-control-label" for="defaultUnchecked">Người nhận trả phí</label>
+              </div>
+
+              <br />
+              <div style="display: flex;justify-content: flex-end;">
+              <div class="card" style="width: 50vmin;">
+                <div class="card-body" style="">
+                  <p class="card-text blue-text">
+                    - Số tiền tối thiếu chuyển khoản: 10.000 VNĐ
+                  </p>
+                  <p class="card-text blue-text">
+                    - Số tiền tối đa chuyển khoản: 1 tỷ VNĐ
+                  </p>
+                  <p class="card-text blue-text">
+                    - Phí giao dịch chuyển tiền nội bộ: 3.000 VNĐ
+                  </p>
+                  
+                </div>
+              </div>
+              </div>
               <div class="text-center mt-4">
-                <button class="btn btn-unique">Hủy bỏ</button>
+                <button class="btn btn-unique" type="button" @click="backTo">Quay lại</button>
                 <button
                   type="button"
                   id="btn-one"
@@ -62,10 +87,15 @@
               </div>
             </form>
 
-            <form v-on:submit.prevent="sendOPT" v-if="isShowingOPT">
+            <form v-if="isShowingOPT">
               <label for="accountnumber" class="grey-text">Nhập mã OPT</label>
-              <input type="text" v-model="otpcode" class="form-control" />
-              <div>
+              <input
+                type="text"
+                v-model="otpcode"
+                :disabled="minutes == 0 && seconds == 0"
+                class="form-control"
+              />
+              <div v-if="parseInt(minutes) == 0 && parseInt(seconds) == 0">
                 <div id="timer" class="text-center">
                   <span id="minute">Thời gian còn lại: {{ minutes }}</span>
                   <span id="colon">:</span>
@@ -73,7 +103,31 @@
                 </div>
               </div>
               <div class="text-center mt-4">
-                <button class="btn btn-unique">Chuyển tiền</button>
+                <button
+                  class="btn btn-warning"
+                  v-if="minutes == 0 && seconds == 0"
+                  type="button"
+                >Lấy lại mã OPT</button>
+                <button
+                  class="btn btn-unique"
+                  @click="sendOPT"
+                  type="button"
+                  v-if="!showAddList"
+                >Chuyển tiền</button>
+                <button
+                  class="btn btn-default"
+                  v-if="showAddList"
+                  type="button"
+                  @click="addToListReminder"
+                >
+                  <i class="fab fa-mdb"></i>Thêm vào gợi nhớ
+                </button>
+                <button
+                  class="btn btn-warning"
+                  v-if="showAddList"
+                  type="button"
+                  @click="$router.push({ name: 'Dashboard'})"
+                >Thực hiện giao dịch khác</button>
               </div>
             </form>
             <Modal
@@ -125,7 +179,7 @@ export default {
       name: "",
       otpcode: "",
       timer: null,
-      totalTime: 10 * 60,
+      totalTime: 10,
       resetButton: false,
       transferId: null,
       showModal: false,
@@ -134,7 +188,8 @@ export default {
       messageModal: "",
       disabled: false,
       loading: false,
-      showSearchName: false
+      showSearchName: false,
+      showAddList: false
     };
   },
   computed: {
@@ -149,6 +204,10 @@ export default {
     }
   },
   methods: {
+    backTo() {
+      console.log("Vo");
+      this.isShowingMoney = false;
+    },
     checkAccountInfo() {
       this.turnOnLoading();
       const options = {
@@ -158,11 +217,15 @@ export default {
         }
       };
       axios
-        .get("api/bank/accounts/" + (this.accountNum > 0 ? this.accountNum : this.accountNumber), {
-          headers: {
-            Authorization: "bearer" + this.$store.state.user.access_token
+        .get(
+          "api/bank/accounts/" +
+            (this.accountNum > 0 ? this.accountNum : this.accountNumber),
+          {
+            headers: {
+              Authorization: "bearer" + this.$store.state.user.access_token
+            }
           }
-        })
+        )
         .then(response => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
@@ -190,11 +253,12 @@ export default {
             return;
           }
           if (error.response.status === 422) {
+            this.$store.dispatch("logOut")
             this.messageModal = "Bạn không có quyền thực hiện thao tác";
             return;
           }
         });
-        this.$emit("check-info");
+      this.$emit("check-info");
     },
 
     turnOnLoading() {
@@ -279,9 +343,10 @@ export default {
               this.titleModal = "Thao tác thành công";
             }
             this.turnOffLoading();
-            this.isShowingOPT = false;
-            this.isShowingMoney = false;
-            this.$router.push({ name: "Topup" });
+            // this.isShowingOPT = false;
+            // this.isShowingMoney = false;
+            this.showAddList = true;
+            // this.$router.push({ name: "Topup" });
           }
         })
         .catch(error => {
@@ -300,6 +365,8 @@ export default {
           }
         });
     },
+
+    addToListReminder() {},
 
     startTimer: function() {
       this.timer = setInterval(() => this.countdown(), 1000);
@@ -320,7 +387,7 @@ button:focus {
   outline: 0;
 }
 #timer {
-  font-size: 4vmin;
+  font-size: 2.5vmin;
   color: blue;
 }
 #buttons {
