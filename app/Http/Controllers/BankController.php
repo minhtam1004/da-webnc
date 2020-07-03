@@ -126,7 +126,7 @@ class BankController extends Controller
                     ['amount' => $trans->amount, 'name' => $user->name, 'note' => $trans->reason]
                 );
             if ($response->status() === 200) {
-                $user->excess -= $trans->payer ? $trans->amount + 20000 : $trans->amount + 10000;
+                $user->excess -= $trans->amount + 10000;
                 return $response;
             }
             return $response;
@@ -155,7 +155,7 @@ class BankController extends Controller
                 ],
             ]);
             if ($response->getStatusCode() === 200) {
-                $user->excess -= $trans->payer ? $trans->amount + 10000 : $trans->amount;
+                $user->excess -= $trans->amount + 10000;
                 return $response;
             }
             return $response;

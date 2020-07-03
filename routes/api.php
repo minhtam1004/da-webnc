@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::group([
 
     'middleware' => 'api',
@@ -28,7 +29,6 @@ Route::group([
     Route::post('register', 'AuthController@register');
     Route::post('refresh', 'AuthController@refresh');
     Route::get('me', 'AuthController@me');
-
 });
 Route::group([
     'prefix' => 'remembers'
@@ -43,17 +43,32 @@ Route::group([
     Route::post('add', 'DebtController@store');
     Route::get('/', 'DebtController@index');
     Route::get('/{id}', 'DebtController@show');
-    Route::post('/{id}/paid','DebtController@paid');
+    Route::post('/{id}/paid', 'DebtController@paid');
     Route::delete('/{id}', 'DebtController@destroy');
 });
-Route::get('bank/accounts/{id}','AccountController@show')->middleware('auth');
-Route::get('banks','BankController@index')->middleware('auth');
-Route::get('bank/employee','UserController@employeeIndex')->middleware('auth');
-Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
-Route::post('bank/transfers', 'TransferController@store')->middleware('auth');
-Route::post('confirm/transfers', 'TransferController@confirm')->middleware('auth','logtransfer');
-Route::post('refresh/transfers/{id}', 'TransferController@getOTP')->middleware('auth');
+Route::group([
+    'middleware' => 'auth',
+    'prefix' => 'bank'
+], function ($router) {
+    Route::get('/accounts/{id}', 'AccountController@show');
+    Route::get('/users/{id}', 'UserController@show');
+    Route::get('/users/{id}/transfers', 'UserController@showTransfer');
+    Route::get('/customers', 'UserController@customerIndex');
+    Route::get('/employee', 'UserController@employeeIndex');
+    Route::put('/employee/{id}', 'UserController@employeeUpdate');
+    Route::delete('/employee/{id}', 'UserController@employeeDestroy');
+    Route::post('/transfers', 'TransferController@store');
+});
+Route::group([
+    'middleware' => 'auth',
+    'prefix' => 'transfers'
+], function ($router) {
+    Route::post('', 'TransferController@store')->middleware('checkbank', 'logtransfer');
+    Route::post('/confirm', 'TransferController@confirm')->middleware('logtransfer');
+    Route::get('/{id}/refresh', 'TransferController@getOTP');
+});
+Route::get('banks', 'BankController@index')->middleware('auth');
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
-Route::post('sendMoney','BankController@sendMoney');
-Route::get('viewuser','BankController@viewuser');
-Route::post('confirm','BankController@send')->middleware('logtransfer');
+Route::post('sendMoney', 'BankController@sendMoney');
+Route::get('viewuser', 'BankController@viewuser');
+Route::post('confirm', 'BankController@send')->middleware('logtransfer');
