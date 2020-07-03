@@ -93,7 +93,12 @@ export default {
           }
           this.lastPage = response.data.last_page;
         })
-        .catch(error => {});
+        .catch(error => {
+          if (error.response.status === 422) {
+            this.$store.dispatch("logOut");
+            return;
+          }
+        });
     },
     search(input) {
       if (input.length < 1) {

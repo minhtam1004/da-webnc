@@ -48,7 +48,9 @@
                 id="pills-home"
                 role="tabpanel"
                 aria-labelledby="pills-home-tab"
-              >...</div>
+              >
+              <Receiving />
+              </div>
               <div
                 class="tab-pane fade"
                 id="pills-profile"
@@ -71,7 +73,7 @@
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
-
+import Receiving from "./Transaction/Receiving"; 
 export default {
   name: "Tables",
   components: {
@@ -80,7 +82,8 @@ export default {
     mdbCard,
     mdbView,
     mdbCardBody,
-    mdbTbl
+    mdbTbl,
+    Receiving
   },
   data() {
     return {};
