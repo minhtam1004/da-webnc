@@ -14,8 +14,24 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $limit = 10;
-        for ($i = 0; $i < $limit; $i++) {
+        DB::table('users')->insert([
+            'username' => '_admin',
+            'password' =>  bcrypt('123456'),
+            'name' => 'testAdmin',
+            'email' => 'charatsu98@gmail.com',
+            'phone' => '123123123',
+            'roleId' => 1
+        ]);
+        DB::table('users')->insert([
+            'username' => 'user0',
+            'password' =>  bcrypt('123456'),
+            'name' => 'employee',
+            'email' => 'email0@gmail.com',
+            'phone' => '123123123',
+            'roleId'=> 2,
+        ]);
+        $limit = 8;
+        for ($i = 1; $i <= $limit; $i++) {
             DB::table('users')->insert([
                 'username' => 'user'.$i,
                 'password' =>  bcrypt('123456'),
@@ -23,6 +39,6 @@ class UserSeeder extends Seeder
                 'email' => 'email'.$i.'@gmail.com',
                 'phone' => '123123123',
             ]);
-        }
+        }        
     }
 }

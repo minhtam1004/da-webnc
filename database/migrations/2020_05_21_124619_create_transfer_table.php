@@ -23,6 +23,7 @@ class CreateTransferTable extends Migration
             $table->text('reason');
             $table->boolean('isConfirm')->default(false);
             $table->string('OTPCode')->nullable();
+            $table->boolean('payer')->default(true);
             $table->timestamp('expiresAt');
             $table->timestamps();
         });

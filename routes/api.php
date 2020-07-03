@@ -48,6 +48,7 @@ Route::group([
 });
 Route::get('bank/accounts/{id}','AccountController@show')->middleware('auth');
 Route::get('banks','BankController@index')->middleware('auth');
+Route::get('bank/employee','UserController@employeeIndex')->middleware('auth');
 Route::post('transfers', 'TransferController@store')->middleware('checkbank','logtransfer');
 Route::post('bank/transfers', 'TransferController@store')->middleware('auth');
 Route::post('confirm/transfers', 'TransferController@confirm')->middleware('auth','logtransfer');
