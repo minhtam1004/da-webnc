@@ -90,8 +90,14 @@
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/transactions" @click.native="activeItem = 6">
+        <router-link to="/customers" @click.native="activeItem = 6">
           <mdb-list-group-item :action="true" :class="activeItem === 6 && 'active'">
+            <mdb-icon icon="hand-holding-usd" class="mr-3" />Quản lí khách hàng
+          </mdb-list-group-item>
+        </router-link>
+
+        <router-link to="/transactions" @click.native="activeItem = 7">
+          <mdb-list-group-item :action="true" :class="activeItem === 7 && 'active'">
             <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách giao dịch
           </mdb-list-group-item>
         </router-link>
@@ -100,14 +106,14 @@
             <mdb-icon icon="map" class="mr-3" />Maps
           </mdb-list-group-item>
         </router-link>-->
-        <router-link v-if="!isCustomer" to="/register-customer" @click.native="activeItem = 7">
-          <mdb-list-group-item :action="true" :class="activeItem === 7 && 'active'">
+        <router-link v-if="!isCustomer" to="/register-customer" @click.native="activeItem = 8">
+          <mdb-list-group-item :action="true" :class="activeItem === 8 && 'active'">
             <mdb-icon icon="user-plus" class="mr-3" />Đăng kí tài
             khoản
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/404" @click.native="activeItem = 8">
-          <mdb-list-group-item :action="true" :class="activeItem === 8 && 'active'">
+        <router-link to="/404" @click.native="activeItem = 9">
+          <mdb-list-group-item :action="true" :class="activeItem === 9 && 'active'">
             <mdb-icon icon="exclamation" class="mr-3" />404
           </mdb-list-group-item>
         </router-link>
@@ -167,15 +173,6 @@ export default {
       isCustomer: false
     };
   },
-  created() {
-    console.log(this.$store.state.user.authUser.roleId);
-    if (this.$store.state.user.authUser.roleId === 3) {
-      this.isCustomer = true;
-    }
-  },
-  // beforeMount() {
-  //     this.activeItem = this.$route.matched[0].props.default.page;
-  // },
   methods: {
     logout() {
       const options = {

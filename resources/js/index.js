@@ -12,20 +12,23 @@ import Maps from "./components/Maps";
 import BadGateway from "./components/BadGateway";
 import AccountInfo from "./components/AccountInfo";
 import Transaction from "./components/Transaction";
+import ListCustomer from "./components/ListCustomer";
 import TransferInterbank from "./components/TransferInterbank";
 import Topup from "./components/Topup";
 export const routes = [
-    { path: "/", name: "Login", component: Login },
+    { path: "/login", name: "Login", component: Login },
     {
         path: "",
         component: Container,
         children: [
             {
-                path: "/dashboard",
+                path: "/",
                 name: "Dashboard",
                 component: Dashboard,
                 props: { page: 1 },
-                alias: "/dashboard"
+                alias: "/dashboard",
+                meta: { role: 3 }
+              
             },
             {
                 path: "/profile",
@@ -52,11 +55,19 @@ export const routes = [
                 component: TransferInterbank
             },
             {
+                path: "/customers",
+                name: "ListCustomer",
+                props: { page: 6 },
+                component: ListCustomer
+                
+            },
+            {
                 path: "/transactions",
                 name: "Transactions",
-                props: { page: 6 },
+                props: { page: 7 },
                 component: Transaction
             },
+
             // {
             //     path: "/maps",
             //     name: "Maps",
@@ -66,18 +77,18 @@ export const routes = [
             {
                 path: "/register-customer",
                 name: "RegisterCustomer",
-                props: { page: 7 },
+                props: { page: 8 },
                 component: RegisterCustomer
             },
             {
                 path: "/404",
                 name: "BadGateway",
-                props: { page: 8 },
+                props: { page: 9 },
                 component: Tables
             },
             {
                 path: "*",
-                props: { page: 9 },
+                props: { page: 10 },
                 redirect: "/404"
             }
         ]

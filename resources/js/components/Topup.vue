@@ -331,8 +331,10 @@ export default {
           Authorization: "bearer" + this.$store.state.user.access_token
         }
       };
+      //get api/transfers/{id cua transfer}/refresh
+
       axios
-        .post("api/confirm/transfers", data, options)
+        .post("api/transfers/confirm", data, options)
         .then(response => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data) {

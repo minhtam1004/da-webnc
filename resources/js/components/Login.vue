@@ -1,34 +1,54 @@
 <template>
   <!-- Default form login -->
   <div id="app" class="container-login">
-      <form v-on:submit.prevent="checkIfRecaptchaVerified" role="form">
-    <p class="h4 text-center mb-4">Sign in</p>
+    <form role="form">
+      <p class="h4 text-center mb-4">Đăng nhập</p>
 
-    <div class="form-group has-error">
-    <label for="name" class="grey-text control-label">Username</label>
-    <input type="text" v-model="username" required class="form-control" />
-    <span class="help-block">{{msg.username}}</span>
-    <div class="help-block"><strong>{{ loginForm.pleaseTickRecaptchaMessage }}</strong></div>
-    </div>
-    <br />
-    <label for="password" class="grey-text" required>Password</label>
-    <input type="password" v-model="password" class="form-control" />
+      <div class="form-group has-error">
+        <label for="name" class="grey-text control-label">Tên đăng nhập</label>
+        <input type="text" v-model="username" required class="form-control" />
+        <span class="help-block">{{msg.username}}</span>
+        <div class="help-block">
+          <strong>{{ loginForm.pleaseTickRecaptchaMessage }}</strong>
+        </div>
+      </div>
+      <br />
+      <label for="password" class="grey-text" required>Mật khẩu</label>
+      <input type="password" v-model="password" class="form-control" />
 
-    <br />
-    <vue-recaptcha @verify="markRecaptchaAsVerified" sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7" :loadRecaptchaScript="true"></vue-recaptcha>
-    <div class="text-center mt-4">
-      <button class="btn btn-indigo" :disabled="loading">
-        <i v-if="loading" class="fa fa-spinner fa-spin"></i>
-        Login
-      </button>
-    </div>
-      </form>
+      <br />
+      <vue-recaptcha
+        @verify="markRecaptchaAsVerified"
+        sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7"
+        :loadRecaptchaScript="true"
+      ></vue-recaptcha>
+      <div class="text-center mt-4">
+        <button
+          class="btn btn-indigo"
+          :disabled="loading"
+          id="btn-one"
+          type="button"
+          @click="checkIfRecaptchaVerified"
+        >
+          <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+          Đăng nhập
+        </button>
+      </div>
+    </form>
+    <Modal
+      v-if="showModal"
+      :type="typeModal"
+      :title="titleModal"
+      :message="messageModal"
+      @close-modal="showModal = false"
+    />
   </div>
   <!-- Default form login -->
 </template>
 <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer>
 </script>
 <script>
+import Modal from "./Modal";
 import VueRecaptcha from "vue-recaptcha";
 import {
   required,
@@ -37,19 +57,23 @@ import {
   numeric
 } from "vuelidate/lib/validators";
 export default {
-  components: { VueRecaptcha },
-   el: '#app',
+  components: { VueRecaptcha, Modal },
+  // el: "#app",
   data() {
     return {
       username: "",
       password: "",
+      showModal: false,
+      typeModal: "",
+      titleModal: "",
+      messageModal: "",
       show: false,
       loading: false,
       msg: [],
       loginForm: {
-      recaptchaVerified: false,
-      pleaseTickRecaptchaMessage: ''
-    }
+        recaptchaVerified: false,
+        pleaseTickRecaptchaMessage: ""
+      }
     };
   },
   computed: {
@@ -123,12 +147,17 @@ export default {
     },
     checkIfRecaptchaVerified() {
       if (!this.loginForm.recaptchaVerified) {
-        this.loginForm.pleaseTickRecaptchaMessage = "Please tick recaptcha.";
+        this.showModal = true;
+
+        this.typeModal = "danger";
+        this.messageModal = "Vui lòng nhập captcha";
+        this.titleModal = "Thao tác không thành công";
         return true;
       }
-      this.login()
+      this.login();
     },
     login() {
+      this.turnOnLoading();
       console.log(this.username, this.password);
       this.loading = true;
       axios
@@ -148,6 +177,7 @@ export default {
         })
         .catch(error => {
           if (error.response.status === 401) {
+            this.turnOffLoading();
             this.loading = false;
             return this.$toast.open({
               message: "Tên đăng nhập hoặc mật khẩu không đúng",
@@ -164,16 +194,30 @@ export default {
           }
         })
         .then(response => {
+          this.turnOffLoading();
           console.log(response);
           this.$store.dispatch("setUserObject", response.data);
-           this.$router.push({ name: "Dashboard" });
+          this.$user = response.data;
+          this.$router.push({ name: "Dashboard" });
         })
         .catch(error => {
+          this.turnOffLoading();
           return this.$toast.open({
             message: "Có lỗi xảy ra",
             type: "error"
           });
         });
+    },
+    turnOnLoading() {
+      $("#btn-one")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoading() {
+      $("#btn-one").removeClass("disabled");
+      $("#btn-one span").remove();
     }
   }
 };
