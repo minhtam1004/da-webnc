@@ -18,10 +18,22 @@ class UserController extends Controller
     }
     public function employeeIndex(Request $request)
     {       
+        if(auth('api')->user()->roleId !== 1) return response()->json(['error'=>'do not have permission'],403); 
         if(!$request->limit) $request->merge(['limit',10]);
         if(!$request->page) $request->merge(['page',1]);
         if(!$request->keyword) $request->merge(['keyword','']);
         return User::where('roleId', 2)->where(function($query)use($request){
+            $query->where('name','LIKE',"%{$request->keyword}%")
+            ->orWhere('id','LIKE',"%{$request->keyword}%");
+        })->get();
+    }
+    public function customerIndex(Request $request)
+    {       
+        if(auth('api')->user()->roleId > 2) return response()->json(['error'=>'do not have permission'],403); 
+        if(!$request->limit) $request->merge(['limit',10]);
+        if(!$request->page) $request->merge(['page',1]);
+        if(!$request->keyword) $request->merge(['keyword','']);
+        return User::where('roleId', 3)->where(function($query)use($request){
             $query->where('name','LIKE',"%{$request->keyword}%")
             ->orWhere('id','LIKE',"%{$request->keyword}%");
         })->get();
