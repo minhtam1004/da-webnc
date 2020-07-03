@@ -36,10 +36,10 @@ class UserController extends Controller
         if (!$request->page) $request->merge(['page', 1]);
         if (!$request->keyword) $request->merge(['keyword', '']);
         return User::where('roleId', 3)->where(function ($query) use ($request) {
-            $query->where('users.name', 'LIKE', "%{$request->keyword}%")
+            $query->where('users.username', 'LIKE', "%{$request->keyword}%")
                 ->orWhere('users.id', 'LIKE', "%{$request->keyword}%")
                 ->orWhere('accounts.accountNumber', 'LIKE', "%{$request->keyword}%");
-        })->join('accounts','users.id','=','accounts.userId')->simplePaginate($request->limit, ['*'], 'page', $request->page);
+        })->join('accounts', 'users.id', '=', 'accounts.userId')->simplePaginate($request->limit, ['*'], 'page', $request->page);
     }
     public function employeeStore(Request $request)
     {
@@ -76,7 +76,7 @@ class UserController extends Controller
             return response()->json(['error' => 'Parameter error'], 422);
         }
         $user = User::find($id);
-        if ($user) {
+        if (!$user) {
             return response()->json(['error' => 'user not exist'], 404);
         }
         if ($request->email && $request->email !== $user->email) {
@@ -93,14 +93,22 @@ class UserController extends Controller
             $user->roleId = $request->roleId;
         }
         if ($request->password) {
-            $user->password = $request->phone;
+            $user->password = $request->password;
         }
-        $user = User::where('username', $request->username)->first();
-        if ($user) {
-            return response()->json(['error' => 'email exist'], 422);
+        $user->save();
+        return $user;
+    }
+    public function employeeDestroy($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'user not exist'], 404);
         }
-        $request->merge(['roleId' => 2]);
-        return User::create($request->all());
+        if ($user->roleId != 2) {
+            return response()->json(['error' => 'do not have permission'], 422);
+        }
+        $user->delete();
+        return response()->json(['message'=>'user has been remove'],200);
     }
     /**
      * Show the form for creating a new resource.

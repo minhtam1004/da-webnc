@@ -144,7 +144,7 @@ class BankController extends Controller
             $sign = "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n" . preg_replace("/^-/", "- -", $packets[0]->data) . "\n" . OpenPGP::enarmor($packets[1][0]->to_bytes(), "PGP SIGNATURE");
             $body = json_encode(['SoTien' => $trans->amount, 'SoTaiKhoan' => $trans->receivedId]);
             $client = new \GuzzleHttp\Client();
-            $response = $client->put('https://nhom34bank.herokuapp.com/api/noptien', [
+            $response = $client->put('https://banking34.herokuapp.com/api/transfer/update', [
                 RequestOptions::BODY => $body,
                 RequestOptions::HEADERS => [
                     'Content-Type: application/json',
@@ -189,11 +189,11 @@ class BankController extends Controller
         } else {
             $time = $time * 1000;
             $response = Http::withHeaders([
-                'bank-code' => 'partner19',
-                'time' => $time,
-                'sig' => hash('sha256', $time . 'nhom19banking')
+                'x-partner-code' => 'partner19',
+                'x-time' => $time,
+                'x-signature' => hash('sha256', $time . 'nhom19banking')
             ])
-                ->get('https://nhom34bank.herokuapp.com/api/taikhoan/' . $request->id);
+                ->get('https://banking34.herokuapp.com/api/user/' . $request->id);
             return $response;
         }
     }

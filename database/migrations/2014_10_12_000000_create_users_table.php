@@ -22,6 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('phone')->nullable();
             $table->integer('roleId')->default(3);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
