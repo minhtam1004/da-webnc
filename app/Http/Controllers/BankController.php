@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\Bank;
+use App\Mail\OTPMail;
 use App\Transfer;
 use App\User;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use OpenPGP;
 use OpenPGP_Crypt_RSA;
 use OpenPGP_Crypt_Symmetric;
@@ -51,9 +53,11 @@ class BankController extends Controller
         if (!$bank) return response()->json(['error' => 'bank not connected'], 422);
         if (!$request->payer) $request->merge(['payer' => false]);
         $OTPCode = rand(0, 999999);
-        $request->merge(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
+        $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
+        $request->merge(['OTPCode' => $OTPString]);
         $request->merge(['expiresAt' => time() + 60]);
         $transfer = Transfer::create($request->all());
+        Mail::to($email)->send(new OTPMail($OTPString));
         return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
     }
     public function send(Request $request)
