@@ -55,6 +55,7 @@ Route::group([
     Route::get('/users/{id}/transfers', 'UserController@showTransfer');
     Route::get('/customers', 'UserController@customerIndex');
     Route::get('/employee', 'UserController@employeeIndex');
+    Route::post('/employee', 'UserController@employeeStore');
     Route::put('/employee/{id}', 'UserController@employeeUpdate');
     Route::delete('/employee/{id}', 'UserController@employeeDestroy');
     Route::post('/transfers', 'TransferController@store');

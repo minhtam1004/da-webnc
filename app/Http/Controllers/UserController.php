@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\User as UserResource;
+use Illuminate\Support\Facades\Validator;
+
 class UserController extends Controller
 {
     /**
@@ -17,26 +19,88 @@ class UserController extends Controller
         return User::all();
     }
     public function employeeIndex(Request $request)
-    {       
-        if(auth('api')->user()->roleId !== 1) return response()->json(['error'=>'do not have permission'],403); 
-        if(!$request->limit) $request->merge(['limit',10]);
-        if(!$request->page) $request->merge(['page',1]);
-        if(!$request->keyword) $request->merge(['keyword','']);
-        return User::where('roleId', 2)->where(function($query)use($request){
-            $query->where('name','LIKE',"%{$request->keyword}%")
-            ->orWhere('id','LIKE',"%{$request->keyword}%");
+    {
+        if (auth('api')->user()->roleId !== 1) return response()->json(['error' => 'do not have permission'], 403);
+        if (!$request->limit) $request->merge(['limit', 10]);
+        if (!$request->page) $request->merge(['page', 1]);
+        if (!$request->keyword) $request->merge(['keyword', '']);
+        return User::where('roleId', 2)->where(function ($query) use ($request) {
+            $query->where('name', 'LIKE', "%{$request->keyword}%")
+                ->orWhere('id', 'LIKE', "%{$request->keyword}%");
         })->get();
     }
     public function customerIndex(Request $request)
-    {       
-        if(auth('api')->user()->roleId > 2) return response()->json(['error'=>'do not have permission'],403); 
-        if(!$request->limit) $request->merge(['limit',10]);
-        if(!$request->page) $request->merge(['page',1]);
-        if(!$request->keyword) $request->merge(['keyword','']);
-        return User::where('roleId', 3)->where(function($query)use($request){
-            $query->where('name','LIKE',"%{$request->keyword}%")
-            ->orWhere('id','LIKE',"%{$request->keyword}%");
-        })->get();
+    {
+        if (auth('api')->user()->roleId > 2) return response()->json(['error' => 'do not have permission'], 403);
+        if (!$request->limit) $request->merge(['limit', 10]);
+        if (!$request->page) $request->merge(['page', 1]);
+        if (!$request->keyword) $request->merge(['keyword', '']);
+        return User::where('roleId', 3)->where(function ($query) use ($request) {
+            $query->where('users.name', 'LIKE', "%{$request->keyword}%")
+                ->orWhere('users.id', 'LIKE', "%{$request->keyword}%")
+                ->orWhere('accounts.accountNumber', 'LIKE', "%{$request->keyword}%");
+        })->join('accounts','users.id','=','accounts.userId')->simplePaginate($request->limit, ['*'], 'page', $request->page);
+    }
+    public function employeeStore(Request $request)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'username' => 'required|max:64',
+            'password' => 'required|min:6|max:64',
+            'name' => 'required|max:60',
+            'email' => 'required|max:60',
+            'phone' => 'string|size:10',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            return response()->json(['error' => 'email exist'], 422);
+        }
+        $user = User::where('username', $request->username)->first();
+        if ($user) {
+            return response()->json(['error' => 'email exist'], 422);
+        }
+        $request->merge(['roleId' => 2]);
+        return User::create($request->all());
+    }
+    public function employeeUpdate(Request $request, $id)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'password' => 'min:6|max:64',
+            'email' => 'max:60',
+            'phone' => 'string|size:10',
+            'roleId' => 'digits_between:1,3'
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $user = User::find($id);
+        if ($user) {
+            return response()->json(['error' => 'user not exist'], 404);
+        }
+        if ($request->email && $request->email !== $user->email) {
+            $temp = User::where('email', $request->email)->first();
+            if ($temp) {
+                return response()->json(['error' => 'email exist'], 422);
+            }
+            $user->email = $request->email;
+        }
+        if ($request->phone && $request->phone !== $user->phone) {
+            $user->phone = $request->phone;
+        }
+        if ($request->roleId && $request->roleId !== $user->roleId) {
+            $user->roleId = $request->roleId;
+        }
+        if ($request->password) {
+            $user->password = $request->phone;
+        }
+        $user = User::where('username', $request->username)->first();
+        if ($user) {
+            return response()->json(['error' => 'email exist'], 422);
+        }
+        $request->merge(['roleId' => 2]);
+        return User::create($request->all());
     }
     /**
      * Show the form for creating a new resource.
@@ -68,14 +132,14 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        if(auth('api')->user()->roleId >= $user->roleId) return response()->json(['error'=>'do not have permission'],403);
+        if (auth('api')->user()->roleId >= $user->roleId) return response()->json(['error' => 'do not have permission'], 403);
         return $user;
     }
 
     public function showTransfer($id)
     {
         $user = User::find($id);
-        if(auth('api')->user()->roleId >= $user->roleId) return response()->json(['error'=>'do not have permission'],403);
+        if (auth('api')->user()->roleId >= $user->roleId) return response()->json(['error' => 'do not have permission'], 403);
         $acc = $user->account;
         return $acc->sendTransfer;
     }
