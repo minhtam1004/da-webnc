@@ -65,9 +65,19 @@ class UserController extends Controller
      * @param  \App\Transfer  $transfer
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($id)
     {
-        return  response()->json(['name'=> $user->name, 'email' =>$user->email]);
+        $user = User::find($id);
+        if(auth('api')->user()->roleId >= $user->roleId) return response()->json(['error'=>'do not have permission'],403);
+        return $user;
+    }
+
+    public function showTransfer($id)
+    {
+        $user = User::find($id);
+        if(auth('api')->user()->roleId >= $user->roleId) return response()->json(['error'=>'do not have permission'],403);
+        $acc = $user->account;
+        return $acc->sendTransfer;
     }
 
     /**

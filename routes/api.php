@@ -51,9 +51,12 @@ Route::group([
     'prefix' => 'bank'
 ], function ($router) {
     Route::get('/accounts/{id}', 'AccountController@show');
-    Route::get('/customers/{id}', 'UserController@show');
+    Route::get('/users/{id}', 'UserController@show');
+    Route::get('/users/{id}/transfers', 'UserController@showTransfer');
     Route::get('/customers', 'UserController@customerIndex');
     Route::get('/employee', 'UserController@employeeIndex');
+    Route::put('/employee/{id}', 'UserController@employeeUpdate');
+    Route::delete('/employee/{id}', 'UserController@employeeDestroy');
     Route::post('/transfers', 'TransferController@store');
 });
 Route::group([
