@@ -42,12 +42,17 @@ class BankController extends Controller
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
-        }
+        }        
         $acc = Account::where('accountNumber', $request->sendId)->first();
         if (!$acc) {
             return response()->json(['error' => 'account doesnt exist'], 204);
         }
-        $email = $acc->user->email;
+        $user = $acc->user;
+        $userapi = auth('api')->user();
+        if($userapi->id != $user->id){
+            return response()->json(['error'=>'do not have permission'],403);
+        }
+        $email = $user->email;
         if ($acc->excess < $request->amount) return response(['error' => 'not enoungh money'], 422);
         $bank = Bank::find($request->receivedBank);
         if (!$bank) return response()->json(['error' => 'bank not connected'], 422);
@@ -56,8 +61,21 @@ class BankController extends Controller
         $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
         $request->merge(['OTPCode' => $OTPString]);
         $request->merge(['expiresAt' => time() + 60]);
-        $transfer = Transfer::create($request->all());
         Mail::to($email)->send(new OTPMail($OTPString));
+        $transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
+        if ($transfer) {
+            $transfer->sendBank = $request->sendBank;
+            $transfer->receivedId = $request->receivedId;
+            $transfer->receivedBank = $request->receivedBank;
+            $transfer->amount = $request->amount;
+            $transfer->reason = $request->reason;
+            $transfer->OTPCode = $OTPString;
+            $transfer->expiresAt = time() + 60;
+            $transfer->payer = $request->payer;
+            $transfer->save();
+            return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
+        }
+        $transfer = Transfer::create($request->all());
         return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
     }
     public function send(Request $request)
@@ -84,7 +102,7 @@ class BankController extends Controller
         }
         $trans->isConfirm = true;
         $trans->save();
-        $user = $trans->sender;
+        $user = $trans->sender->user;
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
         $bank = $trans->bank;
         $trans->amount = $trans->payer ? $trans->amount : $trans->amount - 10000;
@@ -150,9 +168,8 @@ class BankController extends Controller
             'bankId' => 'required|max:255'
         ]);
         if ($validatedData->fails()) {
-            
+
             return response()->json(['error' => 'Parameter error'], 422);
-            
         }
         $bank = Bank::find($request->bankId);
         if (!$bank) return response()->json(['error' => 'bank not connected'], 422);

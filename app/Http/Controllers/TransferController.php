@@ -69,7 +69,12 @@ class TransferController extends Controller
                 return response()->json(['error' => 'account doesnt exist'], 204);
             }
             if ($acc->excess < $request->amount) return response(['error' => 'not enoungh money'], 422);
-            $email = $acc->user->email;
+            $user = $acc->user;
+            $userapi = auth('api')->user();
+            if ($userapi->id != $user->id) {
+                return response()->json(['error' => 'do not have permission'], 403);
+            }
+            $email = $user->email;
             Mail::to($email)->send(new OTPMail($OTPString));
             $transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
             if ($transfer) {
