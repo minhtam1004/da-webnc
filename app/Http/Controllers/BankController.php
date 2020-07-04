@@ -42,15 +42,15 @@ class BankController extends Controller
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
-        }        
+        }
         $acc = Account::where('accountNumber', $request->sendId)->first();
         if (!$acc) {
             return response()->json(['error' => 'account doesnt exist'], 204);
         }
         $user = $acc->user;
         $userapi = auth('api')->user();
-        if($userapi->id != $user->id){
-            return response()->json(['error'=>'do not have permission'],403);
+        if ($userapi->id != $user->id) {
+            return response()->json(['error' => 'do not have permission'], 403);
         }
         $email = $user->email;
         if ($acc->excess < $request->amount) return response(['error' => 'not enoungh money'], 422);
@@ -104,7 +104,7 @@ class BankController extends Controller
         $trans->save();
         $user = $trans->sender->user;
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
-        $bank = $trans->bank;
+        $bank = $trans->Bank;
         $trans->amount = $trans->payer ? $trans->amount : $trans->amount - 10000;
         $body = json_encode([
             'amount' => $trans->amount,
@@ -131,7 +131,6 @@ class BankController extends Controller
             }
             return $response;
         } else {
-            $time = $time * 1000;
             $data = $trans->amount . ',' . $trans->receivedId . ',' . $time;
             $file = file_get_contents(public_path('key/Pgpkey/PrivateKey.asc'));
             $key = OpenPGP_Message::parse(OpenPGP::unarmor($file, 'PGP PRIVATE KEY BLOCK'));
@@ -142,23 +141,53 @@ class BankController extends Controller
             $signature = $gpg->sign($data);
             $packets = $signature->signatures()[0];
             $sign = "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n" . preg_replace("/^-/", "- -", $packets[0]->data) . "\n" . OpenPGP::enarmor($packets[1][0]->to_bytes(), "PGP SIGNATURE");
-            $body = json_encode(['SoTien' => $trans->amount, 'SoTaiKhoan' => $trans->receivedId]);
-            $client = new \GuzzleHttp\Client();
-            $response = $client->put('https://banking34.herokuapp.com/api/transfer/update', [
-                RequestOptions::BODY => $body,
-                RequestOptions::HEADERS => [
-                    'Content-Type: application/json',
-                    'bank-code' => 'partner19',
-                    'time' => $time,
-                    'sig' => hash('sha256', $time . json_encode($body) . 'nhom19banking'),
-                    'signature-pgp' => $sign
-                ],
+            $body = json_encode(['moneyAmount' => (int)$trans->amount, 'accNum' => (int)$trans->receivedId]);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://banking34.herokuapp.com/api/transfer/update');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTP_CONTENT_DECODING, false);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'x-partner-code: partner19',
+                'x-time: '.$time,
+                'x-hash: '.hash('sha256', $time . $body . 'nhom19banking'),
+                'x-signature-pgp: '.$sign
             ]);
-            if ($response->getStatusCode() === 200) {
-                $user->excess -= $trans->amount + 10000;
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            return ($response);
+            
+            // $client = new \GuzzleHttp\Client();
+            // $response = $client->post('https://banking34.herokuapp.com/api/transfer/update', [
+            //     RequestOptions::BODY => $body,
+            //     RequestOptions::HEADERS => [
+            //         'Content-Type' => 'application/json',
+            //         'x-partner-code' => 'partner19',
+            //         'x-time' => $time,
+            //         'x-hash' => hash('sha256', $time.$body.'nhom19banking'),
+            //         'x-signature-pgp' => $sign
+            //     ],
+            // ]);
+            // $response = Http::withHeaders([
+            //     'Content-Type' => 'application/json',
+            //     'x-partner-code' => 'partner19',
+            //     'x-time' => $time,
+            //     'x-hash' => hash('sha256', $time . $body . 'nhom19banking'),
+            //     'x-signature-pgp' => $sign
+            // ])
+            //     ->post(
+            //         'https://banking34.herokuapp.com/api/transfer/update',
+            //         ['moneyAmount' => $trans->amount, 'accNum' => $trans->receivedId]
+            //     );
                 return $response;
+            if ($response->status() === 200) {
+                dd('a');
+                $user->excess -= $trans->amount + 10000;
+                return $body;
             }
-            return $response;
+            return $body;
         }
     }
     public function viewuser(Request $request)

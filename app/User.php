@@ -69,9 +69,13 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->attributes['remember'] = $this->hasMany('App\RememberList', 'ownerId', 'id');
     }
-    public function debts()
+    public function owndebts()
     {
         return $this->attributes['debt'] = $this->hasMany('App\DebtList', 'ownerId', 'id');
+    }
+    public function otherdebts()
+    {
+        return $this->attributes['debt'] = $this->hasMany('App\DebtList', 'otherId', 'id');
     }
     public function setPasswordAttribute($password)
     {

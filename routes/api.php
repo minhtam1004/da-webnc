@@ -54,10 +54,10 @@ Route::group([
     Route::get('/users/{id}', 'UserController@show');
     Route::get('/users/{id}/transfers', 'UserController@showTransfer');
     Route::get('/customers', 'UserController@customerIndex');
-    Route::get('/employee', 'UserController@employeeIndex');
-    Route::post('/employee', 'UserController@employeeStore');
-    Route::put('/employee/{id}', 'UserController@employeeUpdate');
-    Route::delete('/employee/{id}', 'UserController@employeeDestroy');
+    Route::get('/employees', 'UserController@employeeIndex');
+    Route::post('/employees', 'UserController@employeeStore');
+    Route::put('/employees/{id}', 'UserController@employeeUpdate');
+    Route::delete('/employees/{id}', 'UserController@employeeDestroy');
     Route::post('/transfers', 'TransferController@store');
 });
 Route::group([
