@@ -162,12 +162,12 @@ class AuthController extends Controller
                 'message' => 'This password reset token is expires.',
             ], 422);
         }
-        $user = User::where('email', $passwordReset->email)->firstOrFail();
-        $updatePasswordUser = $user->update($request->only('password'));
-        $passwordReset->delete();
+        $user = User::where('email', $request->email)->firstOrFail();
+        $user->update($request->only('password'));
+        //$passwordReset->delete();
 
         return response()->json([
-            'success' => $updatePasswordUser,
+            'success'
         ]);
     }
     /**

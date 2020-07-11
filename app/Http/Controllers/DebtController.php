@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\DebtList;
 use App\Mail\OTPMail;
+use App\Notifications\DebtNotification;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -44,7 +45,10 @@ class DebtController extends Controller
             return response()->json(['error'=>'do not have account']);
         }
         $request->merge(['ownerId'=>$acc1->accountNumber]);
-        Mail::to($acc->user->email)->send(new OTPMail('121212'));
+        $user = $acc->user;
+        $user->notify(new DebtNotification(['owner'=>$acc1->user,'note'=>$request->note,]));
+
+        // Mail::to($acc->user->email)->send(new OTPMail('121212'));
         $debt = DebtList::create($request->all());
         return $debt;
     }
