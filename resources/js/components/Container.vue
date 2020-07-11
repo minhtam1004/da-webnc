@@ -90,14 +90,20 @@
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/customers" @click.native="activeItem = 6">
+        <router-link to="/employees" @click.native="activeItem = 6">
           <mdb-list-group-item :action="true" :class="activeItem === 6 && 'active'">
-            <mdb-icon icon="hand-holding-usd" class="mr-3" />Quản lí khách hàng
+            <mdb-icon icon="user-secret" class="mr-3" />Quản lí nhân viên
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/transactions" @click.native="activeItem = 7">
+        <router-link to="/customers" @click.native="activeItem = 7">
           <mdb-list-group-item :action="true" :class="activeItem === 7 && 'active'">
+            <mdb-icon icon="user-secret" class="mr-3" />Quản lí khách hàng
+          </mdb-list-group-item>
+        </router-link>
+
+        <router-link to="/transactions" @click.native="activeItem = 8">
+          <mdb-list-group-item :action="true" :class="activeItem === 8 && 'active'">
             <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách giao dịch
           </mdb-list-group-item>
         </router-link>
@@ -106,14 +112,14 @@
             <mdb-icon icon="map" class="mr-3" />Maps
           </mdb-list-group-item>
         </router-link>-->
-        <router-link v-if="!isCustomer" to="/register-customer" @click.native="activeItem = 8">
-          <mdb-list-group-item :action="true" :class="activeItem === 8 && 'active'">
+        <router-link v-if="!isCustomer" to="/register-customer" @click.native="activeItem = 9">
+          <mdb-list-group-item :action="true" :class="activeItem === 9 && 'active'">
             <mdb-icon icon="user-plus" class="mr-3" />Đăng kí tài
             khoản
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/404" @click.native="activeItem = 9">
-          <mdb-list-group-item :action="true" :class="activeItem === 9 && 'active'">
+        <router-link to="/404" @click.native="activeItem = 10">
+          <mdb-list-group-item :action="true" :class="activeItem === 10 && 'active'">
             <mdb-icon icon="exclamation" class="mr-3" />404
           </mdb-list-group-item>
         </router-link>
