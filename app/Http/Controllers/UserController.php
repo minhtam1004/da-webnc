@@ -141,6 +141,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (auth('api')->user()->roleId >= $user->roleId) return response()->json(['error' => 'do not have permission'], 403);
+        $user->account;
         return $user;
     }
 
