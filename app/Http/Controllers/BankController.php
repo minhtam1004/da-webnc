@@ -10,6 +10,7 @@ use App\User;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
@@ -20,6 +21,7 @@ use OpenPGP_Crypt_RSA;
 use OpenPGP_Crypt_Symmetric;
 use OpenPGP_LiteralDataPacket;
 use OpenPGP_Message;
+use OpenPGP_SecretKeyPacket;
 use Psr\Http\Message\ResponseInterface;
 
 class BankController extends Controller
@@ -100,8 +102,8 @@ class BankController extends Controller
         if (Carbon::parse($trans->expiresAt, 'Asia/Ho_Chi_Minh')->timestamp < Carbon::now('Asia/Ho_Chi_Minh')->timestamp) {
             return response()->json('code is expires', 403);
         }
-        $trans->isConfirm = true;
-        $trans->save();
+        // $trans->isConfirm = true;
+        // $trans->save();
         $user = $trans->sender->user;
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
         $bank = $trans->Bank;
@@ -131,36 +133,91 @@ class BankController extends Controller
             }
             return $response;
         } else {
+            $time = $time * 1000;
             $data = $trans->amount . ',' . $trans->receivedId . ',' . $time;
-            $file = file_get_contents(public_path('key/Pgpkey/PrivateKey.asc'));
-            $key = OpenPGP_Message::parse(OpenPGP::unarmor($file, 'PGP PRIVATE KEY BLOCK'));
-            $key = OpenPGP_Crypt_Symmetric::decryptSecretKey('Minhtam1234', $key->packets[0]);
-            $data = new OpenPGP_LiteralDataPacket($data);
-            $data->normalize(true);
-            $gpg = new OpenPGP_Crypt_RSA($key);
-            $signature = $gpg->sign($data);
-            $packets = $signature->signatures()[0];
-            $sign = "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n" . preg_replace("/^-/", "- -", $packets[0]->data) . "\n" . OpenPGP::enarmor($packets[1][0]->to_bytes(), "PGP SIGNATURE");
-            $body = json_encode(['moneyAmount' => (int)$trans->amount, 'accNum' => (int)$trans->receivedId]);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://banking34.herokuapp.com/api/transfer/update');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTP_CONTENT_DECODING, false);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'x-partner-code: partner19',
-                'x-time: '.$time,
-                'x-hash: '.hash('sha256', $time . $body . 'nhom19banking'),
-                'x-signature-pgp: '.$sign
-            ]);
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            return ($response);
+            $file = '/public/key/Pgpkey/PrivateKey.asc';
+            $pass = 'Minhtam1234';
+            exec("node ../test.js {$file} {$pass} {$data} 2>&1",$result);
+            //dd($result);
+            // $io = [
+            //     0 => ['pipe', 'r'], // node's stdin
+            //     1 => ['pipe', 'w'], // node's stdout
+            //     2 => ['pipe', 'w'], // node's stderr
+            // ];
             
-            // $client = new \GuzzleHttp\Client();
-            // $response = $client->post('https://banking34.herokuapp.com/api/transfer/update', [
+            // $proc = proc_open('node test.js', $io, $pipes);
+            
+            // $nodeStdout = $pipes[1]; // our end of node's stdout
+            // echo date('H:i:s '), fgets($nodeStdout);
+            
+            // proc_close($proc);
+            
+            // dd($result, $var);
+            // $key = OpenPGP_Message::parse(OpenPGP::unarmor($file, 'PGP PRIVATE KEY BLOCK'));
+            // foreach($key as $p) {
+            //     if($p instanceof OpenPGP_SecretKeyPacket){
+            //         $key = $p;
+            //         break;
+            //     }
+            // }
+            // $key = OpenPGP_Crypt_Symmetric::decryptSecretKey('Minhtam1234', $key);
+            // $data = new OpenPGP_LiteralDataPacket($data);
+            // $data->normalize(true);
+            // $gpg = new OpenPGP_Crypt_RSA($key);
+            // $signature = $gpg->sign($data,'SHA512');
+            // $packets = $signature->signatures()[0];
+            
+            // //dd(OpenPGP::enarmor($packets[1][0]->to_bytes(),"PGP SIGNATURE"));
+            // // \n-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA512\n\n30000,123456789,1594195364839\n-----BEGIN PGP SIGNATURE-----\nVersion: OpenPGP.js v4.10.4\nComment: https://openpgpjs.org\n\n wpwEAQEKAAYFAl8FfaQACgkQ7ZmXlE6vaZoQAAP+LRaje3mpHZ9wPByWedbA\n214pPUO1SW6jgB09RXuTr9cifYo8pGCyoPS69RaScjzq+RhWj4HdGwWMLB0P\nJS8IIB8LBYoFOTBwoJhchC9WJ+JP9kSM6cGP8P/AigklyMOZLrsiJlsjKWEA\noSAoZsxj/e8XZdQamFXG8Ljw8n5fNsU=\n=ie7F\n-----END PGP SIGNATURE-----\n
+            // $sign = "\n-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA512\n\n" . preg_replace("/^-/", "- -", $packets[0]->data) . OpenPGP::enarmor($packets[1][0]->to_bytes(), "PGP SIGNATURE");
+            $sign = $result[0];
+            //$body = json_encode(['accNum' => (int) $trans->receivedId, 'moneyAmount' => (int) $trans->amount]);
+            $body = json_encode(['accNum' => (int) $trans->receivedId, 'moneyAmount' => (int) $trans->amount]);
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://banking34.herokuapp.com/api/transfer/update",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => $body,
+                CURLOPT_HTTPHEADER => array(
+                    "x-time: " . $time,
+                    "x-partner-code: partner19",
+                    "x-hash: " . hash('sha256', $time . $body . 'nhom19banking'),
+                    'x-signature-pgp: ' . $sign,
+                    "Content-Type: application/json"
+                ),
+            ));
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+            curl_close($curl);
+            // $ch = curl_init();
+            // curl_setopt($ch, CURLOPT_URL, 'https://banking34.herokuapp.com/api/transfer/update');
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+            // curl_setopt($ch, CURLOPT_VERBOSE, true);
+            // //curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)');
+            // curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            //     'Accept: application/json',
+            //     'Content-Type: application/json',
+            //     'x-partner-code: partner19',
+            //     'x-time' => $time,
+            //     'x-hash' => hash('sha256', $time . $body . 'nhom19banking'),
+            //     'x-signature-pgp' => $sign
+            // ]);
+            // //dd($response, $httpCode);
+            // curl_close($ch);
+            // return response()->json($response,$httpCode);
+
+            // $client = new Client();
+            // $response = $client->post('http://localhost:6069/test', [
             //     RequestOptions::BODY => $body,
             //     RequestOptions::HEADERS => [
             //         'Content-Type' => 'application/json',
@@ -178,16 +235,14 @@ class BankController extends Controller
             //     'x-signature-pgp' => $sign
             // ])
             //     ->post(
-            //         'https://banking34.herokuapp.com/api/transfer/update',
-            //         ['moneyAmount' => $trans->amount, 'accNum' => $trans->receivedId]
+            //         'http://localhost:6069/test',
+            //         ['data' => [ 'moneyAmount' => $trans->amount, 'accNum' => $trans->receivedId]]
             //     );
-                return $response;
-            if ($response->status() === 200) {
-                dd('a');
+            if ($httpCode === 200) {
                 $user->excess -= $trans->amount + 10000;
-                return $body;
+                return $response;
             }
-            return $body;
+            return response()->json($response,$httpCode);
         }
     }
     public function viewuser(Request $request)

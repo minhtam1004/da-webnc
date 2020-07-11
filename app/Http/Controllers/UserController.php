@@ -27,7 +27,7 @@ class UserController extends Controller
         return User::where('roleId', 2)->where(function ($query) use ($request) {
             $query->where('name', 'LIKE', "%{$request->keyword}%")
                 ->orWhere('id', 'LIKE', "%{$request->keyword}%");
-        })->get();
+        })->paginate($request->limit);
     }
     public function customerIndex(Request $request)
     {
@@ -39,7 +39,7 @@ class UserController extends Controller
             $query->where('users.username', 'LIKE', "%{$request->keyword}%")
                 ->orWhere('users.id', 'LIKE', "%{$request->keyword}%")
                 ->orWhere('accounts.accountNumber', 'LIKE', "%{$request->keyword}%");
-        })->join('accounts', 'users.id', '=', 'accounts.userId')->simplePaginate($request->limit, ['*'], 'page', $request->page);
+        })->join('accounts', 'users.id', '=', 'accounts.userId')->paginate($request->limit);
     }
     public function employeeStore(Request $request)
     {
