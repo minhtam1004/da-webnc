@@ -38,6 +38,7 @@
         "crypto-js": "^4.0.0",
         "flag-icon-css": "^3.0.0",
         "font-awesome": "^4.7.0",
+        "jquery-validation": "^1.19.2",
         "mdbvue": "6.5.0",
         "simple-line-icons": "^2.4.1",
         "style-loader": "^0.21.0",

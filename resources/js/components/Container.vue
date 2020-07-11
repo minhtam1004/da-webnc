@@ -72,7 +72,7 @@
             <mdb-icon icon="user" class="mr-3" />Thông tin cá nhân
           </mdb-list-group-item>
         </router-link>
-        <router-link v-if="isCustomer" to="/account-info" @click.native="activeItem = 3">
+        <router-link to="/account-info" @click.native="activeItem = 3">
           <mdb-list-group-item :action="true" :class="activeItem === 3 && 'active'">
             <mdb-icon icon="user-md" class="mr-3" />Thông tin tài
             khoản

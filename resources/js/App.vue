@@ -18,7 +18,7 @@ export default {
     },
     currentRoute() {
       console.log("Do");
-      console.log(this.$route)
+      console.log(this.$route);
       return this.$route;
     }
   },
@@ -32,6 +32,19 @@ export default {
     console.log("daa");
     this.redirectPage();
   },
+  created() {
+    axios.interceptors.response.use(
+      function(response) {
+        // Do something with response data
+        return response;
+      },
+      function(error) {
+        this.$store.dispatch("logOut")
+        // Do something with response error
+        return Promise.reject(error);
+      }
+    );
+  },
   methods: {
     redirectPage() {
       console.log("Vo 1");
@@ -39,9 +52,12 @@ export default {
         console.log("thoat");
         return;
       }
-      console.log(this.roleId)
-      console.log(this.$route.meta.role)
-      if (!this.roleId || this.roleId && this.roleId > this.$route.meta.role) {
+      console.log(this.roleId);
+      console.log(this.$route.meta.role);
+      if (
+        !this.roleId ||
+        (this.roleId && this.roleId > this.$route.meta.role)
+      ) {
         console.log("Vo 2");
         this.$router.push({ name: "Login" });
       }
