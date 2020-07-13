@@ -45,7 +45,12 @@
                     <i class="fas fa-redo mr-1"></i>Tải lại
                   </button>
 
-                  <button type="button" class="btn btn-success" style="border-radius: 1vmin" @click="showAddUser=true">
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    style="border-radius: 1vmin"
+                    @click="showAddUser=true"
+                  >
                     <i class="fas fa-plus-circle mr-1"></i>Thêm mới
                   </button>
                 </form>
@@ -74,7 +79,11 @@
                     <td class="pt-3-half">{{ item.phone}}</td>
                     <td>
                       <span class="table-remove">
-                        <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">Remove</button>
+                        <button
+                          type="button"
+                          class="btn btn-info btn-rounded btn-sm my-0"
+                          @click="$router.push({name: 'CustomerDetail', params: { id: item.id }})"
+                        >Chi tiết</button>
                       </span>
                     </td>
                   </tr>
@@ -113,14 +122,14 @@
       </mdb-col>
     </mdb-row>
 
-    <AddUser v-if="showAddUser" @close-modal="showAddUser=false"  />
+    <AddCustomer v-if="showAddUser" @close-modal="showAddUser=false" />
   </section>
 </template>
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 // import Popup from "./Popup"
-import AddUser from "./Popup/AddUser"
+import AddCustomer from "./Popup/AddCustomer";
 export default {
   name: "Tables",
   components: {
@@ -130,7 +139,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    AddUser
+    AddCustomer
   },
 
   data() {
@@ -140,7 +149,8 @@ export default {
       pagination: {
         data: [],
         per_page: 10,
-        current_page: 1
+        current_page: 1,
+        last_page: 1
       },
       showAddUser: false
     };
@@ -159,7 +169,15 @@ export default {
 
       if (this.keyword.length > 0) {
         axios
-          .get("api/bank/customers?keyword=" + this.keyword, options)
+          .get(
+            "api/bank/customers?keyword=" +
+              this.keyword +
+              "&limit=" +
+              this.pagination.per_page +
+              "&page=" +
+              this.pagination.current_page,
+            options
+          )
           .then(response => {
             console.log("RESPONSE RECEIVED: ", response);
             if (response.data !== null) {

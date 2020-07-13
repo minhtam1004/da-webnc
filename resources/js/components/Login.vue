@@ -15,8 +15,10 @@
       <br />
       <label for="password" class="grey-text" required>Mật khẩu</label>
       <input type="password" v-model="password" class="form-control" />
-
       <br />
+      <div class="mb-3" style="display: flex;justify-content: flex-end;">
+      <a @click="showResetPass = true" style="color: #33B5E5;text-decoration: underline;">Quên mật khẩu?</a>
+      </div>
       <vue-recaptcha
         @verify="markRecaptchaAsVerified"
         sitekey="6Lcz-6IZAAAAADIWCpKp2llNX1nfToLClom240Y7"
@@ -42,6 +44,7 @@
       :message="messageModal"
       @close-modal="showModal = false"
     />
+    <ResetPassword v-if="showResetPass" @close-modal="showResetPass=false"  />
   </div>
   <!-- Default form login -->
 </template>
@@ -50,6 +53,7 @@
 <script>
 import Modal from "./Modal";
 import VueRecaptcha from "vue-recaptcha";
+import ResetPassword from "./Popup/ResetPassword";
 import {
   required,
   minLength,
@@ -57,7 +61,7 @@ import {
   numeric
 } from "vuelidate/lib/validators";
 export default {
-  components: { VueRecaptcha, Modal },
+  components: { VueRecaptcha, Modal, ResetPassword },
   // el: "#app",
   data() {
     return {
@@ -67,6 +71,7 @@ export default {
       typeModal: "",
       titleModal: "",
       messageModal: "",
+      showResetPass: false,
       show: false,
       loading: false,
       msg: [],

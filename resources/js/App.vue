@@ -2,13 +2,32 @@
   <v-app>
     <template>
       <router-view />
+      <Modal
+        v-if="showModal"
+        :type="typeModal"
+        :title="titleModal"
+        :message="messageModal"
+        @close-modal="showModal = false"
+      />
     </template>
   </v-app>
 </template>
 <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer>
 </script> 
 <script>
+import Modal from "./components/Modal";
 export default {
+  components: {
+    Modal
+  },
+  data() {
+    return {
+      showModal: false,
+      typeModal: "",
+      titleModal: "",
+      messageModal: ""
+    };
+  },
   computed: {
     roleId() {
       console.log(this.$store.state.user.authUser);
@@ -38,10 +57,20 @@ export default {
         // Do something with response data
         return response;
       },
-      function(error) {
-        this.$store.dispatch("logOut")
-        // Do something with response error
-        return Promise.reject(error);
+      error => {
+        console.log("app", error.response.data);
+        if (error.response.data === "unauthorization") {
+          this.$store.dispatch("logOut");
+          localStorage.removeItem(this.$store.state.user.authUser);
+          localStorage.removeItem(this.$store.state.user.access_token);
+          this.$router.push({ name: "Login" });
+          return;
+        }
+        this.showModal = true;
+        this.typeModal = "danger";
+        this.messageModal = "Có lỗi xảy ra";
+        this.titleModal = "Thao tác thất bại";
+        // return Promise.reject(error);
       }
     );
   },
