@@ -14,10 +14,16 @@ import AccountInfo from "./components/AccountInfo";
 import Transaction from "./components/Transaction";
 import ListEmployee from "./components/ListEmployee";
 import ListCustomer from "./components/ListCustomer";
+import CustomerDetail from "./components/Customers/CustomerDetail";
 import TransferInterbank from "./components/TransferInterbank";
+import EmployeeDetail from "./components/Employee/EmployeeDetail";
 import Topup from "./components/Topup";
+import ListBank from "./components/ListBank";
+import DebtReminder from "./components/DebtReminder";
 export const routes = [
     { path: "/login", name: "Login", component: Login },
+    { path: "/customer/:id", name: "CustomerDetail", component: CustomerDetail },
+    { path: "/employee/:id", name: "EmployeeDetail", component: EmployeeDetail },
     {
         path: "",
         component: Container,
@@ -83,20 +89,32 @@ export const routes = [
             //     component: Maps
             // },
             {
+                path: "/banks",
+                name: "ListBank",
+                props: { page: 9 },
+                component: ListBank
+            },
+            {
                 path: "/register-customer",
                 name: "RegisterCustomer",
-                props: { page: 9 },
+                props: { page: 10 },
                 component: RegisterCustomer
+            },
+            {
+                path: "/debt-remider",
+                name: "DebtReminder",
+                props: { page: 11 },
+                component: DebtReminder
             },
             {
                 path: "/404",
                 name: "BadGateway",
-                props: { page: 10 },
+                props: { page: 12 },
                 component: Tables
             },
             {
                 path: "*",
-                props: { page: 11 },
+                props: { page: 13 },
                 redirect: "/404"
             }
         ]

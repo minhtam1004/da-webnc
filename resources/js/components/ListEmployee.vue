@@ -74,7 +74,10 @@
                     <td class="pt-3-half">{{ item.phone}}</td>
                     <td>
                       <span class="table-remove">
-                        <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">Remove</button>
+                        <button type="button" class="btn btn-danger btn-rounded btn-sm my-0"
+                        @click="$router.push({name: 'EmployeeDetail', params: { id: item.id }})">
+                          <i class="fas fa-marker"></i>
+                        </button>
                       </span>
                     </td>
                   </tr>
@@ -113,14 +116,14 @@
       </mdb-col>
     </mdb-row>
 
-    <AddUser v-if="showAddUser" @close-modal="showAddUser=false"  />
+    <AddEmployee v-if="showAddUser" @close-modal="showAddUser=false"  />
   </section>
 </template>
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 // import Popup from "./Popup"
-import AddUser from "./Popup/AddUser"
+import AddEmployee from "./Popup/AddEmployee"
 export default {
   name: "Tables",
   components: {
@@ -130,7 +133,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    AddUser
+    AddEmployee
   },
 
   data() {

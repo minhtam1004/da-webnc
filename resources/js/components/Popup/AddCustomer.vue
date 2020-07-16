@@ -1,45 +1,52 @@
 <template>
-<Popup @close-modal="closeAll" title="Thêm mới khách hàng">
-  <section id="profile">
-    <mdb-row>
-      <mdb-col md="12">
-        <mdb-card cascade narrow>
-       
-          <mdb-card-body style="height:80vh;overflow: auto">
-            <form>
-              <label for="username" class="grey-text">Tên đăng nhập</label>
-              <input type="text" v-model="username" class="form-control" />
-              <br />
-              <label for="password" class="grey-text">Mật khẩu</label>
-              <input type="password" v-model="password" class="form-control" />
-              <br />
-              <label for="name" class="grey-text">Họ và tên</label>
-              <input type="text" v-model="name" class="form-control" />
-              <br />
-              <label for="phone" class="grey-text">Số điện thoại</label>
-              <input type="text" v-model="phone" class="form-control" />
-              <br />
-              <label for="email" class="grey-text">Địa chỉ email</label>
-              <input type="email" v-model="email" class="form-control" />
-
-               <div class="text-center mt-4">
-                <button class="btn btn-unique" type="button" id="btn-one" @click="registerCustomer">Đăng kí</button>
-              </div>
-            </form>
-          </mdb-card-body>
-        </mdb-card>
-      </mdb-col>
-    </mdb-row>
-  </section>
-</Popup>
+  <Popup @close-modal="closeAll" title="Thêm mới khách hàng">
+    <section id="registercustomer">
+      <mdb-row>
+        <mdb-col md="12">
+          <mdb-card cascade narrow>
+            <mdb-card-body style="height:80vh;overflow: auto">
+              <form>
+                <label for="username" class="grey-text" required>Tên đăng nhập</label>
+                <input type="text" id="username" v-model="username" class="form-control" />
+                <br />
+                <label for="password" class="grey-text" required>Mật khẩu</label>
+                <input type="password" v-model="password" class="form-control" />
+                <br />
+                <label for="name" class="grey-text" required>Họ và tên</label>
+                <input type="text" id="name" v-model="name" class="form-control" />
+                <br />
+                <label for="email" class="grey-text" required>Địa chỉ email</label>
+                <input type="email" id="email" v-model="email" class="form-control" />
+                <br />
+                <label for="phone" class="grey-text" required>Số điện thoại</label>
+                <input type="text" id="phone" v-model="phone" class="form-control" />
+                <div class="text-center mt-4">
+                  <button
+                    class="btn btn-unique"
+                    :disabled="loading"
+                    id="btn-one"
+                    type="button"
+                    @click="checkValidateRegisterForm"
+                  >
+                    <i v-if="loading" class="fa fa-spinner fa-spin"></i>
+                    Đăng kí
+                  </button>
+                </div>
+              </form>
+            </mdb-card-body>
+          </mdb-card>
+        </mdb-col>
+      </mdb-row>
+    </section>
+  </Popup>
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from 'mdbvue'
-import Popup from "./Popup"
+import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import Popup from "./Popup";
 export default {
   name: "Profile",
- components: {
+  components: {
     mdbRow,
     mdbCol,
     mdbCard,
@@ -50,18 +57,26 @@ export default {
   },
   data() {
     return {
-      name: "",
       username: "",
       password: "",
       email: "",
-      phone: ""
+      name: "",
+      phone: "",
+      message: "",
+      show: false,
+      loading: false,
+      msg: [],
+      loginForm: {
+        recaptchaVerified: false,
+        pleaseTickRecaptchaMessage: ""
+      }
     };
   },
   methods: {
     closeAll() {
       this.$emit("close-modal");
     },
-      turnOnLoading() {
+    turnOnLoading() {
       $("#btn-one")
         .html(
           '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
@@ -72,9 +87,19 @@ export default {
       $("#btn-one").removeClass("disabled");
       $("#btn-one span").remove();
     },
-    registerCustomer() {
-     this.turnOnLoading();
-    
+    checkValidateRegisterForm() {
+      this.register();
+    },
+    reset() {
+      (this.username = ""),
+        (this.password = ""),
+        (this.name = ""),
+        (this.email = ""),
+        (this.phone = "");
+    },
+    register() {
+      this.turnOnLoading();
+      this.loading = true;
       var data = {
         username: this.username,
         password: this.password,
@@ -88,10 +113,15 @@ export default {
           Authorization: "bearer" + this.$store.state.user.access_token
         }
       };
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "bearer" + this.$store.state.user.access_token
+      };
       axios
-        .post("api/bank/customers", data, options)
+        .post("api/auth/register", data, options)
         .then(response => {
           this.turnOffLoading();
+          this.loading = false;
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.$toast.open({
@@ -103,6 +133,7 @@ export default {
         })
         .catch(error => {
           this.turnOffLoading();
+          this.loading = false;
           console.log("AXIOS ERROR: ", error);
           if (error.response.data.error === "Parameter error") {
             return this.$toast.open({
@@ -120,7 +151,24 @@ export default {
           console.log(error.response.status);
           console.log(error.response.headers);
         });
-
+    },
+    getUser() {
+      axios
+        .get("api/auth/me", {
+          headers: {
+            Authorization: "bearer" + this.$store.state.user.access_token
+          }
+        })
+        .then(response => {
+          console.log(response);
+          this.$store.dispatch("setUserObject", response.data);
+        })
+        .catch(error => {
+          return this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error"
+          });
+        });
     }
   }
 };

@@ -9,7 +9,9 @@
       aria-labelledby="myModalLabel"
       aria-hidden="true"
     >
-      <div :class="'modal-dialog modal-notify modal-' + type" role="document" style="min-width: 150vmin;">
+      <div :class="'modal-dialog modal-notify modal-' + type" role="document"
+      :style="{minWidth: minWidth}"
+>
         <!--Content-->
         <div class="modal-content">
           <!--Header-->
@@ -42,6 +44,10 @@ export default {
     title: {
       tyle: String,
       default: ""
+    },
+    minWidth: {
+      type: String,
+      default: "150vmin"
     },
     type: {
       tyle: String,

@@ -1,10 +1,10 @@
 <template>
-  <Popup @close-modal="closeAll" title="Thay đổi mật khẩu">
+  <Popup @close-modal="closeAll" title="Thay đổi mật khẩu" minWidth="130vmin">
     <section id="profile">
       <mdb-row>
         <mdb-col md="12">
           <mdb-card cascade narrow>
-            <mdb-card-body style="height:80vh;overflow: auto">
+            <mdb-card-body style="height:60vh;overflow: auto">
               <form data-toggle="validator" role="form" id="register-form">
                 <label for="password" data-error data-success>Mật khẩu hiện tại</label>
                 <input
@@ -34,11 +34,7 @@
                   v-model="confirmpassword"
                   class="form-control validate"
                 />
-                <br />
-
-                <label for="email" class="grey-text">Xác nhận mật khẩu</label>
-                <input type="email" v-model="email" class="form-control" />
-
+            
                 <div class="text-center mt-4">
                   <button
                     class="btn btn-unique"
@@ -48,13 +44,6 @@
                   >Xác nhận</button>
                 </div>
               </form>
-              <!-- <form id="register-form">
-              
-                 <label for="name" data-error data-success="ok">Username</label>
-                  <input type="text" id="name" name="name" class="form-control validate" />
-                 
-              
-              </form>-->
             </mdb-card-body>
           </mdb-card>
         </mdb-col>
@@ -154,12 +143,9 @@ export default {
     changePassword() {
       this.turnOnLoading();
 
-      var data = {
-        username: this.username,
-        password: this.password,
-        name: this.name,
-        email: this.email,
-        phone: this.phone
+      var data = { 
+        newpassword: this.newpassword,
+        oldpassword: this.password
       };
       const options = {
         headers: {
@@ -168,13 +154,13 @@ export default {
         }
       };
       axios
-        .post("api/bank/employees", data, options)
+        .post("api/auth/changePassword", data, options)
         .then(response => {
           this.turnOffLoading();
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.$toast.open({
-              message: "Thêm mới nhân viên thành công",
+              message: "Thay đổi mật khẩu thành công",
               type: "success"
             });
             this.$emit("close-modal");
@@ -183,21 +169,21 @@ export default {
         .catch(error => {
           this.turnOffLoading();
           console.log("AXIOS ERROR: ", error);
-          if (error.response.data.error === "Parameter error") {
+          if (error.response.data.error === "password invalid") {
             return this.$toast.open({
-              message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
+              message: "Mật khẩu hiện tại không đúng",
               type: "error"
             });
           }
-          if (error.response.data.error === "user exist") {
-            return this.$toast.open({
-              message: "Tài khoản khách hàng đã tồn tại",
-              type: "error"
-            });
-          }
-          console.log(error.response.data);
+          // if (error.response.data.error === "user exist") {
+          //   return this.$toast.open({
+          //     message: "Tài khoản khách hàng đã tồn tại",
+          //     type: "error"
+          //   });
+          // }
+          console.log(error.response);
           console.log(error.response.status);
-          console.log(error.response.headers);
+          console.log(error.response.data.error);
         });
     }
   }

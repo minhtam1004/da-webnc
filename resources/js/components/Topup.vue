@@ -61,20 +61,13 @@
 
               <br />
               <div style="display: flex;justify-content: flex-end;">
-              <div class="card" style="width: 50vmin;">
-                <div class="card-body" style="">
-                  <p class="card-text blue-text">
-                    - Số tiền tối thiếu chuyển khoản: 10.000 VNĐ
-                  </p>
-                  <p class="card-text blue-text">
-                    - Số tiền tối đa chuyển khoản: 1 tỷ VNĐ
-                  </p>
-                  <p class="card-text blue-text">
-                    - Phí giao dịch chuyển tiền nội bộ: 3.000 VNĐ
-                  </p>
-                  
+                <div class="card" style="width: 50vmin;">
+                  <div class="card-body" style>
+                    <p class="card-text blue-text">- Số tiền tối thiếu chuyển khoản: 10.000 VNĐ</p>
+                    <p class="card-text blue-text">- Số tiền tối đa chuyển khoản: 1 tỷ VNĐ</p>
+                    <p class="card-text blue-text">- Phí giao dịch chuyển tiền nội bộ: 3.000 VNĐ</p>
+                  </div>
                 </div>
-              </div>
               </div>
               <div class="text-center mt-4">
                 <button class="btn btn-unique" type="button" @click="backTo">Quay lại</button>
@@ -89,13 +82,8 @@
 
             <form v-if="isShowingOPT">
               <label for="accountnumber" class="grey-text">Nhập mã OPT</label>
-              <input
-                type="text"
-                v-model="otpcode"
-                :disabled="minutes == 0 && seconds == 0"
-                class="form-control"
-              />
-              <div v-if="parseInt(minutes) == 0 && parseInt(seconds) == 0">
+              <input type="text" v-model="otpcode" :disabled="!showTime" class="form-control" />
+              <div v-if="showTime">
                 <div id="timer" class="text-center">
                   <span id="minute">Thời gian còn lại: {{ minutes }}</span>
                   <span id="colon">:</span>
@@ -103,31 +91,32 @@
                 </div>
               </div>
               <div class="text-center mt-4">
-                <button
-                  class="btn btn-warning"
-                  v-if="minutes == 0 && seconds == 0"
-                  type="button"
-                >Lấy lại mã OPT</button>
-                <button
-                  class="btn btn-unique"
-                  @click="sendOPT"
-                  type="button"
-                  v-if="!showAddList"
-                >Chuyển tiền</button>
-                <button
-                  class="btn btn-default"
-                  v-if="showAddList"
-                  type="button"
-                  @click="addToListReminder"
-                >
-                  <i class="fab fa-mdb"></i>Thêm vào gợi nhớ
-                </button>
-                <button
-                  class="btn btn-warning"
-                  v-if="showAddList"
-                  type="button"
-                  @click="$router.push({ name: 'Dashboard'})"
-                >Thực hiện giao dịch khác</button>
+                <div v-if="!showAddList">
+                  <button
+                    class="btn btn-unique"
+                    @click="sendOPT"
+                    type="button"
+                    v-if="showTime"
+                  >Chuyển tiền</button>
+                  <button
+                    class="btn btn-warning"
+                    v-else
+                    type="button"
+                    @click="regetOTP()"
+                  >Lấy lại mã OTP</button>
+                </div>
+                <div v-else>
+                  <button
+                    class="btn btn-unique"
+                    type="button"
+                    @click="$router.push({ name: 'Dashboard'})"
+                  >
+                    <i class="fas fa-arrow-circle-left"></i>Thực hiện giao dịch khác
+                  </button>
+                  <button class="btn btn-indigo" type="button" @click="addToListReminder">
+                    <i class="far fa-address-book"></i>Thêm vào gợi nhớ
+                  </button>
+                </div>
               </div>
             </form>
             <Modal
@@ -175,11 +164,11 @@ export default {
       isShowingOPT: false,
       accountNumber: this.$store.state.transfer.accountNumber,
       reason: "",
-      amount: 0,
+      amount: 10000,
       name: "",
       otpcode: "",
       timer: null,
-      totalTime: 10,
+      totalTime: 60,
       resetButton: false,
       transferId: null,
       showModal: false,
@@ -189,7 +178,8 @@ export default {
       disabled: false,
       loading: false,
       showSearchName: false,
-      showAddList: false
+      showAddList: false,
+      showTime: true
     };
   },
   computed: {
@@ -203,10 +193,20 @@ export default {
       return this.$store.state.transfer.accountNumber;
     }
   },
+  watch: {
+    seconds() {
+      if (this.seconds == 0) {
+        this.showTime = false;
+      }
+    }
+  },
   methods: {
     backTo() {
       console.log("Vo");
       this.isShowingMoney = false;
+    },
+    regetOTP() {
+      // lấy lại otp
     },
     checkAccountInfo() {
       this.turnOnLoading();
@@ -253,7 +253,7 @@ export default {
             return;
           }
           if (error.response.status === 422) {
-            this.$store.dispatch("logOut")
+            this.$store.dispatch("logOut");
             this.messageModal = "Bạn không có quyền thực hiện thao tác";
             return;
           }
@@ -345,10 +345,8 @@ export default {
               this.titleModal = "Thao tác thành công";
             }
             this.turnOffLoading();
-            // this.isShowingOPT = false;
-            // this.isShowingMoney = false;
+            this.showTime = false;
             this.showAddList = true;
-            // this.$router.push({ name: "Topup" });
           }
         })
         .catch(error => {
