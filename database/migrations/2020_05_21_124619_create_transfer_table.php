@@ -16,9 +16,11 @@ class CreateTransferTable extends Migration
         Schema::create('transfers', function (Blueprint $table) {
             $table->id();
             $table->string('sendId');
-            $table->string('sendBank')->nullable();
+            $table->integer('sendBank')->nullable()->unsigned();
+            $table->foreign('sendBank')->references('id')->on('banks');
             $table->string('receivedId');
-            $table->string('receivedBank')->nullable();
+            $table->integer('receivedBank')->nullable()->unsigned();
+            $table->foreign('receivedBank')->references('id')->on('banks');
             $table->bigInteger('amount');
             $table->text('reason');
             $table->boolean('isConfirm')->default(false);

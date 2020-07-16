@@ -8,6 +8,7 @@
 <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer>
 </script> 
 <script>
+import Pusher from 'pusher-js'
 export default {
   computed: {
     roleId() {
@@ -33,6 +34,14 @@ export default {
     this.redirectPage();
   },
   created() {
+    Pusher.logToConsole = true;
+    var pusher = new Pusher('32b95f6bc1e89f01155c', {
+        cluster: "ap1"
+    });
+    var channel = pusher.subscribe('NotificationEvent');
+    channel.bind('send-message', (data)=> {
+      alert('Received my-event with message: ' + data);
+    });
     axios.interceptors.response.use(
       function(response) {
         // Do something with response data

@@ -71,7 +71,15 @@ Route::group([
     Route::post('/confirm', 'TransferController@confirm')->middleware('logtransfer');
     Route::get('/{id}/refresh', 'TransferController@getOTP');
 });
-Route::get('banks', 'BankController@index')->middleware('auth');
+Route::group([
+    'middleware' => 'auth',
+    'prefix' => 'banks'
+], function ($router) {
+    Route::get('', 'BankController@index');
+    Route::get('/{id}/transfers', 'BankController@bankTransfer');
+    Route::get('/transfers', 'BankController@transfer');
+});
+
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
 Route::post('sendMoney', 'BankController@sendMoney');
 Route::get('viewuser', 'BankController@viewuser');

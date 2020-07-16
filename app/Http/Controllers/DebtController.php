@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\DebtList;
+use App\Events\NotificationEvent;
 use App\Mail\OTPMail;
 use App\Notifications\DebtNotification;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Pusher\Pusher;
 
 class DebtController extends Controller
 {
@@ -46,8 +48,21 @@ class DebtController extends Controller
         }
         $request->merge(['ownerId'=>$acc1->accountNumber]);
         $user = $acc->user;
-        $user->notify(new DebtNotification(['owner'=>$acc1->user,'note'=>$request->note,]));
+        $data = ['owner'=>$acc1->user,'note'=>$request->note,'amount'=>$request->debt];
+        $user->notify(new DebtNotification($data));
+        $options = array(
+            'cluster' => 'ap1',
+            'encrypted' => true
+        );
 
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            $options
+        );
+        //broadcast(new NotificationEvent($data))->toOthers();
+        $pusher->trigger('NotificationEvent', 'send-message', $data);
         // Mail::to($acc->user->email)->send(new OTPMail('121212'));
         $debt = DebtList::create($request->all());
         return $debt;

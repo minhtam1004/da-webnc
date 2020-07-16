@@ -33,7 +33,7 @@ class CheckBank
         $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
         if (!$rsa->verify($request->header('X-TIME') . $request->getContent(), base64_decode($request->header('X-SIG'))))
             return response()->json(['message' => 'not correct key'], 422);
-        $request->request->add(['sendBank' => $bank->name, 'receivedBank' => null]);
+        $request->request->add(['sendBank' => $bank->id, 'receivedBank' => null]);
         return $next($request);
     }
 }

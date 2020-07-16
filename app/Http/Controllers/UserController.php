@@ -53,6 +53,10 @@ class UserController extends Controller
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
+        if(auth('api')->user()->roleId != 1)
+        {
+            return response()->json(['error' => 'do not have permission'], 403);
+        }
         $user = User::where('email', $request->email)->first();
         if ($user) {
             return response()->json(['error' => 'email exist'], 422);
@@ -61,8 +65,10 @@ class UserController extends Controller
         if ($user) {
             return response()->json(['error' => 'email exist'], 422);
         }
-        $request->merge(['roleId' => 2]);
-        return User::create($request->all());
+        $user = User::create($request->all());
+        $user->roleId = 2;
+        $user->save();
+        return $user;
     }
     public function employeeUpdate(Request $request, $id)
     {
@@ -78,6 +84,10 @@ class UserController extends Controller
         $user = User::find($id);
         if (!$user) {
             return response()->json(['error' => 'user not exist'], 404);
+        }
+        $authUser = auth('api')->user();
+        if ($authUser->roleId != 1 || $user->roleId != 2 || $authUser->id !== $user->id) {
+            return response()->json(['error' => 'do not have permission'], 403);
         }
         if ($request->email && $request->email !== $user->email) {
             $temp = User::where('email', $request->email)->first();
@@ -104,7 +114,7 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['error' => 'user not exist'], 404);
         }
-        if ($user->roleId != 2) {
+        if ($user->roleId != 2 || auth('api')->user()->roleId != 1) {
             return response()->json(['error' => 'do not have permission'], 422);
         }
         $user->delete();

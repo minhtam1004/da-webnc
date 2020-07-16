@@ -10,9 +10,13 @@ class Bank extends Model
     protected $hidden = [
         'bank_code', 'key','api_trans','api_user','secret_key','rsa', 'created_at', 'updated_at'
     ];
-    public function transfer()
+    public function sendTransfer()
     {
-        return $this->attributes['transfer'] = $this->hasMany('App\Transfer', 'receivedBank', 'id');
+        return $this->attributes['sendTransfer'] = $this->hasMany('App\Transfer', 'sendBank', 'id');
+    }
+    public function receivedTransfer()
+    {
+        return $this->attributes['receivedTransfer'] = $this->hasMany('App\Transfer', 'receivedBank', 'id');
     }
     
 }

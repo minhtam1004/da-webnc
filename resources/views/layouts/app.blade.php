@@ -78,3 +78,17 @@
     </div>
 </body>
 </html>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://js.pusher.com/4.4/pusher.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+        encrypted: true,
+        cluster: "ap1"
+    });
+    var channel = pusher.subscribe('NotificationEvent');
+    channel.bind('send-message', function(data) {
+        console.log(data);
+    });
+</script>

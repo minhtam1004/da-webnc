@@ -20,6 +20,7 @@
         "laravel-mix": "^5.0.1",
         "lodash": "^4.17.13",
         "popper.js": "^1.12",
+        "pusher-js": "^6.0.3",
         "resolve-url-loader": "^2.3.1",
         "sass": "^1.20.1",
         "sass-loader": "^8.0.0",
@@ -39,7 +40,9 @@
         "flag-icon-css": "^3.0.0",
         "font-awesome": "^4.7.0",
         "jquery-validation": "^1.19.2",
+        "laravel-echo": "^1.8.0",
         "mdbvue": "6.5.0",
+        "openpgp": "^4.10.4",
         "simple-line-icons": "^2.4.1",
         "style-loader": "^0.21.0",
         "vee-validate": "^3.3.5",
@@ -52,7 +55,6 @@
         "vue-toast-notification": "^0.4.0",
         "vue2-google-maps": "^0.10.7",
         "vuelidate": "^0.7.5",
-        "vuetify": "^2.2.29",
-        "openpgp": "^4.10.4"
+        "vuetify": "^2.2.29"
     }
 }

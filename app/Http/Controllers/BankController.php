@@ -12,6 +12,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
@@ -83,14 +84,11 @@ class BankController extends Controller
     public function send(Request $request)
     {
         $validatedData = Validator::make($request->all(), [
-            'transferId' => 'required',
+            'transferId' => 'required|min:1',
             'OTPCode' => 'required|size:6',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
-        }
-        if ($validatedData->fails()) {
-            return response()->json('Parameter error', 422);
         }
         $trans = Transfer::find($request->transferId);
         if (!$trans || $trans->isConfirm) {
@@ -102,11 +100,11 @@ class BankController extends Controller
         if (Carbon::parse($trans->expiresAt, 'Asia/Ho_Chi_Minh')->timestamp < Carbon::now('Asia/Ho_Chi_Minh')->timestamp) {
             return response()->json('code is expires', 403);
         }
-        // $trans->isConfirm = true;
-        // $trans->save();
+        $trans->isConfirm = true;
+        $trans->save();
         $user = $trans->sender->user;
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
-        $bank = $trans->Bank;
+        $bank = $trans->ReceivedBank;
         $trans->amount = $trans->payer ? $trans->amount : $trans->amount - 10000;
         $body = json_encode([
             'amount' => $trans->amount,
@@ -289,6 +287,57 @@ class BankController extends Controller
     public function index()
     {
         return Bank::all();
+    }
+    public function transfer(Request $request)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'startDate' => 'date_format:d/m/Y',
+            'endDate' => 'date_format:d/m/Y',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $start = $request->startDate ? Carbon::createFromFormat('d/m/Y', $request->startDate, 'Asia/Ho_Chi_Minh')->timestamp : 0;
+        $end = $request->endDate ? Carbon::createFromFormat('d/m/Y', $request->endDate, 'Asia/Ho_Chi_Minh')->timestamp : null;
+        if(auth('api')->user()->roleId > 1)
+        {
+            return response()->json(['error'>'do not have permission'],403);
+        }
+        return $end===null ? Transfer::where('isConfirm', true)->where('created_at','>',date('Y-m-d',$start))->where(function ($query) {
+            $query->whereNotNull('receivedBank')
+            ->orWhereNotNull('sendBank');
+        })->paginate(10):Transfer::where('isConfirm', true)->where('created_at','>',date('Y-m-d',$start))->where('created_at','<',date('Y-m-d',$end))->where(function ($query) {
+            $query->whereNotNull('receivedBank')
+            ->orWhereNotNull('sendBank');
+        })->paginate(10);
+    }
+    public function bankTransfer($id, Request $request)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'startDate' => 'date_format:d/m/Y',
+            'endDate' => 'date_format:d/m/Y',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $start = $request->startDate ? Carbon::createFromFormat('d/m/Y', $request->startDate, 'Asia/Ho_Chi_Minh')->timestamp : 0;
+        $end = $request->endDate ? Carbon::createFromFormat('d/m/Y', $request->endDate, 'Asia/Ho_Chi_Minh')->timestamp : null;
+        if(auth('api')->user()->roleId > 1)
+        {
+            return response()->json(['error'>'do not have permission'],403);
+        }
+        $bank = Bank::find($id);
+        if(!$bank)
+        {
+            return response()->json(['error'=>'bank does not exist'],404);
+        }
+        return $end===null ? Transfer::where('isConfirm', true)->where('created_at','>',date('Y-m-d',$start))->where(function ($query) use ($bank) {
+            $query->where('receivedBank',$bank->id)
+            ->orWhere('sendBank',$bank->id);
+        })->paginate(10):Transfer::where('isConfirm', true)->where('created_at','>',date('Y-m-d',$start))->where('created_at','<',date('Y-m-d',$end))->where(function ($query) use ($bank) {
+            $query->where('receivedBank',$bank->id)
+            ->orWhere('sendBank',$bank->id);
+        })->paginate(10);
     }
 
     /**
