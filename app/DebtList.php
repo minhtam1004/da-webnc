@@ -10,10 +10,10 @@ class DebtList extends Model
     protected $fillable = ['ownerId','otherId','debt','ispaid','note'];
     public function owner()
     {
-        return $this->belongsTo('App\User','ownerId','id');
+        return $this->belongsTo('App\Account','ownerId','accountNumber');
     }
     public function other()
     {
-        return $this->belongsTo('App\User','otherId','id');
+        return $this->belongsTo('App\Account','otherId','accountNumber');
     }
 }

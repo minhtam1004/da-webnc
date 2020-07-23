@@ -162,10 +162,9 @@ class UserController extends Controller
         $acc = $user->account;
         return $acc->sendTransfer;
     }
-    public function showNotify($id)
+    public function showNotify()
     {
-        $user = User::find($id);
-        if (auth('api')->user()->roleId >= $user->roleId) return response()->json(['error' => 'do not have permission'], 403);
+        $user = auth('api')->user();
         $nof = $user->notifications;
         return $nof;
     }

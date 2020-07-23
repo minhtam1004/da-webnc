@@ -19,7 +19,7 @@ class RememberController extends Controller
         $request->limit = $request->limit && $request->limit > 0 ? $request->limit : 10;
         $request->page = $request->page && $request->page > 0 ? $request->page : 1;
 
-        $account = RememberList::where('ownerId', auth('api')->user()->id)->where('name', 'LIKE', "%{$request->name}%")->paginate(1);
+        $account = RememberList::where('ownerId', auth('api')->user()->id)->where('name', 'LIKE', "%{$request->name}%")->paginate($request->limit);
         return  response()->json($account, 200);
     }
     public function store(Request $request)
@@ -41,7 +41,7 @@ class RememberController extends Controller
             $request->merge(['name'=> $acc->user()->name]);
         }
         $request->merge(['ownerId', auth('api')->user()->id]);
-        $r = RememberList::create($request->all());
+        $r = RememberList::updateOrCreate(['ownerId'=>$request->ownerId,'accountId'=>$request->accountId],$request->all());
         return response()->json($r);
     }
 }

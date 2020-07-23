@@ -27,4 +27,13 @@ class Account extends Model
     {
         return $this->attributes['sendTransfer'] = $this->hasMany('App\Transfer', 'sendId', 'accountNumber');
     }
+    public function owndebts()
+    {
+        return $this->attributes['owndebts'] = $this->hasMany('App\DebtList', 'ownerId', 'accountNumber');
+    }
+    public function otherdebts()
+    {
+        return $this->attributes['otherdebts'] = $this->hasMany('App\DebtList', 'otherId', 'accountNumber');
+    }
+
 }

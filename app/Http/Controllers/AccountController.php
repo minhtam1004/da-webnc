@@ -71,7 +71,7 @@ class AccountController extends Controller
         $acc->save();
         $data = ['sendId'=>auth('api')->user()->id,'receivedId'=>$acc->accountNumber,'amount'=>$request->amount,'reason'=>$request->reason];
         $transfer = Transfer::create($data);
-        return response()->json(['message'=>'recharge has been added'],201);
+        return response()->json(['message'=>'recharge has been added'],200);
     }
     /**
      * Show the form for editing the specified resource.
