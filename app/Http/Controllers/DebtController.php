@@ -26,9 +26,15 @@ class DebtController extends Controller
     }
     public function index()
     {
-        $debt = auth('api')->user()->debtList;
+        $debt = auth('api')->user()->owndebts;
         return response()->json($debt,200);
     }
+    public function otherindex()
+    {
+        $debt = auth('api')->user()->owndebts;
+        return response()->json($debt,200);
+    }
+
     public function store(Request $request)
     {
         $validatedData = Validator::make($request->all(), [
@@ -36,6 +42,9 @@ class DebtController extends Controller
             'debt' => 'required|numeric|min:10000|max:1000000000',
             'note' => 'max:200'
         ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
         $acc = Account::where('accountNumber',$request->otherId)->first();
         if(!$acc)
         {
@@ -66,5 +75,33 @@ class DebtController extends Controller
         // Mail::to($acc->user->email)->send(new OTPMail('121212'));
         $debt = DebtList::create($request->all());
         return $debt;
+    }
+    public function destroy($id)
+    {
+        $debt = DebtList::find($id);
+        if(!$debt)
+        {
+            return response()->json(['error' => 'debt is not exist'],404);
+        }
+        $user = auth()->user();
+        $owner = $debt->owner();
+        $other = $debt->other();
+        $data = null;
+        if($user->id === $owner->id)
+        {
+            $data = ['owner'=>$owner->user,'note'=>'Đã hủy',$debt];
+            $other->notify(new DebtNotification($data));
+        }
+        if($user->id === $other->id)
+        {
+            $data = ['owner'=>$owner->user,'note'=>'Đã hủy',$debt];
+            $owner->notify(new DebtNotification($data));
+        }
+        if(!$data){
+            return response()->json(['error'=>'do not have permission'],403);
+        }
+        $debt->destroy();
+        return response()->json($debt,200);
+
     }
 }

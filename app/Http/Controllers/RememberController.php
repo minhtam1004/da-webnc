@@ -25,17 +25,23 @@ class RememberController extends Controller
     public function store(Request $request)
     {
         $validatedData = Validator::make($request->all(), [
-            'name' => 'required|max:255',
+            'name' => 'max:255',
             'accountId' => 'required|max:255',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        if (Account::where('accountNumber', $request->accountId)->first()) {
-            $request->ownerId = auth('api')->user()->id;
-            $r = RememberList::create(['name'=>$request->name,'accountId'=>$request->accountId,'ownerId'=>auth('api')->user()->id]);
-            return response()->json($r);
+        $acc = Account::where('accountNumber', $request->accountId)->first();
+        if(!$acc)
+        {
+            return response()->json(['error' => 'account do not exist'], 404);
         }
-        return response()->json(['error' => 'user do not exist'], 404);
+        if(!$request->name) 
+        {
+            $request->merge(['name'=> $acc->user()->name]);
+        }
+        $request->merge(['ownerId', auth('api')->user()->id]);
+        $r = RememberList::create($request->all());
+        return response()->json($r);
     }
 }

@@ -45,6 +45,7 @@ Route::group([
 ], function ($router) {
     Route::post('add', 'DebtController@store');
     Route::get('/', 'DebtController@index');
+    Route::get('/other/', 'DebtController@otherindex');
     Route::get('/{id}', 'DebtController@show');
     Route::post('/{id}/paid', 'DebtController@paid');
     Route::delete('/{id}', 'DebtController@destroy');
@@ -54,6 +55,7 @@ Route::group([
     'prefix' => 'bank'
 ], function ($router) {
     Route::get('/accounts/{id}', 'AccountController@show');
+    Route::post('/accounts/{id}/recharge', 'AccountController@recharge');
     Route::get('/users/{id}', 'UserController@show');
     Route::get('/users/{id}/transfers', 'UserController@showTransfer');
     Route::get('/customers', 'UserController@customerIndex');

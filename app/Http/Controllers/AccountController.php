@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\Transfer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AccountController extends Controller
 {
@@ -51,7 +53,26 @@ class AccountController extends Controller
         $user = $account->user;
         return  response()->json(['name'=> $user->name, 'email' => $user->email],200);
     }
-
+    public function recharge($id, Request $request)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'amount' => 'required|numeric|min:50000',
+            'reason' => 'required|max:255'
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $acc = Account::where('accountNumber', $id)->first();
+        if(!$acc)
+        {
+            return response()->json(['error' => 'account does not exist'], 404);
+        }
+        $acc->excess += $request->amount;
+        $acc->save();
+        $data = ['sendId'=>auth('api')->user()->id,'receivedId'=>$acc->accountNumber,'amount'=>$request->amount,'reason'=>$request->reason];
+        $transfer = Transfer::create($data);
+        return response()->json(['message'=>'recharge has been added'],201);
+    }
     /**
      * Show the form for editing the specified resource.
      *

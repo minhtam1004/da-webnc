@@ -86,7 +86,7 @@ class UserController extends Controller
             return response()->json(['error' => 'user not exist'], 404);
         }
         $authUser = auth('api')->user();
-        if ($authUser->roleId != 1 || $user->roleId != 2 || $authUser->id !== $user->id) {
+        if (($authUser->roleId != 1 || $user->roleId != 2) && $authUser->id !== $user->id) {
             return response()->json(['error' => 'do not have permission'], 403);
         }
         if ($request->email && $request->email !== $user->email) {
@@ -99,7 +99,7 @@ class UserController extends Controller
         if ($request->phone && $request->phone !== $user->phone) {
             $user->phone = $request->phone;
         }
-        if ($request->roleId && $request->roleId !== $user->roleId) {
+        if ($request->roleId && $request->roleId !== $user->roleId && $authUser->roleId === 1) {
             $user->roleId = $request->roleId;
         }
         if ($request->password) {
@@ -162,7 +162,13 @@ class UserController extends Controller
         $acc = $user->account;
         return $acc->sendTransfer;
     }
-
+    public function showNotify($id)
+    {
+        $user = User::find($id);
+        if (auth('api')->user()->roleId >= $user->roleId) return response()->json(['error' => 'do not have permission'], 403);
+        $nof = $user->notifications;
+        return $nof;
+    }
     /**
      * Show the form for editing the specified resource.
      *
