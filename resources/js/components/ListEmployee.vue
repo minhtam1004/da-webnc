@@ -45,7 +45,12 @@
                     <i class="fas fa-redo mr-1"></i>Tải lại
                   </button>
 
-                  <button type="button" class="btn btn-success" style="border-radius: 1vmin" @click="showAddUser=true">
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    style="border-radius: 1vmin"
+                    @click="showAddUser=true"
+                  >
                     <i class="fas fa-plus-circle mr-1"></i>Thêm mới
                   </button>
                 </form>
@@ -74,9 +79,19 @@
                     <td class="pt-3-half">{{ item.phone}}</td>
                     <td>
                       <span class="table-remove">
-                        <button type="button" class="btn btn-danger btn-rounded btn-sm my-0"
-                        @click="$router.push({name: 'EmployeeDetail', params: { id: item.id }})">
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-rounded btn-sm my-0"
+                          @click="$router.push({name: 'EmployeeDetail', params: { id: item.id }})"
+                        >
                           <i class="fas fa-marker"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-danger btn-rounded btn-sm my-0"
+                          @click="deleteEmployee(item)"
+                        >
+                          <i class="fas fa-trash-alt"></i>
                         </button>
                       </span>
                     </td>
@@ -116,14 +131,14 @@
       </mdb-col>
     </mdb-row>
 
-    <AddEmployee v-if="showAddUser" @close-modal="showAddUser=false"  />
+    <AddEmployee v-if="showAddUser" @close-modal="closePopup()" />
   </section>
 </template>
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 // import Popup from "./Popup"
-import AddEmployee from "./Popup/AddEmployee"
+import AddEmployee from "./Popup/AddEmployee";
 export default {
   name: "Tables",
   components: {
@@ -152,6 +167,35 @@ export default {
     this.load();
   },
   methods: {
+    deleteEmployee(t) {
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token
+        }
+      };
+
+      axios
+        .delete("api/bank/employees/" + t.id, options)
+        .then(response => {
+          console.log("RESPONSE RECEIVED: ", response);
+          this.$toast.open({
+            message: "Nhân viên đã được xóa",
+            type: "success"
+          });
+          this.load();
+        })
+        .catch(error => {
+          this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error"
+          });
+        });
+    },
+    closePopup() {
+      this.showAddUser = false;
+      this.load();
+    },
     reload() {
       const options = {
         headers: {
