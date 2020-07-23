@@ -134,7 +134,7 @@ export default {
         phone: this.data.phone,
         roleId: this.selected
       };
-      console.log(data);
+      console.log("dđ", data);
       if (this.password.length === 0) {
         delete data['password'];
       }
@@ -152,9 +152,10 @@ export default {
           "Content-Type": "application/json",
           Authorization: "bearer" + this.$store.state.user.access_token
         }
+
       };
       axios
-        .put("api/bank/employees/" + data.id , data, options)
+        .put("api/bank/employees/" + this.id , data, options)
         .then(response => {
           this.turnOffLoading();
           console.log("RESPONSE RECEIVED: ", response);

@@ -20,10 +20,12 @@ import EmployeeDetail from "./components/Employee/EmployeeDetail";
 import Topup from "./components/Topup";
 import ListBank from "./components/ListBank";
 import DebtReminder from "./components/DebtReminder";
+import BankDetail from "./components/InterBank/BankDetail";
 export const routes = [
     { path: "/login", name: "Login", component: Login },
     { path: "/customer/:id", name: "CustomerDetail", component: CustomerDetail },
     { path: "/employee/:id", name: "EmployeeDetail", component: EmployeeDetail },
+    { path: "/banks/:id", name: "BankDetail", component: BankDetail },
     {
         path: "",
         component: Container,
