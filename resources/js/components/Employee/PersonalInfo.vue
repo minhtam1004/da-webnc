@@ -161,7 +161,7 @@ export default {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.$toast.open({
-              message: "Thêm mới nhân viên thành công",
+              message: "Chỉnh sửa nhân viên thành công",
               type: "success"
             });
             this.$emit("close-modal");

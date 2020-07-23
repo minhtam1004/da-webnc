@@ -31,12 +31,20 @@
                   :disabled="loading"
                   id="btn-one"
                   type="button"
-                  @click="checkValidateRegisterForm"
+                  @click="Topup"
                 >
                   <i v-if="loading" class="fa fa-spinner fa-spin"></i>
                   Nạp tiền
                 </button>
               </div>
+
+              <Modal
+                v-if="showModal"
+                :type="typeModal"
+                :title="titleModal"
+                :message="messageModal"
+                @close-modal="showModal = false"
+              />
             </form>
           </mdb-card-body>
         </mdb-card>
@@ -47,6 +55,7 @@
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import Modal from "./../Modal";
 export default {
   name: "Profile",
   components: {
@@ -55,20 +64,21 @@ export default {
     mdbCard,
     mdbView,
     mdbCardBody,
-    mdbTbl
+    mdbTbl,
+    Modal,
   },
   data() {
     return {
       username: "",
       id: this.$route.params.id,
       data: {
-        account: null
+        account: null,
       },
       password: "",
       email: "",
       account: {
         accountNumber: "",
-        excess: ""
+        excess: "",
       },
       name: "",
       phone: "",
@@ -78,10 +88,15 @@ export default {
       msg: [],
       loginForm: {
         recaptchaVerified: false,
-        pleaseTickRecaptchaMessage: ""
+        pleaseTickRecaptchaMessage: "",
       },
       reason: "",
-      amount: 0
+      amount: 50000,
+
+      showModal: false,
+      typeModal: "success",
+      titleModal: "",
+      messageModal: "",
     };
   },
   created() {
@@ -118,17 +133,17 @@ export default {
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       axios
         .get("http://127.0.0.1:8000/api/bank/users/" + this.id, options)
-        .then(response => {
+        .then((response) => {
           this.loading = false;
           this.data = response.data;
           console.log("RESPONSE RECEIVED: ", response);
         })
-        .catch(error => {
+        .catch((error) => {
           this.loading = false;
           console.log("AXIOS ERROR: ", error);
         });
@@ -137,21 +152,53 @@ export default {
       axios
         .get("api/auth/me", {
           headers: {
-            Authorization: "bearer" + this.$store.state.user.access_token
-          }
+            Authorization: "bearer" + this.$store.state.user.access_token,
+          },
         })
-        .then(response => {
+        .then((response) => {
           console.log(response);
           this.$store.dispatch("setUserObject", response.data);
         })
-        .catch(error => {
+        .catch((error) => {
           return this.$toast.open({
             message: "Có lỗi xảy ra",
-            type: "error"
+            type: "error",
           });
         });
-    }
-  }
+    },
+    Topup() {
+      const options = {
+        headers: {
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+      };
+      var data = {
+        amount: this.amount,
+        reason: this.reason,
+      };
+      axios
+        .post(
+          "api/bank/accounts/" + this.data.account.accountNumber + "/recharge",
+          data,
+          options
+        )
+        .then((response) => {
+          console.log("RESPONSE RECEIVED: ", response);
+          this.$toast.open({
+            message: "Nạp tiền thành công",
+            type: "success",
+          });
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.$toast.open({
+              message: "Dữ liệu không chính xác",
+              type: "danger",
+            });
+          }
+        });
+    },
+  },
 };
 </script>
 

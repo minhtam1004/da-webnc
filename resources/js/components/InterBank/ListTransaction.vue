@@ -173,13 +173,14 @@ export default {
   created() {
     this.load();
     const a = new Date();
+    const month = a.getMonth() + 1;
     if (a.getMonth() < 10) {
       this.startDate =
-        a.getFullYear() + "-0" + a.getMonth() + "-" + a.getDate();
-      this.endDate = a.getFullYear() + "-0" + a.getMonth() + "-" + a.getDate();
+        a.getFullYear() + "-0" + month + "-" + a.getDate();
+      this.endDate = a.getFullYear() + "-0" + month + "-" + a.getDate();
     } else {
-      this.startDate = a.getFullYear() + "-" + a.getMonth() + "-" + a.getDate();
-      this.endDate = a.getFullYear() + "-" + a.getMonth() + "-" + a.getDate();
+      this.startDate = a.getFullYear() + "-" + month + "-" + a.getDate();
+      this.endDate = a.getFullYear() + "-" + month + "-" + a.getDate();
     }
   },
   methods: {
@@ -219,6 +220,11 @@ export default {
         })
         .catch((error) => {});
     },
+    formatDateTime(dateTime) {
+      var date = dateTime.split("-");
+      var reverseArray = date.reverse();
+      return reverseArray.join("/");
+    },
     getTransaction() {
       const options = {
         headers: {
@@ -226,13 +232,15 @@ export default {
           Authorization: "bearer" + this.$store.state.user.access_token,
         },
       };
-      console.log(this.startDate);
-      console.log(this.endDate);
       axios
         .get(
           "api/banks/" +
             this.id +
-            "/transfers?keyword=" +
+            "/transfers?start=" +
+            this.formatDateTime(this.startDate) +
+            "&end=" +
+            this.formatDateTime(this.endDate) +
+            "&keyword=" +
             this.keyword +
             "&limit=" +
             this.pagination.per_page +
@@ -241,7 +249,7 @@ export default {
           options
         )
         .then((response) => {
-          console.log("RESPONSE RECEIVED: ", response);
+          console.log("RESPONSE RECEIVED 2: ", response);
           if (response.data !== null) {
             this.pagination = response.data;
           }
