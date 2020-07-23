@@ -4,7 +4,7 @@
       <mdb-col md="12">
         <mdb-card cascade narrow class="mt-5">
           <mdb-view class="gradient-card-header blue darken-2">
-            <h4 class="h4-responsive text-white">Thông tin khách hàng</h4>
+            <h4 class="h4-responsive text-white">Thông tin nhân viên</h4>
           </mdb-view>
           <mdb-card-body>
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">

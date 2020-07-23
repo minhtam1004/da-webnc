@@ -8,8 +8,12 @@
               <label for="username" class="grey-text">Tên đăng nhập</label>
               <input type="text" v-model="data.username" class="form-control" readonly />
               <br />
-              <label for="password" class="grey-text">Tên nhân viên</label>
+              <label for="name" class="grey-text">Tên nhân viên</label>
               <input type="text" v-model="data.name" class="form-control" readonly />
+              <br />
+
+              <label for="password" class="grey-text">Mật khẩu</label>
+              <input type="text" v-model="password" class="form-control" />
               <br />
               <label for="password" class="grey-text">Quyền hạn</label>
               <select
@@ -18,24 +22,23 @@
                 style="margin-bottom: 3vmin;"
                 v-model="selected"
               >
-                <option value="1">Nhân viên</option>
-                <option value="2">Quản trị viên</option>
-               
+                <option value="2">Nhân viên</option>
+                <option value="1">Quản trị viên</option>
               </select>
 
               <br />
               <label for="name" class="grey-text">Địa chỉ email</label>
-              <input type="text" v-model="data.email" class="form-control" readonly />
+              <input type="text" v-model="data.email" class="form-control" />
               <br />
               <label for="phone" class="grey-text">Số điện thoại</label>
-              <input type="text" id="phone" v-model="data.phone" class="form-control" readonly />
-                <div class="text-center mt-4">
+              <input type="text" id="phone" v-model="data.phone" class="form-control" />
+              <div class="text-center mt-4">
                 <button
                   class="btn btn-unique"
                   :disabled="loading"
                   id="btn-one"
                   type="button"
-                  @click="checkValidateRegisterForm"
+                  @click="editEmployee"
                 >
                   <i v-if="loading" class="fa fa-spinner fa-spin"></i>
                   Xác nhận
@@ -74,6 +77,9 @@ export default {
       account: {
         accountNumber: "",
         excess: ""
+      },
+      originalData: {
+
       },
       name: "",
       phone: "",
@@ -119,6 +125,67 @@ export default {
         (this.email = ""),
         (this.phone = "");
     },
+
+    editEmployee() {
+      this.turnOnLoading();
+      var data = {  
+        password: this.password,
+        email: this.data.email,
+        phone: this.data.phone,
+        roleId: this.selected
+      };
+      console.log(data);
+      if (this.password.length === 0) {
+        delete data['password'];
+      }
+      if (this.data.phone === this.originalData.phone) {
+        delete data['phone'];
+      }
+      if (this.data.email === this.originalData.email) {
+        delete data['phone'];
+      }
+      if (this.roleId == 2) {
+        delete data['roleId'];
+      }
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token
+        }
+      };
+      axios
+        .put("api/bank/employees/" + data.id , data, options)
+        .then(response => {
+          this.turnOffLoading();
+          console.log("RESPONSE RECEIVED: ", response);
+          if (response.data !== null) {
+            this.$toast.open({
+              message: "Thêm mới nhân viên thành công",
+              type: "success"
+            });
+            this.$emit("close-modal");
+          }
+        })
+        .catch(error => {
+          this.turnOffLoading();
+          console.log("AXIOS ERROR: ", error);
+          if (error.response.data.error === "Parameter error") {
+            return this.$toast.open({
+              message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
+              type: "error"
+            });
+          }
+          if (error.response.data.error === "user exist") {
+            return this.$toast.open({
+              message: "Tài khoản khách hàng đã tồn tại",
+              type: "error"
+            });
+          }
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        });
+    },
     load() {
       this.loading = true;
 
@@ -133,13 +200,14 @@ export default {
         .then(response => {
           this.loading = false;
           this.data = response.data;
+          this.originalData = response.data
           console.log("RESPONSE RECEIVED: ", response);
         })
         .catch(error => {
           this.loading = false;
           console.log("AXIOS ERROR: ", error);
         });
-    },
+    }
   }
 };
 </script>
