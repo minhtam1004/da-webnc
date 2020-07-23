@@ -4,7 +4,7 @@
       <mdb-col md="12">
         <mdb-card cascade narrow class="mt-5">
           <mdb-view class="gradient-card-header blue darken-2">
-            <h4 class="h4-responsive text-white">Danh sách khách hàng</h4>
+            <h4 class="h4-responsive text-white">Danh sách ngân hàng liên kết</h4>
           </mdb-view>
           <mdb-card-body>
             <nav class="navbar navbar-expand-lg navbar-dark indigo mb-4">
@@ -16,8 +16,8 @@
                       class="form-control"
                       type="text"
                       v-model="keyword"
-                      placeholder="Nhập tên khách hàng"
-                      aria-label="Tên khách hàng"
+                      placeholder="Nhập tên ngân hàng"
+                      aria-label="Tên ngân hàng"
                     />
                   </div>
                   <div class="col">
@@ -45,14 +45,14 @@
                     <i class="fas fa-redo mr-1"></i>Tải lại
                   </button>
 
-                  <button
+                  <!-- <button
                     type="button"
                     class="btn btn-success"
                     style="border-radius: 1vmin"
                     @click="showAddUser=true"
                   >
                     <i class="fas fa-plus-circle mr-1"></i>Thêm mới
-                  </button>
+                  </button> -->
                 </form>
               </div>
 
@@ -62,27 +62,21 @@
               <table class="table table-bordered table-responsive-md table-striped text-center">
                 <thead>
                   <tr>
-                    <th class="text-center">Mã khách hàng</th>
-                    <th class="text-center">Tên khách hàng</th>
-                    <th class="text-center">Tên đăng nhập</th>
-                    <th class="text-center">Email</th>
-                    <th class="text-center">Số điện thoại</th>
+                    <th class="text-center">Mã ngân hàng</th>
+                    <th class="text-center">Tên ngân hàng</th>
                     <th class="text-center">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.name }}</td>
-                    <td class="pt-3-half">{{ item.username }}</td>
-                    <td class="pt-3-half">{{ item.email }}</td>
-                    <td class="pt-3-half">{{ item.phone}}</td>
+                    <td class="pt-3-half">{{ item.name == 'nhom19' ? 'Ngân hàng nhóm 19' : 'Ngân hàng nhóm 5' }}</td>
                     <td>
                       <span class="table-remove">
                         <button
                           type="button"
                           class="btn btn-info btn-rounded btn-sm my-0"
-                          @click="$router.push({name: 'CustomerDetail', params: { id: item.id }})"
+                          @click="$router.push({name: 'BankDetail', params: { id: item.id }})"
                         >Chi tiết</button>
                       </span>
                     </td>
@@ -167,41 +161,17 @@ export default {
         }
       };
 
-      if (this.keyword.length > 0) {
         axios
           .get(
-            "api/bank/customers?keyword=" +
-              this.keyword +
-              "&limit=" +
-              this.pagination.per_page +
-              "&page=" +
-              this.pagination.current_page,
-            options
-          )
+            "api/banks",
+            options )
           .then(response => {
             console.log("RESPONSE RECEIVED: ", response);
             if (response.data !== null) {
-              this.pagination = response.data;
+              this.pagination.data = response.data;
             }
           })
           .catch(error => {});
-      } else {
-        axios
-          .get(
-            "api/bank/customers?limit=" +
-              this.pagination.per_page +
-              "&page=" +
-              this.pagination.current_page,
-            options
-          )
-          .then(response => {
-            console.log("RESPONSE RECEIVED: ", response);
-            if (response.data !== null) {
-              this.pagination = response.data;
-            }
-          })
-          .catch(error => {});
-      }
     },
     load() {
       this.reload();

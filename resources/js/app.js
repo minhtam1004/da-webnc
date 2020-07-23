@@ -15,7 +15,6 @@ import 'vue-toast-notification/dist/theme-default.css';
 import Vuelidate from 'vuelidate'
 import Autocomplete from '@trevoreyre/autocomplete-vue'
 import '@trevoreyre/autocomplete-vue/dist/style.css'
-
 Vue.use(VueGoogleMaps, {
   load: {
     key: "NHAP-API-KEY-O-DAY",

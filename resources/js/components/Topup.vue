@@ -113,7 +113,7 @@
                   >
                     <i class="fas fa-arrow-circle-left"></i>Thực hiện giao dịch khác
                   </button>
-                  <button class="btn btn-indigo" type="button" @click="addToListReminder">
+                  <button class="btn btn-indigo" type="button" @click="showAddReminder = true">
                     <i class="far fa-address-book"></i>Thêm vào gợi nhớ
                   </button>
                 </div>
@@ -126,6 +126,8 @@
               :message="messageModal"
               @close-modal="showModal = false"
             />
+
+            <AddReminder :accountId="accountNumber" v-if="showAddReminder" @close-modal="showAddReminder = false" />
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
@@ -135,6 +137,7 @@
 <script>
 import Modal from "./Modal";
 import SearchName from "./SearchName";
+import AddReminder from "./Popup/AddReminder";
 import {
   mdbRow,
   mdbCol,
@@ -155,10 +158,12 @@ export default {
     mdbTbl,
     mdbBtn,
     Modal,
-    SearchName
+    SearchName,
+    AddReminder
   },
   data() {
     return {
+      showAddReminder: false,
       account: this.$store.state.user.authUser.account,
       isShowingMoney: false,
       isShowingOPT: false,
@@ -366,8 +371,8 @@ export default {
         });
     },
 
-    addToListReminder() {},
-
+  
+    
     startTimer: function() {
       this.timer = setInterval(() => this.countdown(), 1000);
       this.resetButton = true;
