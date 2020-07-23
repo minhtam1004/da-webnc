@@ -64,21 +64,23 @@ class BankController extends Controller
         $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
         $request->merge(['OTPCode' => $OTPString]);
         $request->merge(['expiresAt' => time() + 60]);
+        $request->merge(['creator' => $user->id]);
         Mail::to($email)->send(new OTPMail($OTPString));
-        $transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
-        if ($transfer) {
-            $transfer->sendBank = $request->sendBank;
-            $transfer->receivedId = $request->receivedId;
-            $transfer->receivedBank = $request->receivedBank;
-            $transfer->amount = $request->amount;
-            $transfer->reason = $request->reason;
-            $transfer->OTPCode = $OTPString;
-            $transfer->expiresAt = time() + 60;
-            $transfer->payer = $request->payer;
-            $transfer->save();
-            return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
-        }
-        $transfer = Transfer::create($request->all());
+        $transfer = Transfer::updateOrCreate(['sendId'=>$request->sendId,'isConfirm' =>false],$request->all());
+        //$transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
+        // if ($transfer) {
+        //     $transfer->sendBank = $request->sendBank;
+        //     $transfer->receivedId = $request->receivedId;
+        //     $transfer->receivedBank = $request->receivedBank;
+        //     $transfer->amount = $request->amount;
+        //     $transfer->reason = $request->reason;
+        //     $transfer->OTPCode = $OTPString;
+        //     $transfer->expiresAt = time() + 60;
+        //     $transfer->payer = $request->payer;
+        //     $transfer->save();
+        //     return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
+        // }
+        // $transfer = Transfer::create($request->all());
         return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
     }
     public function send(Request $request)
@@ -291,14 +293,14 @@ class BankController extends Controller
     public function transfer(Request $request)
     {
         $validatedData = Validator::make($request->all(), [
-            'startDate' => 'date_format:d/m/Y',
-            'endDate' => 'date_format:d/m/Y',
+            'start' => 'date_format:d/m/Y',
+            'end' => 'date_format:d/m/Y',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        $start = $request->startDate ? Carbon::createFromFormat('d/m/Y', $request->startDate, 'Asia/Ho_Chi_Minh')->timestamp : 0;
-        $end = $request->endDate ? Carbon::createFromFormat('d/m/Y', $request->endDate, 'Asia/Ho_Chi_Minh')->timestamp : null;
+        $start = $request->start ? Carbon::createFromFormat('d/m/Y', $request->start, 'Asia/Ho_Chi_Minh')->timestamp : 0;
+        $end = $request->end ? Carbon::createFromFormat('d/m/Y', $request->end, 'Asia/Ho_Chi_Minh')->timestamp : null;
         if(auth('api')->user()->roleId > 1)
         {
             return response()->json(['error'>'do not have permission'],403);
@@ -314,14 +316,14 @@ class BankController extends Controller
     public function bankTransfer($id, Request $request)
     {
         $validatedData = Validator::make($request->all(), [
-            'startDate' => 'date_format:d/m/Y',
-            'endDate' => 'date_format:d/m/Y',
+            'start' => 'date_format:d/m/Y',
+            'end' => 'date_format:d/m/Y',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        $start = $request->startDate ? Carbon::createFromFormat('d/m/Y', $request->startDate, 'Asia/Ho_Chi_Minh')->timestamp : 0;
-        $end = $request->endDate ? Carbon::createFromFormat('d/m/Y', $request->endDate, 'Asia/Ho_Chi_Minh')->timestamp : null;
+        $start = $request->start ? Carbon::createFromFormat('d/m/Y', $request->start, 'Asia/Ho_Chi_Minh')->timestamp : 0;
+        $end = $request->end ? Carbon::createFromFormat('d/m/Y', $request->end, 'Asia/Ho_Chi_Minh')->timestamp : null;
         if(auth('api')->user()->roleId > 1)
         {
             return response()->json(['error'>'do not have permission'],403);

@@ -91,6 +91,7 @@ class TransferController extends Controller
             }
             $request->merge(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
             $request->merge(['expiresAt' => time() + 60]);
+            $request->merge(['creator' => $user->id]);
             $transfer = Transfer::create($request->all());
             return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 201);
         }

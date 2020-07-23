@@ -17,15 +17,14 @@ class CreateTransferTable extends Migration
             $table->id();
             $table->string('sendId');
             $table->integer('sendBank')->nullable()->unsigned();
-            $table->foreign('sendBank')->references('id')->on('banks');
             $table->string('receivedId');
             $table->integer('receivedBank')->nullable()->unsigned();
-            $table->foreign('receivedBank')->references('id')->on('banks');
             $table->bigInteger('amount');
             $table->text('reason');
             $table->boolean('isConfirm')->default(false);
             $table->string('OTPCode')->nullable();
             $table->boolean('payer')->default(true);
+            $table->integer('creator')->nullable()->unsigned();
             $table->timestamp('expiresAt');
             $table->timestamps();
         });
