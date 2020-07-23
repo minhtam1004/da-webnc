@@ -32,6 +32,7 @@ Route::group([
     Route::post('resetPassword', 'AuthController@changePasswordWithMail');
     Route::get('resetPassword', 'AuthController@resetPassword');
     Route::get('me', 'AuthController@me');
+    Route::get('me/notify', 'UserController@showNotify');
 });
 Route::group([
     'prefix' => 'remembers'
@@ -43,7 +44,7 @@ Route::group([
     'middleware' => 'auth',
     'prefix' => 'debt'
 ], function ($router) {
-    Route::post('add', 'DebtController@store');
+    Route::post('/add', 'DebtController@store');
     Route::get('/', 'DebtController@index');
     Route::get('/other/', 'DebtController@otherindex');
     Route::get('/{id}', 'DebtController@show');

@@ -26,12 +26,14 @@ class DebtController extends Controller
     }
     public function index()
     {
-        $debt = auth('api')->user()->owndebts;
+        $user = auth('api')->user();
+        $acc = $user->account;
+        $debt = $acc->owndebts;
         return response()->json($debt,200);
     }
     public function otherindex()
     {
-        $debt = auth('api')->user()->owndebts;
+        $debt = auth('api')->user()->account->other;
         return response()->json($debt,200);
     }
 
@@ -53,7 +55,11 @@ class DebtController extends Controller
         $acc1 = auth('api')->user()->account;
         if(!$acc1)
         {
-            return response()->json(['error'=>'do not have account']);
+            return response()->json(['error'=>'do not have account'],404);
+        }
+        if($acc === $acc1)
+        {
+            return response()->json(['error'=>'can not debt yourself'],422);
         }
         $request->merge(['ownerId'=>$acc1->accountNumber]);
         $user = $acc->user;
@@ -84,24 +90,33 @@ class DebtController extends Controller
             return response()->json(['error' => 'debt is not exist'],404);
         }
         $user = auth()->user();
-        $owner = $debt->owner();
-        $other = $debt->other();
+        $owner = $debt->owner->user;
+        $other = $debt->other->user;
         $data = null;
         if($user->id === $owner->id)
         {
-            $data = ['owner'=>$owner->user,'note'=>'Đã hủy',$debt];
+            $data = ['owner'=>$owner->name,'note'=>'Đã hủy',$debt->id];
             $other->notify(new DebtNotification($data));
         }
         if($user->id === $other->id)
         {
-            $data = ['owner'=>$owner->user,'note'=>'Đã hủy',$debt];
+            $data = ['owner'=>$owner->name,'note'=>'Đã hủy',$debt->id];
             $owner->notify(new DebtNotification($data));
         }
         if(!$data){
             return response()->json(['error'=>'do not have permission'],403);
         }
-        $debt->destroy();
-        return response()->json($debt,200);
+        $debt->delete();
+        return response()->json($debt->id,200);
 
+    }
+    public function paid($id)
+    {
+        $debt = DebtList::find($id);
+        if(!$debt)
+        {
+            return response()->json(['error' => 'debt is not exist'],404);
+        }
+   
     }
 }
