@@ -151,14 +151,14 @@ export default {
       this.loginForm.recaptchaVerified = true;
     },
     checkIfRecaptchaVerified() {
-      if (!this.loginForm.recaptchaVerified) {
-        this.showModal = true;
+      // if (!this.loginForm.recaptchaVerified) {
+      //   this.showModal = true;
 
-        this.typeModal = "danger";
-        this.messageModal = "Vui lòng nhập captcha";
-        this.titleModal = "Thao tác không thành công";
-        return true;
-      }
+      //   this.typeModal = "danger";
+      //   this.messageModal = "Vui lòng nhập captcha";
+      //   this.titleModal = "Thao tác không thành công";
+      //   return true;
+      // }
       this.login();
     },
     login() {
@@ -200,7 +200,7 @@ export default {
         })
         .then(response => {
           this.turnOffLoading();
-          console.log(response);
+          console.log("=====", response);
           this.$store.dispatch("setUserObject", response.data);
           this.$user = response.data;
           this.$router.push({ name: "Dashboard" });

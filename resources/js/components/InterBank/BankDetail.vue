@@ -19,6 +19,19 @@
                   aria-selected="true"
                 >Danh sách giao dịch</a>
               </li>
+
+                <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="pills-contact-tab"
+                  data-toggle="pill"
+                  href="#pills-contact"
+                  role="tab"
+                  aria-controls="pills-contact"
+                  aria-selected="false"
+                >Biểu đồ thống kê</a>
+              </li>
+
             </ul>
 
             <div class="tab-content" id="pills-tabContent">
@@ -29,6 +42,14 @@
                 aria-labelledby="pills-home-tab"
               >
                 <ListTransaction />
+              </div>
+                  <div
+                class="tab-pane fade"
+                id="pills-contact"
+                role="tabpanel"
+                aria-labelledby="pills-contact-tab"
+              >
+              <Chart />
               </div>
             </div>
           </mdb-card-body>
@@ -41,6 +62,7 @@
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 import ListTransaction from "./ListTransaction";
+import Chart from "./Chart";
 export default {
   name: "Tables",
   components: {
@@ -51,6 +73,7 @@ export default {
     mdbCardBody,
     mdbTbl,
     ListTransaction,
+    Chart
   },
   data() {
     return {};

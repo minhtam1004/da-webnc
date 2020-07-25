@@ -6,6 +6,7 @@ import chat from './modules/chat';
 import loading from './modules/loading';
 import game from './modules/game'
 import transfer from "./modules/transfer"
+import chart from "./modules/chart"
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -21,6 +22,7 @@ export default new Vuex.Store({
     chat,
     loading,
     game,
-    transfer
+    transfer,
+    chart
   }
 })
