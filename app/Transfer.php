@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transfer extends Model
 {
-    protected $fillable = ['sendId','sendBank','receivedId','receivedBank','amount','reason','OTPCode', 'expiresAt', 'payer', 'creator'];
+    protected $fillable = ['sendId','sendBank','receivedId','receivedBank','amount','reason','OTPCode', 'expiresAt', 'payer', 'creator','isDebt'];
     protected $casts = [
         'expiresAt' => 'datetime',
     ];

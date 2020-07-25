@@ -308,7 +308,7 @@ class BankController extends Controller
         return $end===null ? Transfer::where('isConfirm', true)->where('created_at','>',date('Y-m-d',$start))->where(function ($query) {
             $query->whereNotNull('receivedBank')
             ->orWhereNotNull('sendBank');
-        })->paginate(10):Transfer::where('isConfirm', true)->where('created_at','>',date('Y-m-d',$start))->where('created_at','<',date('Y-m-d',$end))->where(function ($query) {
+        })->paginate(10) : Transfer::where('isConfirm', true)->where('created_at','>',date('Y-m-d',$start))->where('created_at','<',date('Y-m-d',$end))->where(function ($query) {
             $query->whereNotNull('receivedBank')
             ->orWhereNotNull('sendBank');
         })->paginate(10);

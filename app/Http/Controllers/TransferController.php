@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\Bank;
 use App\Mail\OTPMail;
+use App\Notifications\DebtNotification;
 use App\Transfer;
 use App\User;
 use Illuminate\Http\Request;
@@ -68,6 +69,7 @@ class TransferController extends Controller
             if (!$acc) {
                 return response()->json(['error' => 'account doesnt exist'], 204);
             }
+            if ($request->payer && $acc->excess < $request->amount + 3000) return response(['error' => 'not enoungh money'], 422);
             if ($acc->excess < $request->amount) return response(['error' => 'not enoungh money'], 422);
             $user = $acc->user;
             $userapi = auth('api')->user();
@@ -76,23 +78,17 @@ class TransferController extends Controller
             }
             $email = $user->email;
             Mail::to($email)->send(new OTPMail($OTPString));
-            $transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
-            if ($transfer) {
-                $transfer->sendBank = $request->sendBank;
-                $transfer->receivedId = $request->receivedId;
-                $transfer->receivedBank = $request->receivedBank;
-                $transfer->amount = $request->payer ? $request->amount : $request->amount - 3000;
-                $transfer->reason = $request->reason;
-                $transfer->OTPCode = $OTPString;
-                $transfer->expiresAt = time() + 60;
-                $transfer->payer = $request->payer;
-                $transfer->save();
-                return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 200);
-            }
-            $request->merge(['OTPCode' => str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode)]);
-            $request->merge(['expiresAt' => time() + 60]);
-            $request->merge(['creator' => $user->id]);
-            $transfer = Transfer::create($request->all());
+            $transfer = Transfer::updateOrCreate(['sendId' => $acc->accountNumber,'isConfirm' => false],[
+                'sendBank' => $request->sendBank,
+                'receivedId' => $request->receivedId,
+                'receivedBank' => $request->receivedBank,
+                'amount' => $request->payer ? $request->amount : $request->amount - 3000,
+                'reason' => $request->reason,
+                'OTPCode' => $OTPString,
+                'expiresAt' => time() + 60,
+                'payer' => $request->payer,
+                'creator' => $user->id
+            ]);
             return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 201);
         }
         if (!$acc) return response()->json(['error' => 'wrong logic'], 422);
@@ -102,18 +98,20 @@ class TransferController extends Controller
         return response()->json(['message' => 'Transfer has been added'], 201);
     }
 
-    public function confirm(Request $request)
+    public function confirm($id, Request $request)
     {
         $validatedData = Validator::make($request->all(), [
             'OTPCode' => 'required|max:255',
-            'transferId' => 'required|max:255',
         ]);
         if ($validatedData->fails()) {
             return response()->json('Parameter error', 422);
         }
-        $transfer = Transfer::find($request->transferId);
+        $transfer = Transfer::find($id);
         if (!$transfer || $transfer->isConfirm) {
             return response()->json('confirm error', 422);
+        }
+        if ($transfer->sendId !== auth('api')->user()->account->accountNumber) {
+            return response()->json('do not have permission', 403);
         }
         if ($transfer->OTPCode !== $request->OTPCode) {
             return response()->json('wrong code', 403);
@@ -123,12 +121,18 @@ class TransferController extends Controller
         }
         $transfer->isConfirm = true;
         $transfer->save();
-        $acc = Account::find($transfer->sender->id);
-        $acc->excess -= $transfer->payer ? $transfer->amount + 3000 : $transfer->amount;
-        $acc->save();
+        $acc1 = Account::find($transfer->sender->id);
+        $acc1->excess -= $transfer->amount + 3000;
+        $acc1->save();
         $acc = Account::find($transfer->receiver->id);
         $acc->excess += $transfer->amount;
         $acc->save();
+        $user = $acc->user;
+        if($transfer->isDebt)
+        {
+            $data = ['user' => $acc1->user, 'note' => 'thanh toán '.$transfer->note, 'amount' => $transfer->amount];
+            $user->notify(new DebtNotification($data));   
+        }
         return response()->json("success", 200);
     }
 
@@ -141,10 +145,16 @@ class TransferController extends Controller
         if ($transfer->isConfirm) {
             return response()->json('transfer is confirm', 422);
         }
+        $user = auth('api')->user();
+        if ($transfer->sendId !== $user->account->accountNumber) {
+            return response()->json('do not have permission', 403);
+        }
         $OTPCode = rand(0, 999999);
-        $transfer->OTPCode = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
+        $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
+        $transfer->OTPCode = $OTPString;
         $transfer->expiresAt = time() + 60;
         $transfer->save();
+        Mail::to($user->email)->send(new OTPMail($OTPString));
         return response()->json(['message' => 'OTP is refresh', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $transfer->sender->user->email], 201);
     }
     /**

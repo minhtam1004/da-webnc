@@ -65,8 +65,7 @@ const mutations = {
 const actions = {
     setUserObject: ({commit}, userObj) => {
         commit('SET_AUTH_USER', userObj);
-        window.Echo.private(`App.User.${userObj.id}`)
-        .notification((notification) => {
+        window.Echo.private('App.User.' + userObj.id).notification((notification) => {
             console.log(notification, '#notifications');
         });    
     },

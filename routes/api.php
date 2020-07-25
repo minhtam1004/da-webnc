@@ -59,20 +59,17 @@ Route::group([
     Route::post('/accounts/{id}/recharge', 'AccountController@recharge');
     Route::get('/users/{id}', 'UserController@show');
     Route::get('/users/{id}/transfers', 'UserController@showTransfer');
+    Route::get('/users/{id}/debt-transfers', 'UserController@showDebtTransfer');
+    Route::get('/users/{id}/recharge-transfers', 'UserController@showRechargeTransfer');
     Route::get('/customers', 'UserController@customerIndex');
     Route::get('/employees', 'UserController@employeeIndex');
     Route::post('/employees', 'UserController@employeeStore');
     Route::put('/employees/{id}', 'UserController@employeeUpdate');
     Route::delete('/employees/{id}', 'UserController@employeeDestroy');
     Route::post('/transfers', 'TransferController@store');
-});
-Route::group([
-    'middleware' => 'auth',
-    'prefix' => 'transfers'
-], function ($router) {
-    Route::post('', 'TransferController@store')->middleware('checkbank', 'logtransfer');
-    Route::post('/confirm', 'TransferController@confirm')->middleware('logtransfer');
-    Route::get('/{id}/refresh', 'TransferController@getOTP');
+    //change
+    Route::post('/transfers/{id}/confirm', 'TransferController@confirm')->middleware('logtransfer');
+    Route::get('/transfers/{id}/refresh', 'TransferController@getOTP');
 });
 Route::group([
     'middleware' => 'auth',
@@ -82,7 +79,7 @@ Route::group([
     Route::get('/{id}/transfers', 'BankController@bankTransfer');
     Route::get('/transfers', 'BankController@transfer');
 });
-
+Route::post('/transfers', 'TransferController@store')->middleware('checkbank', 'logtransfer');
 Route::get('accounts/{id}', 'AccountController@show')->middleware('checkuser');
 Route::post('sendMoney', 'BankController@sendMoney');
 Route::get('viewuser', 'BankController@viewuser');

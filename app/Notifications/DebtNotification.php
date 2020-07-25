@@ -56,4 +56,8 @@ class DebtNotification extends Notification implements ShouldQueue
     {
         return $this->data;
     }
+    public function toDatabase($notifiable)
+    {
+        return $this->data;
+    }
 }

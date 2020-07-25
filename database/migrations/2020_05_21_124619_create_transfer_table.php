@@ -25,6 +25,7 @@ class CreateTransferTable extends Migration
             $table->string('OTPCode')->nullable();
             $table->boolean('payer')->default(true);
             $table->integer('creator')->nullable()->unsigned();
+            $table->boolean('isDebt')->default(false);
             $table->timestamp('expiresAt');
             $table->timestamps();
         });
