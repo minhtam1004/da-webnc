@@ -98,7 +98,8 @@ class AuthController extends Controller
     {
         $user = auth('api')->user();
         $user->account;
-        return response()->json($user);
+        $user->permission = $user->role->name;
+        return response()->json($user,200);
     }
     public function changePassword(Request $request)
     {
