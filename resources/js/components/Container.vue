@@ -72,50 +72,56 @@
             <mdb-icon icon="user" class="mr-3" />Thông tin cá nhân
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/account-info" @click.native="activeItem = 3">
+        <router-link to="/account-info" @click.native="activeItem = 3" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 3 && 'active'">
             <mdb-icon icon="user-md" class="mr-3" />Thông tin tài
             khoản
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/transfers" @click.native="activeItem = 4">
+        <router-link to="/transfers" @click.native="activeItem = 4" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 4 && 'active'">
             <mdb-icon icon="dollar-sign" class="mr-3" />Chuyển khoản nội bộ
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/transfers-interbank" @click.native="activeItem = 5">
+        <router-link to="/transfers-interbank" @click.native="activeItem = 5" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 5 && 'active'">
             <mdb-icon icon="university" class="mr-3" />Chuyển khoản liên ngân hàng
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/employees" @click.native="activeItem = 6">
+        <router-link to="/add-debt-reminder" @click.native="activeItem = 6" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 6 && 'active'">
+            <mdb-icon icon="university" class="mr-3" />Tạo nhắc nợ
+          </mdb-list-group-item>
+        </router-link>
+
+        <router-link to="/employees" @click.native="activeItem = 7" v-if="permission == 'admin'">
+          <mdb-list-group-item :action="true" :class="activeItem === 7 && 'active'">
             <mdb-icon icon="user-secret" class="mr-3" />Quản lí nhân viên
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/customers" @click.native="activeItem = 7">
-          <mdb-list-group-item :action="true" :class="activeItem === 7 && 'active'">
+        <router-link to="/customers" @click.native="activeItem = 8" v-if="permission == 'editor'">
+          <mdb-list-group-item :action="true" :class="activeItem === 8 && 'active'">
             <mdb-icon icon="user-secret" class="mr-3" />Quản lí khách hàng
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/transactions" @click.native="activeItem = 8">
-          <mdb-list-group-item :action="true" :class="activeItem === 8 && 'active'">
+        <router-link to="/transactions" @click.native="activeItem = 9" v-if="permission == 'user'">
+          <mdb-list-group-item :action="true" :class="activeItem === 9 && 'active'">
             <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách giao dịch
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/banks" @click.native="activeItem = 9">
-          <mdb-list-group-item :action="true" :class="activeItem === 9 && 'active'">
+        <router-link to="/banks" @click.native="activeItem = 10" v-if="permission == 'admin'">
+          <mdb-list-group-item :action="true" :class="activeItem === 10 && 'active'">
             <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách ngân hàng liên kết
           </mdb-list-group-item>
         </router-link>
 
-          <router-link to="/debt-remider" @click.native="activeItem = 10">
-          <mdb-list-group-item :action="true" :class="activeItem === 10 && 'active'">
+          <router-link to="/debt-remider" @click.native="activeItem = 11" v-if="permission == 'user'">
+          <mdb-list-group-item :action="true" :class="activeItem === 11 && 'active'">
             <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách nhắc nợ
           </mdb-list-group-item>
         </router-link>
@@ -124,14 +130,14 @@
             <mdb-icon icon="map" class="mr-3" />Maps
           </mdb-list-group-item>
         </router-link>-->
-        <router-link v-if="!isCustomer" to="/register-customer" @click.native="activeItem = 11">
-          <mdb-list-group-item :action="true" :class="activeItem === 11 && 'active'">
+        <router-link to="/register-customer" @click.native="activeItem = 12" v-if="permission == 'editor'">
+          <mdb-list-group-item :action="true" :class="activeItem === 12 && 'active'">
             <mdb-icon icon="user-plus" class="mr-3" />Đăng kí tài
             khoản
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/404" @click.native="activeItem = 12">
-          <mdb-list-group-item :action="true" :class="activeItem === 12 && 'active'">
+        <router-link to="/404" @click.native="activeItem = 13">
+          <mdb-list-group-item :action="true" :class="activeItem === 13 && 'active'">
             <mdb-icon icon="exclamation" class="mr-3" />404
           </mdb-list-group-item>
         </router-link>
@@ -190,6 +196,14 @@ export default {
       activeItem: 1,
       isCustomer: false
     };
+  },
+  computed: {
+    permission() {
+      return this.$store.state.user.authUser.permission;
+    }
+  },
+  created() {
+    console.log("++++++", this.$store.state.user.authUser);
   },
   methods: {
     logout() {

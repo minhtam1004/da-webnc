@@ -60,14 +60,13 @@
                     style="border-radius: 1vmin"
                     @click="showAddUser=true"
                   >
-                    <i class="fas fa-plus-circle mr-1"></i>Thêm mới
+                    <i class="fas fa-plus-circle mr-1"></i>Xem biểu đồ
                   </button>
                 </form>
               </div>
 
               <!-- Collapsible content -->
             </nav>
-
             <div class="md-form">
               <div id="table" class="table-editable">
                 <table class="table table-bordered table-responsive-md table-striped text-center">
@@ -79,8 +78,6 @@
                       <th class="text-center">Số tiền</th>
                       <th class="text-center">Trạng thái</th>
                       <th class="text-center">Thời gian giao dịch</th>
-
-                      <th class="text-center">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -91,15 +88,6 @@
                       <td class="pt-3-half">{{ item.amount }}</td>
                       <td class="pt-3-half">{{ item.isConfirm == 1 ? 'Thành công' : 'Thất bại' }}</td>
                       <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
-                      <td>
-                        <span class="table-remove">
-                          <button
-                            type="button"
-                            class="btn btn-info btn-rounded btn-sm my-0"
-                            @click="$router.push({name: 'CustomerDetail', params: { id: item.id }})"
-                          >Chi tiết</button>
-                        </span>
-                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -139,7 +127,8 @@
   </section>
 </template>
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl, mdbIcon } from "mdbvue";
+
 import $ from "jquery";
 
 export default {
@@ -151,12 +140,14 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
+    mdbIcon
   },
 
   data() {
     return {
       data: [],
       date: "",
+      total: 0,
       startDate: "",
       id: this.$route.params.id,
       endDate: new Date(),
@@ -175,8 +166,7 @@ export default {
     const a = new Date();
     const month = a.getMonth() + 1;
     if (a.getMonth() < 10) {
-      this.startDate =
-        a.getFullYear() + "-0" + month + "-" + a.getDate();
+      this.startDate = a.getFullYear() + "-0" + month + "-" + a.getDate();
       this.endDate = a.getFullYear() + "-0" + month + "-" + a.getDate();
     } else {
       this.startDate = a.getFullYear() + "-" + month + "-" + a.getDate();
@@ -192,6 +182,7 @@ export default {
       return a.getDate() + "/" + a.getMonth() + "/" + a.getFullYear();
     },
     reload() {
+      this.total = 0;
       const options = {
         headers: {
           "Content-Type": "application/json",
@@ -216,6 +207,12 @@ export default {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.pagination = response.data;
+            this.$store.dispatch("setDataChart", response.data);
+            if (this.pagination.data.length > 0) {
+              this.pagination.data.forEach((u) => {
+                this.total += u.amount;
+              });
+            }
           }
         })
         .catch((error) => {});
@@ -226,6 +223,7 @@ export default {
       return reverseArray.join("/");
     },
     getTransaction() {
+      this.total = 0;
       const options = {
         headers: {
           "Content-Type": "application/json",
@@ -252,6 +250,12 @@ export default {
           console.log("RESPONSE RECEIVED 2: ", response);
           if (response.data !== null) {
             this.pagination = response.data;
+            this.$store.dispatch("setDataChart", response.data);
+            if (this.pagination.data.length > 0) {
+              this.pagination.data.forEach((u) => {
+                this.total += u.amount;
+              });
+            }
           }
         })
         .catch((error) => {});
@@ -303,5 +307,46 @@ label {
 }
 #datepicker > span:hover {
   cursor: pointer;
+}
+
+.cascading-admin-card {
+  margin: 20px 0;
+}
+.cascading-admin-card .admin-up {
+  margin-left: 4%;
+  margin-right: 4%;
+  margin-top: -20px;
+}
+.cascading-admin-card .admin-up .fas,
+.cascading-admin-card .admin-up .far {
+  box-shadow: 0 2px 9px 0 rgba(0, 0, 0, 0.2), 0 2px 13px 0 rgba(0, 0, 0, 0.19);
+  padding: 1.7rem;
+  font-size: 2rem;
+  color: #fff;
+  text-align: left;
+  margin-right: 1rem;
+  border-radius: 3px;
+}
+.cascading-admin-card .admin-up .data {
+  float: right;
+  margin-top: 2rem;
+  text-align: right;
+}
+.admin-up .data p {
+  color: #999999;
+  font-size: 12px;
+}
+.classic-admin-card .card-body {
+  color: #fff;
+  margin-bottom: 0;
+  padding: 0.9rem;
+}
+.classic-admin-card .card-body p {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 0;
+}
+.classic-admin-card .card-body h4 {
+  margin-top: 10px;
 }
 </style>

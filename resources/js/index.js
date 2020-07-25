@@ -21,6 +21,7 @@ import Topup from "./components/Topup";
 import ListBank from "./components/ListBank";
 import DebtReminder from "./components/DebtReminder";
 import BankDetail from "./components/InterBank/BankDetail";
+import CreateDebt from "./components/CreateDebt";
 export const routes = [
     { path: "/login", name: "Login", component: Login },
     { path: "/customer/:id", name: "CustomerDetail", component: CustomerDetail },
@@ -64,23 +65,29 @@ export const routes = [
                 component: TransferInterbank
             },
             {
+                path: "/add-debt-reminder",
+                name: "CreateDebt",
+                props: { page: 6 },
+                component: CreateDebt
+            },
+            {
                 path: "/employees",
                 name: "ListEmployee",
-                props: { page: 6 },
+                props: { page: 7 },
                 component: ListEmployee
                 
             },
             {
                 path: "/customers",
                 name: "ListCustomer",
-                props: { page: 7 },
+                props: { page: 8 },
                 component: ListCustomer
                 
             },
             {
                 path: "/transactions",
                 name: "Transactions",
-                props: { page: 8 },
+                props: { page: 9 },
                 component: Transaction
             },
 
@@ -93,30 +100,30 @@ export const routes = [
             {
                 path: "/banks",
                 name: "ListBank",
-                props: { page: 9 },
+                props: { page: 10 },
                 component: ListBank
             },
             {
                 path: "/register-customer",
                 name: "RegisterCustomer",
-                props: { page: 10 },
+                props: { page: 11 },
                 component: RegisterCustomer
             },
             {
                 path: "/debt-remider",
                 name: "DebtReminder",
-                props: { page: 11 },
+                props: { page: 12 },
                 component: DebtReminder
             },
             {
                 path: "/404",
                 name: "BadGateway",
-                props: { page: 12 },
+                props: { page: 13 },
                 component: Tables
             },
             {
                 path: "*",
-                props: { page: 13 },
+                props: { page: 14 },
                 redirect: "/404"
             }
         ]
