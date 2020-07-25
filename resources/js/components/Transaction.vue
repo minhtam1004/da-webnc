@@ -49,20 +49,24 @@
                 role="tabpanel"
                 aria-labelledby="pills-home-tab"
               >
-              <Receiving />
+                <Receiving />
               </div>
               <div
                 class="tab-pane fade"
                 id="pills-profile"
                 role="tabpanel"
                 aria-labelledby="pills-profile-tab"
-              >...</div>
+              >
+                <Transfer />
+              </div>
               <div
                 class="tab-pane fade"
                 id="pills-contact"
                 role="tabpanel"
                 aria-labelledby="pills-contact-tab"
-              >...</div>
+              >
+                <DebtPayment />
+              </div>
             </div>
           </mdb-card-body>
         </mdb-card>
@@ -73,7 +77,9 @@
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
-import Receiving from "./Transaction/Receiving"; 
+import Receiving from "./Transaction/Receiving";
+import Transfer from "./Transaction/Transfer";
+import DebtPayment from "./Transaction/DebtPayment";
 export default {
   name: "Tables",
   components: {
@@ -83,11 +89,13 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    Receiving
+    Receiving,
+    Transfer,
+    DebtPayment
   },
   data() {
     return {};
-  }
+  },
 };
 </script>
 

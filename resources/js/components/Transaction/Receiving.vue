@@ -4,54 +4,102 @@
       <mdb-col md="12">
         <mdb-card cascade narrow>
           <mdb-card-body>
-            <!-- Editable table -->
+            <nav class="navbar navbar-expand-lg navbar-dark indigo mb-4">
+              <!-- Navbar brand -->
+              <a class="navbar-brand">
+                <div class="form-row">
+                  <div class="col-10">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="keyword"
+                      placeholder="Nhập từ khóa"
+                      aria-label="Nhập từ khóa"
+                    />
+                  </div>
+                  <div class="col">
+                    <button
+                      type="button"
+                      class="btn-floating purple-gradient px-3"
+                      style="height:100%;border-radius: 0.5vmin"
+                      @click="reload"
+                    >
+                      <i class="fas fa-search"></i>
+                    </button>
+                  </div>
+                </div>
+              </a>
 
+              <!-- Collapsible content -->
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <form class="form-inline ml-auto">
+                  <button
+                    type="button"
+                    class="btn btn-warning"
+                    style="border-radius: 1vmin"
+                    @click="load"
+                  >
+                    <i class="fas fa-redo mr-1"></i>Tải lại
+                  </button>
+
+                 
+                </form>
+              </div>
+
+              <!-- Collapsible content -->
+            </nav>
             <div id="table" class="table-editable">
-              <span class="table-add float-right mb-3 mr-2">
-                <a href="#!" class="text-success">
-                  <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
-                </a>
-              </span>
               <table class="table table-bordered table-responsive-md table-striped text-center">
                 <thead>
                   <tr>
                     <th class="text-center">Mã giao dịch</th>
-                    <th class="text-center">Người gửi</th>
-                    <th class="text-center">Người nhận</th>
+                    <th class="text-center">Số tài khoản nhận</th>
+                    <th class="text-center">Tên chủ tài khoản</th>
+                    <th class="text-center">Tên ngân hàng</th>
                     <th class="text-center">Số tiền</th>
-                    <th class="text-center">Phí</th>
-                    <th class="text-center">Thời gian giao dịch</th>
                     <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Thời gian giao dịch</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in 4" :key="index">
-                    <td class="pt-3-half" contenteditable="true">Aurelia Vega</td>
-                    <td class="pt-3-half" contenteditable="true">30</td>
-                    <td class="pt-3-half" contenteditable="true">Deepends</td>
-                    <td class="pt-3-half" contenteditable="true">Spain</td>
-                    <td class="pt-3-half" contenteditable="true">Madrid</td>
-                    <td class="pt-3-half">
-                      <span class="table-up">
-                        <a href="#!" class="indigo-text">
-                          <i class="fas fa-long-arrow-alt-up" aria-hidden="true"></i>
-                        </a>
-                      </span>
-                      <span class="table-down">
-                        <a href="#!" class="indigo-text">
-                          <i class="fas fa-long-arrow-alt-down" aria-hidden="true"></i>
-                        </a>
-                      </span>
-                    </td>
-                    <td>
-                      <span class="table-remove">
-                        <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">Remove</button>
-                      </span>
-                    </td>
+                  <tr v-for="(item, index) in pagination.data" :key="index">
+                    <td class="pt-3-half">{{ item.id }}</td>
+                    <td class="pt-3-half">{{ item.receivedId }}</td>
+                    <td class="pt-3-half">{{ item.receivedId }}</td>
+                    <td class="pt-3-half">{{ item.receivedId }}</td>
+                    <td class="pt-3-half">{{ item.amount }}</td>
+                    <td class="pt-3-half">{{ item.isConfirm == 1 ? 'Thành công' : 'Chờ xác nhận' }}</td>
+                    <td class="pt-3-half">{{ formatTime(item.created_at) }}</td>
                   </tr>
                 </tbody>
               </table>
+
+              <nav aria-label="Page navigation example">
+                <ul class="pagination pg-blue" style="display: flex;justify-content: center;">
+                  <li
+                    :class="pagination.prev_page_url ? 'page-item' :  'page-item disabled'"
+                    id="page1"
+                    @click="clickPagination(1)"
+                  >
+                    <a class="page-link user-select" tabindex="-1">Trang trước</a>
+                  </li>
+                  <li class="page-item active" id="page2">
+                    <a class="page-link user-select">
+                      {{ pagination.current_page }}
+                      <span class="sr-only"></span>
+                    </a>
+                  </li>
+                  <li
+                    :class="pagination.next_page_url ? 'page-item' : 'page-item disabled'"
+                    id="page3"
+                    @click="clickPagination(3)"
+                  >
+                    <a class="page-link user-select">Trang sau</a>
+                  </li>
+                </ul>
+              </nav>
             </div>
+
             <!-- Editable table -->
           </mdb-card-body>
         </mdb-card>
@@ -62,6 +110,7 @@
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+// import Popup from "./Popup"
 
 export default {
   name: "Tables",
@@ -71,113 +120,86 @@ export default {
     mdbCard,
     mdbView,
     mdbCardBody,
-    mdbTbl
+    mdbTbl,
   },
 
   data() {
     return {
-      data: []
+      data: [],
+      keyword: "",
+      pagination: {
+        data: [],
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+      },
+      showAddUser: false,
     };
   },
   created() {
-    const $tableID = $("#table");
-    const $BTN = $("#export-btn");
-    const $EXPORT = $("#export");
-
-    const newTr = `
-<tr class="hide">
-  <td class="pt-3-half" contenteditable="true">Example</td>
-  <td class="pt-3-half" contenteditable="true">Example</td>
-  <td class="pt-3-half" contenteditable="true">Example</td>
-  <td class="pt-3-half" contenteditable="true">Example</td>
-  <td class="pt-3-half" contenteditable="true">Example</td>
-  <td class="pt-3-half">
-    <span class="table-up"><a href="#!" class="indigo-text"><i class="fas fa-long-arrow-alt-up" aria-hidden="true"></i></a></span>
-    <span class="table-down"><a href="#!" class="indigo-text"><i class="fas fa-long-arrow-alt-down" aria-hidden="true"></i></a></span>
-  </td>
-  <td>
-    <span class="table-remove"><button type="button" class="btn btn-danger btn-rounded btn-sm my-0 waves-effect waves-light">Remove</button></span>
-  </td>
-</tr>`;
-
-    $(".table-add").on("click", "i", () => {
-      const $clone = $tableID
-        .find("tbody tr")
-        .last()
-        .clone(true)
-        .removeClass("hide table-line");
-
-      if ($tableID.find("tbody tr").length === 0) {
-        $("tbody").append(newTr);
-      }
-
-      $tableID.find("table").append($clone);
-    });
-
-    $tableID.on("click", ".table-remove", function() {
-      $(this)
-        .parents("tr")
-        .detach();
-    });
-
-    $tableID.on("click", ".table-up", function() {
-      const $row = $(this).parents("tr");
-
-      if ($row.index() === 0) {
-        return;
-      }
-
-      $row.prev().before($row.get(0));
-    });
-
-    $tableID.on("click", ".table-down", function() {
-      const $row = $(this).parents("tr");
-      $row.next().after($row.get(0));
-    });
-
-    // A few jQuery helpers for exporting only
-    jQuery.fn.pop = [].pop;
-    jQuery.fn.shift = [].shift;
-
-    $BTN.on("click", () => {
-      const $rows = $tableID.find("tr:not(:hidden)");
-      const headers = [];
-      const data = [];
-
-      // Get the headers (add special header logic here)
-      $($rows.shift())
-        .find("th:not(:empty)")
-        .each(function() {
-          headers.push(
-            $(this)
-              .text()
-              .toLowerCase()
-          );
-        });
-
-      // Turn all existing rows into a loopable array
-      $rows.each(function() {
-        const $td = $(this).find("td");
-        const h = {};
-
-        // Use the headers from earlier to name our hash keys
-        headers.forEach((header, i) => {
-          h[header] = $td.eq(i).text();
-        });
-
-        data.push(h);
-      });
-
-      // Output the result
-      $EXPORT.text(JSON.stringify(data));
-    });
+    this.load();
   },
-  methods: {}
+  methods: {
+     formatTime(time) {
+
+      const a = new Date(time);
+      const month = a.getMonth() + 1;
+      if (month < 10) {
+        return a.getDate() + "/0" + month + "/" + a.getFullYear();
+      }
+      return a.getDate() + "/" + month + "/" + a.getFullYear();
+    },
+    reload() {
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+      };
+// api/bank/users/{id / me}/recharge-transfers) (data: limit/page
+  
+        axios
+          .get(
+            "api/bank/users/me/recharge-transfers?limit=" +
+              this.pagination.per_page +
+              "&page=" +
+              this.pagination.current_page,
+            options
+          )
+          .then((response) => {
+            console.log("RESPONSE RECEIVED 1: ", response);
+            if (response.data !== null) {
+              this.pagination = response.data;
+            }
+          })
+          .catch((error) => {});
+    },
+    load() {
+      this.reload();
+    },
+    clickPagination(id) {
+      $("#page2").addClass("active").siblings().removeClass("active");
+      if (id == 1 && this.pagination.prev_page_url != null) {
+        console.log("Vo 1");
+        this.pagination.current_page--;
+        this.reload();
+      }
+
+      if (id == 3 && this.pagination.next_page_url != null) {
+        console.log("Vo 2");
+        this.pagination.current_page++;
+        this.reload();
+      }
+    },
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.user-select {
+  user-select: none;
+}
 .card.card-cascade .view.gradient-card-header {
   padding: 1rem 1rem;
   text-align: center;

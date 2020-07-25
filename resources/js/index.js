@@ -37,7 +37,7 @@ export const routes = [
                 component: Dashboard,
                 props: { page: 1 },
                 alias: "/dashboard",
-                meta: { role: 3 }
+                meta: { role: 1 }
               
             },
             {
