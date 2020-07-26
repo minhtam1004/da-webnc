@@ -93,7 +93,9 @@
                 id="pills-contact"
                 role="tabpanel"
                 aria-labelledby="pills-contact-tab"
-              >...</div>
+              >
+              <ListTransfer />
+              </div>
             </div>
           </mdb-card-body>
         </mdb-card>
@@ -105,8 +107,10 @@
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 import PersonalInfo from "./PersonalInfo";
-import ReceivingMoney from "./ReceivingMoney";
+import ReceivingMoney from "./Receiving";
 import Transfer from "./Transfer";
+import DebtPayment from "./DebtPayment";
+import ListTransfer from "./ListTransfer";
 export default {
   name: "Tables",
   components: {
@@ -118,7 +122,8 @@ export default {
     mdbTbl,
     PersonalInfo,
     ReceivingMoney,
-    Transfer
+    Transfer,
+    ListTransfer
   },
   data() {
     return {};
