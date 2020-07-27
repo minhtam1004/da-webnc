@@ -8,6 +8,7 @@ use App\Mail\OTPMail;
 use App\Notifications\DebtNotification;
 use App\Transfer;
 use App\User;
+use App\DebtList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -128,9 +129,10 @@ class TransferController extends Controller
         $acc->excess += $transfer->amount;
         $acc->save();
         $user = $acc->user;
-        if($transfer->isDebt)
+        if($transfer->debtId)
         {
-            $data = ['user' => $acc1->user, 'note' => 'thanh toán '.$transfer->note, 'amount' => $transfer->amount];
+            $debt = DebtList::where('id',$transfer->debtId)->update(['ispaid' => true]);
+            $data = [ 'type'=>'paid','user' => $acc1->user,'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => 'thanh toán '.$transfer->note, 'debt' => $debt];
             $user->notify(new DebtNotification($data));   
         }
         return response()->json("success", 200);

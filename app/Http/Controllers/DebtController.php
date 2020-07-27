@@ -46,7 +46,7 @@ class DebtController extends Controller
         $validatedData = Validator::make($request->all(), [
             'otherId' => 'required|max:255',
             'debt' => 'required|numeric|min:10000|max:1000000000',
-            'note' => 'max:200'
+            'note' => 'max:255'
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
@@ -59,12 +59,13 @@ class DebtController extends Controller
         if (!$acc1) {
             return response()->json(['error' => 'do not have account'], 404);
         }
-        if ($acc === $acc1) {
+        if ($acc->accountNumber === $acc1->accountNumber) {
             return response()->json(['error' => 'can not debt yourself'], 422);
         }
         $request->merge(['ownerId' => $acc1->accountNumber]);
         $user = $acc->user;
-        $data = ['owner' => $acc1->user, 'note' => $request->note, 'amount' => $request->debt];
+        $debt = DebtList::create($request->all());
+        $data = ['type'=>'created','user' => $acc1->user, 'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => $request->note, 'debt' => $debt];
         $user->notify(new DebtNotification($data));
         // $options = array(
         //     'cluster' => 'ap1',
@@ -80,11 +81,16 @@ class DebtController extends Controller
         // //broadcast(new NotificationEvent($data))->toOthers();
         // $pusher->trigger('NotificationEvent', 'send-message', $data);
         // Mail::to($acc->user->email)->send(new OTPMail('121212'));
-        $debt = DebtList::create($request->all());
         return $debt;
     }
-    public function destroy($id)
-    {
+    public function destroy($id, Request $request)
+    {  
+        $validatedData = Validator::make($request->all(), [
+            'note' => 'max:255'
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
         $debt = DebtList::find($id);
         if (!$debt) {
             return response()->json(['error' => 'debt is not exist'], 404);
@@ -94,11 +100,11 @@ class DebtController extends Controller
         $other = $debt->other->user;
         $data = null;
         if ($user->id === $owner->id) {
-            $data = ['owner' => $owner->name, 'note' => 'Đã hủy', $debt->id];
+            $data = ['type'=>'deleted', 'user' => $owner,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
             $other->notify(new DebtNotification($data));
         }
         if ($user->id === $other->id) {
-            $data = ['owner' => $owner->name, 'note' => 'Đã hủy', $debt->id];
+            $data = ['type'=>'deleted','user' => $other,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
             $owner->notify(new DebtNotification($data));
         }
         if (!$data) {
@@ -133,7 +139,7 @@ class DebtController extends Controller
             'OTPCode' => $OTPString,
             'expiresAt' => time() + 60,
             'payer' => false,
-            'isDebt' => true,
+            'debtId' => $id,
             'creator' => $user->id
         ]);
         return response()->json(['message' => 'Transfer has been added', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $email], 201);
