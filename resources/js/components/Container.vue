@@ -11,7 +11,6 @@
           <mdb-nav-item to="/transactions" waves-fixed>Lịch sử giao dịch</mdb-nav-item>
         </mdb-navbar-nav>
         <mdb-navbar-nav right style="display: flex;align-items: center;">
-
           <div style="position: relative;margin-right: 2vmin">
             <mdb-btn
               tag="a"
@@ -236,7 +235,7 @@ export default {
   created() {
     console.log("++++++", this.$store.state.user.authUser);
     console.log("asd");
-        window.Echo = new Echo({
+    window.Echo = new Echo({
       broadcaster: "pusher",
       key: process.env.MIX_PUSHER_APP_KEY,
       cluster: process.env.MIX_PUSHER_APP_CLUSTER,
@@ -249,8 +248,12 @@ export default {
       },
     });
 
-    Echo.private("App.User." + this.$store.state.user.authUser.id).notification(
+    window.Echo.private("App.User." + this.$store.state.user.authUser.id).notification(
       (notification) => {
+        this.$toast.open({
+          message: "Bạn đã nhận một nhắc nợ từ STK: ",
+          type: "info",
+        });
         console.log(notification, "#notifications");
       }
     );

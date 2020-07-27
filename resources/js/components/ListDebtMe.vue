@@ -61,7 +61,6 @@
                   <tr>
                     <th class="text-center">Mã nhắc nợ</th>
                     <th class="text-center">STK người nợ</th>
-                    <th class="text-center">Tên chủ tài khoản</th>
                     <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Nội dung</th>
                     <th class="text-center">Thời gian nhắc nợ</th>
@@ -72,7 +71,6 @@
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
                     <td class="pt-3-half">{{ item.otherId }}</td>
-                    <td class="pt-3-half">{{ item.otherId }}</td>
                     <td class="pt-3-half">{{ item.debt }}</td>
                     <td class="pt-3-half">{{ item.note}}</td>
                     <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
@@ -81,7 +79,7 @@
                         <button
                           type="button"
                           class="btn btn-danger btn-rounded btn-sm my-0"
-                          @click="$router.push({name: 'EmployeeDetail', params: { id: item.id }})"
+                          @click="showPopup(item.id)"
                         >
                           <i class="far fa-trash-alt"></i> Xóa
                         </button>
@@ -116,21 +114,20 @@
                 </ul>
               </nav>
             </div>
-
             <!-- Editable table -->
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
     </mdb-row>
 
-    <AddEmployee v-if="showAddUser" @close-modal="showAddUser=false" />
+    <RemoveDebt :idDebt="idColum" v-if="showAddUser" @close-modal="closeModalRemoveDebt" />
   </section>
 </template>
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 // import Popup from "./Popup"
-import AddEmployee from "./Popup/AddEmployee";
+import RemoveDebt from "./Popup/RemoveDebt";
 export default {
   name: "Tables",
   components: {
@@ -140,12 +137,13 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    AddEmployee,
+    RemoveDebt,
   },
 
   data() {
     return {
       data: [],
+      idColum: null,
       keyword: "",
       pagination: {
         data: [],
@@ -159,6 +157,14 @@ export default {
     this.load();
   },
   methods: {
+    closeModalRemoveDebt() {
+    this.showAddUser=false;
+    this.reload();
+    },
+    showPopup(id) {
+      this.showAddUser=true;
+      this.idColum=id;
+    },
     formatTime(time) {
       const a = new Date(time);
       const month = a.getMonth() + 1;

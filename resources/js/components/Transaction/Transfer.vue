@@ -68,12 +68,11 @@
                     <td class="pt-3-half">{{ item.amount }}</td>
                     <td class="pt-3-half">
                       <mdb-badge
-                        v-if="item.isConfirm == 1"
                         color="success-color"
                         pill
                         class="pull-right"
                       >Thành công</mdb-badge>
-                      <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge>
+                      <!-- <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge> -->
                       <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
                     </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at) }}</td>
@@ -158,6 +157,25 @@ export default {
     this.load();
   },
   methods: {
+      getUser(id) {
+      console.log("555")
+      axios
+        .get("api/bank/users/" + id, {
+          headers: {
+            Authorization: "bearer" + this.$store.state.user.access_token
+          }
+        })
+        .then(response => {
+          console.log(response);
+          
+        })
+        .catch(error => {
+          return this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error"
+          });
+        });
+    },
     formatTime(time) {
       const a = new Date(time);
       const month = a.getMonth() + 1;

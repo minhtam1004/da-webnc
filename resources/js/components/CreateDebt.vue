@@ -217,7 +217,7 @@ export default {
     createDebtReminder() {
       this.turnOnLoading();
       var data = {
-        otherId: this.$store.state.user.authUser.account.accountNumber,
+        otherId: this.accountNumber,
         debt: this.amount,
         note: this.reason,
       };

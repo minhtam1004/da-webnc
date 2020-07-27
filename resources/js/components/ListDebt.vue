@@ -60,8 +60,7 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã nhắc nợ</th>
-                    <th class="text-center">STK người nợ</th>
-                    <th class="text-center">Tên chủ tài khoản</th>
+                    <th class="text-center">STK người nhắc nợ</th>
                     <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Nội dung</th>
                     <th class="text-center">Thời gian nhắc nợ</th>
@@ -71,7 +70,6 @@
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.otherId }}</td>
                     <td class="pt-3-half">{{ item.otherId }}</td>
                     <td class="pt-3-half">{{ item.debt }}</td>
                     <td class="pt-3-half">{{ item.note}}</td>
@@ -184,7 +182,7 @@ export default {
           options
         )
         .then((response) => {
-          console.log("nhac no: ", response);
+          console.log("nhac no 2: ", response);
           if (response.data !== null) {
             this.pagination = response.data;
           }
