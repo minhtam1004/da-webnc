@@ -138,7 +138,7 @@ class DebtController extends Controller
             'reason' => $debt->note,
             'OTPCode' => $OTPString,
             'expiresAt' => time() + 60,
-            'payer' => false,
+            'payer' => true,
             'debtId' => $id,
             'creator' => $user->id
         ]);
