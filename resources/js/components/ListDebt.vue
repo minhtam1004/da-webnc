@@ -79,9 +79,19 @@
                         <button
                           type="button"
                           class="btn btn-danger btn-rounded btn-sm my-0"
-                          @click="$router.push({name: 'EmployeeDetail', params: { id: item.id }})"
+                          @click="showPopup(item.id)"
                         >
                           <i class="far f-atrash-alt"></i> Xóa
+                        </button>
+
+                        <button
+                          type="button"
+                          id="btn-one"
+                          :disabled="loading"
+                          class="btn btn-success btn-rounded btn-sm my-0"
+                          @click="paymentDebt(item.id)"
+                        >
+                          <i class="far f-atrash-alt"></i> Thanh toán
                         </button>
                       </span>
                     </td>
@@ -121,14 +131,16 @@
       </mdb-col>
     </mdb-row>
 
-    <AddEmployee v-if="showAddUser" @close-modal="showAddUser=false" />
+    <PaymentDebt :idPayment="idPaid" v-if="showPayment" @close-modal="showPayment=false" />
+    <RemoveDebt :idDebt="idColum" v-if="showAddUser" @close-modal="closeModalRemoveDebt" />
   </section>
 </template>
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 // import Popup from "./Popup"
-import AddEmployee from "./Popup/AddEmployee";
+import RemoveDebt from "./Popup/RemoveDebt";
+import PaymentDebt from "./Popup/PaymentDebt";
 export default {
   name: "Tables",
   components: {
@@ -138,7 +150,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    AddEmployee,
+    PaymentDebt,
   },
 
   data() {
@@ -151,12 +163,58 @@ export default {
         current_page: 1,
       },
       showAddUser: false,
+      showPayment: false,
+      loading: false
     };
   },
   created() {
     this.load();
   },
   methods: {
+    turnOnLoading() {
+      $("#btn-one")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoading() {
+      $("#btn-one").removeClass("disabled");
+      $("#btn-one span").remove();
+    },
+    showPopup(id) {
+      this.showAddUser = true;
+      this.idColum = id;
+    },
+    paymentDebt(id) {
+      this.turnOnLoading();
+      this.loading = true;
+
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+      };
+
+      axios
+        // POST api/debt/{id}/paid
+        .post("api/debt/" + id + "/paid", {}, options)
+        .then((response) => {
+          this.turnOffLoading();
+          this.loading = false;
+          this.idPaid = response.data.transferId;
+          this.showPayment = true;
+        })
+        .catch((error) => {
+          this.turnOffLoading();
+          this.loading = false;
+          this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "danger",
+          });
+        });
+    },
     formatTime(time) {
       const a = new Date(time);
       const month = a.getMonth() + 1;
