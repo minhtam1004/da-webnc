@@ -200,6 +200,9 @@ import {
   mdbDropdownMenu,
   mdbDropdownToggle,
 } from "mdbvue";
+import Echo from 'laravel-echo';
+window.Pusher = require('pusher-js');
+
 export default {
   name: "AdminTemplate",
   components: {
@@ -233,6 +236,18 @@ export default {
   created() {
     console.log("++++++", this.$store.state.user.authUser);
     console.log("asd");
+        window.Echo = new Echo({
+      broadcaster: "pusher",
+      key: process.env.MIX_PUSHER_APP_KEY,
+      cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+      encrypted: true,
+      forceTLS: true,
+      auth: {
+        headers: {
+          Authorization: "Bearer " + this.$store.state.user.access_token,
+        },
+      },
+    });
 
     Echo.private("App.User." + this.$store.state.user.authUser.id).notification(
       (notification) => {

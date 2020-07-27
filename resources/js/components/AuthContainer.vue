@@ -9,14 +9,6 @@ export default {
   data() {
     return {};
   },
-  mounted() {
-    console.log('asd');
-    Echo.private("App.User." + this.$store.state.user.authUser.id).notification(
-      (notification) => {
-        console.log(notification, "#notifications");
-      }
-    );
-  },
 };
 </script>
 <style scoped>
