@@ -204,6 +204,14 @@ export default {
   },
   created() {
     console.log("++++++", this.$store.state.user.authUser);
+    console.log('asd');
+    
+    Echo.private("App.User." + this.$store.state.user.authUser.id).notification(
+      (notification) => {
+        console.log(notification, "#notifications");
+      }
+    );
+
   },
   methods: {
     logout() {
