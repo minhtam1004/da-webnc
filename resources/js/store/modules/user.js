@@ -1,6 +1,4 @@
 import CryptoJS from 'crypto-js';
-import Echo from 'laravel-echo';
-window.Pusher = require('pusher-js');
 const key = "K23%757*$%re@#$$Na^^**!@$()";
 const encryptedAccessToken = localStorage.getItem('accessToken');
 const encryptedRefreshToken = localStorage.getItem('refreshToken');
@@ -72,19 +70,6 @@ const actions = {
     setAccessToken: ({ commit }, access_token) => {
         console.log(access_token);
         commit('SET_ACCESS_TOKEN', access_token);
-        console.log('ads123');
-        window.Echo = new Echo({
-            broadcaster: 'pusher',
-            key: process.env.MIX_PUSHER_APP_KEY,
-            cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-            encrypted: true,
-            forceTLS: true,
-            auth:{
-                headers: {
-                    Authorization: 'Bearer ' + access_token
-                },        
-            }
-        });
     },
     setRefreshToken: ({ commit }, refresh_token) => {
         commit('SET_REFRESH_TOKEN', refresh_token);

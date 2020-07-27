@@ -359,7 +359,7 @@ export default {
       //get api/transfers/{id cua transfer}/refresh
       // /transfers/{id}/confirm
       axios
-        .post("api/transfers/" + this.transferId + "/confirm", data, options)
+        .post("api/bank/transfers/" + this.transferId + "/confirm", data, options)
         .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data) {
