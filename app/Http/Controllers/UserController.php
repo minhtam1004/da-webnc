@@ -172,8 +172,7 @@ class UserController extends Controller
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::where('isConfirm', true)->where('isDebt', false)->where('sendId',$acc->accountNumber)
-        ->select('transfers.id','transfers.sendBank','transfers.receivedBank','transfers.amount','transfers.reason','transfers.sendId','transfers.receivedId')->paginate($request->limit, ['*'], 'page', $request->page);
+        $transfer = Transfer::where('isConfirm', true)->where('isDebt', false)->where('sendId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
     public function showDebtTransfer($id, Request $request)
@@ -196,7 +195,7 @@ class UserController extends Controller
         $transfer = Transfer::where('isConfirm', true)->where('isDebt', true)->where(function ($query) use ($acc) {
             $query->where('sendId', $acc->accountNumber)
                 ->orWhere('receivedId', $acc->accountNumber);
-        })->select('transfers.id','transfers.sendBank','transfers.receivedBank','transfers.amount','transfers.reason','transfers.sendId','transfers.receivedId')->paginate($request->limit, ['*'], 'page', $request->page);
+        })->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
     public function showRechargeTransfer($id, Request $request)
@@ -216,8 +215,7 @@ class UserController extends Controller
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::where('isConfirm', true)->where('isDebt', false)->where('receivedId',$acc->accountNumber)
-        ->select('transfers.id','transfers.sendBank','transfers.receivedBank','transfers.amount','transfers.reason','transfers.sendId','transfers.receivedId')->paginate($request->limit, ['*'], 'page', $request->page);
+        $transfer = Transfer::where('isConfirm', true)->where('isDebt', false)->where('receivedId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
     public function showNotify()

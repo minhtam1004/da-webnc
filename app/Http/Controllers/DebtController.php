@@ -24,16 +24,20 @@ class DebtController extends Controller
         }
         return response()->json($debt, 200);
     }
-    public function index()
+    public function index(Request $request)
     {
+        $request->limit = $request->limit ? $request->limit : 10;
+        $request->page = $request->page ? $request->page : 1;
         $user = auth('api')->user();
         $acc = $user->account;
-        $debt = $acc->owndebts;
+        $debt = $acc->owndebts()->paginate($request->limit, ['*'], 'page', $request->page);
         return response()->json($debt, 200);
     }
-    public function otherindex()
+    public function otherindex(Request $request)
     {
-        $debt = auth('api')->user()->account->otherdebts;
+        $request->limit = $request->limit ? $request->limit : 10;
+        $request->page = $request->page ? $request->page : 1;
+        $debt = auth('api')->user()->account->otherdebts()->paginate($request->limit, ['*'], 'page', $request->page);;
         return response()->json($debt, 200);
     }
 
