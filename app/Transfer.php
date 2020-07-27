@@ -14,6 +14,14 @@ class Transfer extends Model
     {
         return $this->attributes['sender'] = $this->belongsTo('App\Account', 'sendId', 'accountNumber');
     }
+    public function senderUser()
+    {
+        return $this->attributes['senderUser'] = $this->belongsTo('App\User');
+    }
+    public function receiverUser()
+    {
+        return $this->attributes['receiverUser'] = $this->belongsTo('App\User');
+    }
     public function receiver()
     {
         return $this->attributes['receiver'] = $this->belongsTo('App\Account', 'receivedId', 'accountNumber');

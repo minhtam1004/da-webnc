@@ -57,12 +57,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function receivedTransfer()
     {
-        return $this->attributes['receivedTransfer'] = $this->hasMany('App\Transfer', 'receivedId', 'id');
+        return $this->attributes['receivedTransfer'] = $this->hasManyThrough('App\Transfer','App\Account','userId', 'receivedId', 'id', 'accountNumber');
     }
 
     public function sendTransfer()
     {
-        return $this->attributes['sendTransfer'] = $this->hasMany('App\Transfer', 'sendId', 'id');
+        return $this->attributes['sendTransfer'] = $this->hasManyThrough('App\Transfer','App\Account','userId','sendId', 'id', 'accountNumber');
     }
 
     public function remembers()
