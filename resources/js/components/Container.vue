@@ -10,7 +10,21 @@
           <mdb-nav-item to="/account-info" waves-fixed>Thông tin tài khoản</mdb-nav-item>
           <mdb-nav-item to="/transactions" waves-fixed>Lịch sử giao dịch</mdb-nav-item>
         </mdb-navbar-nav>
-        <mdb-navbar-nav right>
+        <mdb-navbar-nav right style="display: flex;align-items: center;">
+
+          <div style="position: relative;margin-right: 2vmin">
+            <mdb-btn
+              tag="a"
+              gradient="peach"
+              floating
+              size="lg"
+              style="border-radius: 50%;margin-top: 1vmin;"
+            >
+              <mdb-icon icon="bell" />
+            </mdb-btn>
+            <mdb-badge color="danger" class="ml-2" style="position: absolute;top: 0;right: 0">1</mdb-badge>
+          </div>
+
           <mdb-btn tag="a" gradient="blue" floating size="sm" @click="logout()">
             <mdb-icon icon="sign-out-alt" />
           </mdb-btn>
@@ -84,13 +98,21 @@
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/transfers-interbank" @click.native="activeItem = 5" v-if="permission == 'user'">
+        <router-link
+          to="/transfers-interbank"
+          @click.native="activeItem = 5"
+          v-if="permission == 'user'"
+        >
           <mdb-list-group-item :action="true" :class="activeItem === 5 && 'active'">
             <mdb-icon icon="university" class="mr-3" />Chuyển khoản liên ngân hàng
           </mdb-list-group-item>
         </router-link>
 
-        <router-link to="/add-debt-reminder" @click.native="activeItem = 6" v-if="permission == 'user'">
+        <router-link
+          to="/add-debt-reminder"
+          @click.native="activeItem = 6"
+          v-if="permission == 'user'"
+        >
           <mdb-list-group-item :action="true" :class="activeItem === 6 && 'active'">
             <mdb-icon icon="bell" class="mr-3" />Tạo nhắc nợ
           </mdb-list-group-item>
@@ -120,9 +142,9 @@
           </mdb-list-group-item>
         </router-link>
 
-          <router-link to="/debt-remider" @click.native="activeItem = 11" v-if="permission == 'user'">
+        <router-link to="/debt-remider" @click.native="activeItem = 11" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 11 && 'active'">
-            <mdb-icon icon="list-alt" class="mr-3"/>Danh sách nợ
+            <mdb-icon icon="list-alt" class="mr-3" />Danh sách nợ
           </mdb-list-group-item>
         </router-link>
         <!-- <router-link to="/maps" @click.native="activeItem = 6">
@@ -130,7 +152,11 @@
             <mdb-icon icon="map" class="mr-3" />Maps
           </mdb-list-group-item>
         </router-link>-->
-        <router-link to="/register-customer" @click.native="activeItem = 12" v-if="permission == 'editor'">
+        <router-link
+          to="/register-customer"
+          @click.native="activeItem = 12"
+          v-if="permission == 'editor'"
+        >
           <mdb-list-group-item :action="true" :class="activeItem === 12 && 'active'">
             <mdb-icon icon="user-plus" class="mr-3" />Đăng kí tài
             khoản
@@ -165,13 +191,14 @@ import {
   mdbListGroup,
   mdbListGroupItem,
   mdbFooter,
-  waves
+  mdbBadge,
+  waves,
 } from "mdbvue";
 import {
   mdbDropdown,
   mdbDropdownItem,
   mdbDropdownMenu,
-  mdbDropdownToggle
+  mdbDropdownToggle,
 } from "mdbvue";
 export default {
   name: "AdminTemplate",
@@ -189,59 +216,59 @@ export default {
     mdbDropdown,
     mdbDropdownItem,
     mdbDropdownMenu,
-    mdbDropdownToggle
+    mdbDropdownToggle,
+    mdbBadge,
   },
   data() {
     return {
       activeItem: 1,
-      isCustomer: false
+      isCustomer: false,
     };
   },
   computed: {
     permission() {
       return this.$store.state.user.authUser.permission;
-    }
+    },
   },
   created() {
     console.log("++++++", this.$store.state.user.authUser);
-    console.log('asd');
-    
+    console.log("asd");
+
     Echo.private("App.User." + this.$store.state.user.authUser.id).notification(
       (notification) => {
         console.log(notification, "#notifications");
       }
     );
-
   },
   methods: {
     logout() {
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       axios
         .post("api/auth/logout", {}, options)
-        .then(response => {
+        .then((response) => {
           this.$toast.open({
             message: "Đăng xuất thành công",
-            type: "success"
+            type: "success",
           });
           localStorage.removeItem(this.$store.state.user.authUser);
           localStorage.removeItem(this.$store.state.user.access_token);
           this.$router.push({ name: "Login" });
           console.log(response);
         })
-        .catch(error => {
+        .catch((error) => {
           return this.$toast.open({
             message: "Có lỗi xảy ra",
-            type: "error"
+            type: "error",
           });
         });
-    }
+    },
   },
-  mixins: [waves]
+  mixins: [waves],
 };
 </script>
 
