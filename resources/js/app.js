@@ -31,6 +31,29 @@ const router = new VueRouter({
     mode: 'history',
     routes
 })
+// window.Pusher = require('pusher-js');
+// import Echo from "laravel-echo";
+
+// window.Echo = new Echo({
+//   broadcaster: 'pusher',
+//   key: process.env.MIX_PUSHER_APP_KEY,
+//   cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+//   encrypted: true,
+//   forceTLS: true,
+// });
+
+// var notifications = [];
+// //...
+
+// $(document).ready(function() {
+//     if(Laravel.userId) {
+//         //...
+//         window.Echo.private(`App.User.${Laravel.userId}`)
+//             .notification((notification) => {
+//                 console.log([notification], '#notifications');
+//             });
+//     }
+// });
 
 new Vue({
     router,

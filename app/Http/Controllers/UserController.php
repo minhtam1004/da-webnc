@@ -54,8 +54,7 @@ class UserController extends Controller
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        if(auth('api')->user()->roleId != 1)
-        {
+        if (auth('api')->user()->roleId != 1) {
             return response()->json(['error' => 'do not have permission'], 403);
         }
         $user = User::where('email', $request->email)->first();
@@ -119,7 +118,7 @@ class UserController extends Controller
             return response()->json(['error' => 'do not have permission'], 422);
         }
         $user->delete();
-        return response()->json(['message'=>'user has been remove'],200);
+        return response()->json(['message' => 'user has been remove'], 200);
     }
     /**
      * Show the form for creating a new resource.
@@ -161,25 +160,19 @@ class UserController extends Controller
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
         $authUser = auth('api')->user();
-        if($id === 'me')
-        {
+        if ($id === 'me') {
             $id = $authUser->id;
         }
         $user = User::find($id);
-        if(!$user)
-        {
-            return response()->json(['error' => 'user not exist'],404);
+        if (!$user) {
+            return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
         $acc = $user->account;
-        if(!$acc)
-        {
-            return response()->json(['error' => 'user not have account'],404);
+        if (!$acc) {
+            return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::where('isConfirm', true)->where('isDebt',false)->whereNotNull('creator')->where(function ($query) use($acc) {
-            $query->where('sendId', $acc->accountNumber)
-            ->orWhere('receivedId', $acc->accountNumber);
-        })->paginate($request->limit, ['*'], 'page', $request->page);
+        $transfer = Transfer::where('isConfirm', true)->where('isDebt', false)->where('sendId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
     public function showDebtTransfer($id, Request $request)
@@ -187,24 +180,21 @@ class UserController extends Controller
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
         $authUser = auth('api')->user();
-        if($id === 'me')
-        {
+        if ($id === 'me') {
             $id = $authUser->id;
         }
         $user = User::find($id);
-        if(!$user)
-        {
-            return response()->json(['error' => 'user not exist'],404);
+        if (!$user) {
+            return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
         $acc = $user->account;
-        if(!$acc)
-        {
-            return response()->json(['error' => 'user not have account'],404);
+        if (!$acc) {
+            return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::where('isConfirm', true)->where('isDebt',true)->where(function ($query) use($acc) {
+        $transfer = Transfer::where('isConfirm', true)->where('isDebt', true)->where(function ($query) use ($acc) {
             $query->where('sendId', $acc->accountNumber)
-            ->orWhere('receivedId', $acc->accountNumber);
+                ->orWhere('receivedId', $acc->accountNumber);
         })->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
@@ -213,25 +203,19 @@ class UserController extends Controller
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
         $authUser = auth('api')->user();
-        if($id === 'me')
-        {
+        if ($id === 'me') {
             $id = $authUser->id;
         }
         $user = User::find($id);
-        if(!$user)
-        {
-            return response()->json(['error' => 'user not exist'],404);
+        if (!$user) {
+            return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
         $acc = $user->account;
-        if(!$acc)
-        {
-            return response()->json(['error' => 'user not have account'],404);
+        if (!$acc) {
+            return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::where('isConfirm', true)->where('isDebt',false)->whereNull('creator')->where(function ($query) use($acc) {
-            $query->where('sendId', $acc->accountNumber)
-            ->orWhere('receivedId', $acc->accountNumber);
-        })->paginate($request->limit, ['*'], 'page', $request->page);
+        $transfer = Transfer::where('isConfirm', true)->where('isDebt', false)->where('receivedId', $acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
     public function showNotify()

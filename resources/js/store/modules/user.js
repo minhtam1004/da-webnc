@@ -1,4 +1,6 @@
 import CryptoJS from 'crypto-js';
+import Echo from 'laravel-echo';
+window.Pusher = require('pusher-js');
 const key = "K23%757*$%re@#$$Na^^**!@$()";
 const encryptedAccessToken = localStorage.getItem('accessToken');
 const encryptedRefreshToken = localStorage.getItem('refreshToken');
@@ -29,30 +31,30 @@ const state = {
 }
 
 const mutations = {
-    SET_AUTH_USER (state, userObj) {
+    SET_AUTH_USER(state, userObj) {
         state.authUser = userObj;
         const encryptedAuthUser = CryptoJS.AES.encrypt(JSON.stringify(userObj), key).toString();
         localStorage.setItem('authUser', encryptedAuthUser);
     },
 
-    SET_ACCESS_TOKEN (state, access_token){
+    SET_ACCESS_TOKEN(state, access_token) {
         state.access_token = access_token;
         const encryptedAccessToken = CryptoJS.AES.encrypt(access_token, key).toString();
         localStorage.setItem('accessToken', encryptedAccessToken);
     },
 
-    SET_REFRESH_TOKEN (state, refresh_token){
+    SET_REFRESH_TOKEN(state, refresh_token) {
         state.refresh_token = refresh_token;
         const encryptedRefreshToken = CryptoJS.AES.encrypt(refresh_token, key).toString();
         localStorage.setItem('refreshToken', encryptedRefreshToken);
     },
 
-    SET_LANGUAGE (state, language){
+    SET_LANGUAGE(state, language) {
         state.language = language;
         localStorage.setItem('language', language);
     },
 
-    LOG_OUT(state){
+    LOG_OUT(state) {
         state.authUser = null;
         state.access_token = null;
         state.refresh_token = null;
@@ -63,25 +65,34 @@ const mutations = {
 }
 
 const actions = {
-    setUserObject: ({commit}, userObj) => {
+    setUserObject: ({ commit }, userObj) => {
         commit('SET_AUTH_USER', userObj);
-        window.Echo.private('App.User.' + userObj.id).notification((notification) => {
-            console.log(notification, '#notifications');
-        });    
     },
 
-    setAccessToken: ({commit}, access_token) => {
+    setAccessToken: ({ commit }, access_token) => {
         console.log(access_token);
         commit('SET_ACCESS_TOKEN', access_token);
-        
+        console.log('ads123');
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: process.env.MIX_PUSHER_APP_KEY,
+            cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+            encrypted: true,
+            forceTLS: true,
+            auth:{
+                headers: {
+                    Authorization: 'Bearer ' + access_token
+                },        
+            }
+        });
     },
-    setRefreshToken: ({commit}, refresh_token) => {
+    setRefreshToken: ({ commit }, refresh_token) => {
         commit('SET_REFRESH_TOKEN', refresh_token);
     },
-    setLanguage: ({commit}, language) => {
+    setLanguage: ({ commit }, language) => {
         commit('SET_LANGUAGE', language);
     },
-    logOut: ({commit}) => {
+    logOut: ({ commit }) => {
         commit('LOG_OUT');
     },
 }
