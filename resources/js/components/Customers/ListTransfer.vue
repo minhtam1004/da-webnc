@@ -41,8 +41,6 @@
                   >
                     <i class="fas fa-redo mr-1"></i>Tải lại
                   </button>
-
-                 
                 </form>
               </div>
 
@@ -53,7 +51,7 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã giao dịch</th>
-                    <th class="text-center">Số tài khoản nhận</th>
+                    <th class="text-center">Số tài khoản gửi</th>
                     <th class="text-center">Tên chủ tài khoản</th>
                     <th class="text-center">Tên ngân hàng</th>
                     <th class="text-center">Số tiền</th>
@@ -64,11 +62,20 @@
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
+                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.sendId }}</td>
                     <td class="pt-3-half">{{ item.amount }}</td>
-                    <td class="pt-3-half">{{ item.isConfirm == 1 ? 'Thành công' : 'Chờ xác nhận' }}</td>
+                    <td class="pt-3-half">
+                      <mdb-badge
+                        v-if="item.isConfirm == 1"
+                        color="success-color"
+                        pill
+                        class="pull-right"
+                      >Thành công</mdb-badge>
+                      <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge>
+                      <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
+                    </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at) }}</td>
                   </tr>
                 </tbody>
@@ -109,7 +116,16 @@
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import {
+  mdbRow,
+  mdbCol,
+  mdbCard,
+  mdbView,
+  mdbCardBody,
+  mdbTbl,
+  mdbBadge,
+  mdbIcon,
+} from "mdbvue";
 // import Popup from "./Popup"
 
 export default {
@@ -121,12 +137,15 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
+    mdbBadge,
+    mdbIcon,
   },
 
   data() {
     return {
       data: [],
       keyword: "",
+      id: this.$route.params.id,
       pagination: {
         data: [],
         per_page: 10,
@@ -140,8 +159,7 @@ export default {
     this.load();
   },
   methods: {
-     formatTime(time) {
-
+    formatTime(time) {
       const a = new Date(time);
       const month = a.getMonth() + 1;
       if (month < 10) {
@@ -156,23 +174,23 @@ export default {
           Authorization: "bearer" + this.$store.state.user.access_token,
         },
       };
-// api/bank/users/{id / me}/recharge-transfers) (data: limit/page
-  
-        axios
-          .get(
-            "api/bank/users/me/recharge-transfers?limit=" +
-              this.pagination.per_page +
-              "&page=" +
-              this.pagination.current_page,
-            options
-          )
-          .then((response) => {
-            console.log("RESPONSE RECEIVED 1: ", response);
-            if (response.data !== null) {
-              this.pagination = response.data;
-            }
-          })
-          .catch((error) => {});
+      // api/bank/users/{id / me}/recharge-transfers) (data: limit/page
+
+      axios
+        .get(
+          "api/bank/users/"+ this.id + "/transfers?limit=" +
+            this.pagination.per_page +
+            "&page=" +
+            this.pagination.current_page,
+          options
+        )
+        .then((response) => {
+          console.log("RESPONSE RECEIVED 1: ", response);
+          if (response.data !== null) {
+            this.pagination = response.data;
+          }
+        })
+        .catch((error) => {});
     },
     load() {
       this.reload();

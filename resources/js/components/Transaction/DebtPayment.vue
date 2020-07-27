@@ -53,20 +53,21 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã giao dịch</th>
+                    <th class="text-center">Số tài khoản gửi</th>
                     <th class="text-center">Số tài khoản nhận</th>
-                    <th class="text-center">Tên chủ tài khoản</th>
-                    <th class="text-center">Tên ngân hàng</th>
-                    <th class="text-center">Số tiền</th>
+                    <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Ghi chú</th>
+                    <th class="text-center">Loại giao dịch</th>
                     <th class="text-center">Thời gian giao dịch</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
+                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.sendId }}</td>
                     <td class="pt-3-half">{{ item.amount }}</td>
                     <td class="pt-3-half">{{ item.isConfirm == 1 ? 'Thành công' : 'Chờ xác nhận' }}</td>
                     <td class="pt-3-half">{{ formatTime(item.created_at) }}</td>
@@ -141,7 +142,6 @@ export default {
   },
   methods: {
      formatTime(time) {
-
       const a = new Date(time);
       const month = a.getMonth() + 1;
       if (month < 10) {
@@ -160,14 +160,14 @@ export default {
   
         axios
           .get(
-            "api/bank/users/me/recharge-transfers?limit=" +
+            "api/bank/users/me/debt-transfers?limit=" +
               this.pagination.per_page +
               "&page=" +
               this.pagination.current_page,
             options
           )
           .then((response) => {
-            console.log("RESPONSE RECEIVED 1: ", response);
+            console.log("RESPONSE RECEIVED 22: ", response);
             if (response.data !== null) {
               this.pagination = response.data;
             }

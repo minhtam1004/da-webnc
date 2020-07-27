@@ -62,7 +62,7 @@
         <img alt class="img-fluid" />
       </a>
       <mdb-list-group class="list-group-flush">
-        <router-link to="/dashboard" @click.native="activeItem = 1">
+        <router-link to="/dashboard" @click.native="activeItem = 1" v-if="permission == 'admin'">
           <mdb-list-group-item :action="true" :class="activeItem === 1 && 'active'">
             <mdb-icon icon="chart-pie" class="mr-3" />Dashboard
           </mdb-list-group-item>

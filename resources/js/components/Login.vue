@@ -203,7 +203,12 @@ export default {
           console.log("=====", response);
           this.$store.dispatch("setUserObject", response.data);
           this.$user = response.data;
+          if (response.data.permission == 'admin') {
           this.$router.push({ name: "Dashboard" });
+          }
+          else {
+            this.$router.push({ name: "Profile" });
+          }
         })
         .catch(error => {
           this.turnOffLoading();
