@@ -31,6 +31,8 @@
                   data-toggle="modal"
                   data-target="#centralModalSuccess"
                   type="button"
+                  id="btn-check"
+                  :disabled="loading"
                   @click="checkAccountInfo"
                 >Kiểm tra</button>
               </div>
@@ -127,7 +129,11 @@
               @close-modal="showModal = false"
             />
 
-            <AddReminder :accountId="accountNumber" v-if="showAddReminder" @close-modal="showAddReminder = false" />
+            <AddReminder
+              :accountId="accountNumber"
+              v-if="showAddReminder"
+              @close-modal="showAddReminder = false"
+            />
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
@@ -145,7 +151,7 @@ import {
   mdbView,
   mdbCardBody,
   mdbTbl,
-  mdbBtn
+  mdbBtn,
 } from "mdbvue";
 export default {
   name: "AccountInfo",
@@ -159,7 +165,7 @@ export default {
     mdbBtn,
     Modal,
     SearchName,
-    AddReminder
+    AddReminder,
   },
   data() {
     return {
@@ -184,28 +190,39 @@ export default {
       loading: false,
       showSearchName: false,
       showAddList: false,
-      showTime: true
+      showTime: true,
     };
   },
   computed: {
-    minutes: function() {
+    minutes: function () {
       return this.padTime(Math.floor(this.totalTime / 60));
     },
-    seconds: function() {
+    seconds: function () {
       return this.padTime(this.totalTime - this.minutes * 60);
     },
-    accountNum: function() {
+    accountNum: function () {
       return this.$store.state.transfer.accountNumber;
-    }
+    },
   },
   watch: {
     seconds() {
       if (this.seconds == 0) {
         this.showTime = false;
       }
-    }
+    },
   },
   methods: {
+    turnOnLoading(id) {
+      $(id)
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoading(id) {
+      $(id).removeClass("disabled");
+      $(id + " span").remove();
+    },
     backTo() {
       console.log("Vo");
       this.isShowingMoney = false;
@@ -214,12 +231,13 @@ export default {
       // lấy lại otp
     },
     checkAccountInfo() {
-      this.turnOnLoading();
+      this.turnOnLoading("#btn-check");
+      this.loading = true;
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       axios
         .get(
@@ -227,11 +245,13 @@ export default {
             (this.accountNum > 0 ? this.accountNum : this.accountNumber),
           {
             headers: {
-              Authorization: "bearer" + this.$store.state.user.access_token
-            }
+              Authorization: "bearer" + this.$store.state.user.access_token,
+            },
           }
         )
-        .then(response => {
+        .then((response) => {
+          this.loading = false;
+          this.turnOffLoading("#btn-check");
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.isShowingMoney = true;
@@ -243,9 +263,9 @@ export default {
             this.turnOffLoading();
           }
         })
-        .catch(error => {
-          this.turnOffLoading();
+        .catch((error) => {
           this.loading = false;
+          this.turnOffLoading("#btn-check");
           this.disabled = false;
           console.log("AXIOS ERROR: ", error);
           this.showModal = true;
@@ -283,17 +303,17 @@ export default {
         sendId: this.$store.state.user.authUser.account.accountNumber,
         receivedId: this.accountNumber,
         amount: this.amount,
-        reason: this.reason
+        reason: this.reason,
       };
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       axios
         .post("api/bank/transfers", data, options)
-        .then(response => {
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.turnOffLoading();
@@ -307,7 +327,7 @@ export default {
             this.startTimer();
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("AXIOS ERROR: ", error);
           this.turnOffLoading();
           this.showModal = true;
@@ -328,19 +348,19 @@ export default {
       this.turnOnLoading();
       var data = {
         // transferId: this.transferId,
-        OTPCode: this.otpcode
+        OTPCode: this.otpcode,
       };
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       //get api/transfers/{id cua transfer}/refresh
-// /transfers/{id}/confirm
+      // /transfers/{id}/confirm
       axios
         .post("api/transfers/" + this.transferId + "/confirm", data, options)
-        .then(response => {
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data) {
             if (response.data === "success") {
@@ -354,7 +374,7 @@ export default {
             this.showAddList = true;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           this.turnOffLoading();
           this.showModal = true;
           this.typeModal = "danger";
@@ -371,19 +391,17 @@ export default {
         });
     },
 
-  
-    
-    startTimer: function() {
+    startTimer: function () {
       this.timer = setInterval(() => this.countdown(), 1000);
       this.resetButton = true;
     },
-    padTime: function(time) {
+    padTime: function (time) {
       return (time < 10 ? "0" : "") + time;
     },
-    countdown: function() {
+    countdown: function () {
       this.totalTime--;
-    }
-  }
+    },
+  },
 };
 </script>
 

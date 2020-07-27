@@ -118,8 +118,9 @@ export default {
         });
     },
     getUser() {
+      console.log("555")
       axios
-        .get("api/auth/me", {
+        .get("api/bank/users/" + this.id, {
           headers: {
             Authorization: "bearer" + this.$store.state.user.access_token
           }

@@ -127,6 +127,7 @@ export default {
   data() {
     return {
       data: [],
+      id: this.$route.params.id,
       keyword: "",
       pagination: {
         data: [],
@@ -160,7 +161,7 @@ export default {
   
         axios
           .get(
-            "api/bank/users/me/debt-transfers?limit=" +
+            "api/bank/users/" + this.id + "/debt-transfers?limit=" +
               this.pagination.per_page +
               "&page=" +
               this.pagination.current_page,

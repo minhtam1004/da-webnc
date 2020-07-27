@@ -181,9 +181,9 @@ export default {
           });
         })
         .catch(error => {
+          this.turnOffLoading();
+          this.loading = false;
           if (error.response.status === 401) {
-            this.turnOffLoading();
-            this.loading = false;
             return this.$toast.open({
               message: "Tên đăng nhập hoặc mật khẩu không đúng",
               type: "error"

@@ -53,12 +53,12 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã giao dịch</th>
-                    <th class="text-center">Số tài khoản gửi</th>
-                    <th class="text-center">Số tài khoản nhận</th>
-                    <th class="text-center">Số tiền nợ</th>
+                    <th class="text-center">STK người nhắc nợ</th>
+                    <th class="text-center">Tên chủ tài khoản</th>
+                    <th class="text-center">Tên ngân hàng</th>
+                    <th class="text-right">Số tiền</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center">Ghi chú</th>
-                    <th class="text-center">Loại giao dịch</th>
                     <th class="text-center">Thời gian giao dịch</th>
                   </tr>
                 </thead>

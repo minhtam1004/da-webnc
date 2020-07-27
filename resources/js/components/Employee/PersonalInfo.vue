@@ -189,7 +189,7 @@ export default {
     },
     load() {
       this.loading = true;
-
+      console.log("^^^^", this.id)
       const options = {
         headers: {
           "Content-Type": "application/json",
@@ -197,7 +197,7 @@ export default {
         }
       };
       axios
-        .get("http://127.0.0.1:8000/api/bank/users/" + this.id, options)
+        .get("api/bank/users/" + this.id, options)
         .then(response => {
           this.loading = false;
           this.data = response.data;
