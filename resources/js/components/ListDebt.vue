@@ -13,8 +13,8 @@
                       class="form-control"
                       type="text"
                       v-model="keyword"
-                      placeholder="Nhập tên nhân viên"
-                      aria-label="Tên nhân viên"
+                      placeholder="Nhập từ khóa"
+                      aria-label="Nhập từ khóa"
                     />
                   </div>
                   <div class="col">
@@ -42,7 +42,12 @@
                     <i class="fas fa-redo mr-1"></i>Tải lại
                   </button>
 
-                  <button type="button" class="btn btn-success" style="border-radius: 1vmin" @click="showAddUser=true">
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    style="border-radius: 1vmin"
+                    @click="showAddUser=true"
+                  >
                     <i class="fas fa-plus-circle mr-1"></i>Thêm mới
                   </button>
                 </form>
@@ -54,26 +59,31 @@
               <table class="table table-bordered table-responsive-md table-striped text-center">
                 <thead>
                   <tr>
-                    <th class="text-center">Mã nhân viên</th>
-                    <th class="text-center">Tên nhân viên</th>
-                    <th class="text-center">Tên đăng nhập</th>
-                    <th class="text-center">Email</th>
-                    <th class="text-center">Số điện thoại</th>
+                    <th class="text-center">Mã nhắc nợ</th>
+                    <th class="text-center">STK người nợ</th>
+                    <th class="text-center">Tên chủ tài khoản</th>
+                    <th class="text-center">Số tiền nợ</th>
+                    <th class="text-center">Nội dung</th>
+                    <th class="text-center">Thời gian nhắc nợ</th>
                     <th class="text-center">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.name }}</td>
-                    <td class="pt-3-half">{{ item.username }}</td>
-                    <td class="pt-3-half">{{ item.email }}</td>
-                    <td class="pt-3-half">{{ item.phone}}</td>
+                    <td class="pt-3-half">{{ item.otherId }}</td>
+                    <td class="pt-3-half">{{ item.otherId }}</td>
+                    <td class="pt-3-half">{{ item.debt }}</td>
+                    <td class="pt-3-half">{{ item.note}}</td>
+                    <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     <td>
                       <span class="table-remove">
-                        <button type="button" class="btn btn-danger btn-rounded btn-sm my-0"
-                        @click="$router.push({name: 'EmployeeDetail', params: { id: item.id }})">
-                          <i class="far fa-trash-alt"></i> Xóa
+                        <button
+                          type="button"
+                          class="btn btn-danger btn-rounded btn-sm my-0"
+                          @click="$router.push({name: 'EmployeeDetail', params: { id: item.id }})"
+                        >
+                          <i class="far f-atrash-alt"></i> Xóa
                         </button>
                       </span>
                     </td>
@@ -113,14 +123,14 @@
       </mdb-col>
     </mdb-row>
 
-    <AddEmployee v-if="showAddUser" @close-modal="showAddUser=false"  />
+    <AddEmployee v-if="showAddUser" @close-modal="showAddUser=false" />
   </section>
 </template>
 
 <script>
 import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
 // import Popup from "./Popup"
-import AddEmployee from "./Popup/AddEmployee"
+import AddEmployee from "./Popup/AddEmployee";
 export default {
   name: "Tables",
   components: {
@@ -130,7 +140,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    AddEmployee
+    AddEmployee,
   },
 
   data() {
@@ -140,59 +150,52 @@ export default {
       pagination: {
         data: [],
         per_page: 10,
-        current_page: 1
+        current_page: 1,
       },
-      showAddUser: false
+      showAddUser: false,
     };
   },
   created() {
     this.load();
   },
   methods: {
+    formatTime(time) {
+      const a = new Date(time);
+      const month = a.getMonth() + 1;
+      if (month < 10) {
+        return a.getDate() + "/0" + month + "/" + a.getFullYear();
+      }
+      return a.getDate() + "/" + month + "/" + a.getFullYear();
+    },
     reload() {
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
 
-      if (this.keyword.length > 0) {
-        axios
-          .get("api/bank/employees?keyword=" + this.keyword, options)
-          .then(response => {
-            console.log("RESPONSE RECEIVED: ", response);
-            if (response.data !== null) {
-              this.pagination = response.data;
-            }
-          })
-          .catch(error => {});
-      } else {
-        axios
-          .get(
-            "api/bank/employees?limit=" +
-              this.pagination.per_page +
-              "&page=" +
-              this.pagination.current_page,
-            options
-          )
-          .then(response => {
-            console.log("RESPONSE RECEIVED: ", response);
-            if (response.data !== null) {
-              this.pagination = response.data;
-            }
-          })
-          .catch(error => {});
-      }
+      axios
+        .get(
+          "api/debt/other?limit=" +
+            this.pagination.per_page +
+            "&page=" +
+            this.pagination.current_page,
+          options
+        )
+        .then((response) => {
+          console.log("nhac no: ", response);
+          if (response.data !== null) {
+            this.pagination = response.data;
+          }
+        })
+        .catch((error) => {});
     },
     load() {
       this.reload();
     },
     clickPagination(id) {
-      $("#page2")
-        .addClass("active")
-        .siblings()
-        .removeClass("active");
+      $("#page2").addClass("active").siblings().removeClass("active");
       if (id == 1 && this.pagination.prev_page_url != null) {
         console.log("Vo 1");
         this.pagination.current_page--;
@@ -204,8 +207,8 @@ export default {
         this.pagination.current_page++;
         this.reload();
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

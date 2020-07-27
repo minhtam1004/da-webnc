@@ -80,7 +80,7 @@
         </router-link>
         <router-link to="/transfers" @click.native="activeItem = 4" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 4 && 'active'">
-            <mdb-icon icon="dollar-sign" class="mr-3" />Chuyển khoản nội bộ
+            <mdb-icon far icon="money-bill-alt" class="mr-3" />Chuyển khoản nội bộ
           </mdb-list-group-item>
         </router-link>
 
@@ -92,7 +92,7 @@
 
         <router-link to="/add-debt-reminder" @click.native="activeItem = 6" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 6 && 'active'">
-            <mdb-icon icon="university" class="mr-3" />Tạo nhắc nợ
+            <mdb-icon icon="bell" class="mr-3" />Tạo nhắc nợ
           </mdb-list-group-item>
         </router-link>
 
@@ -104,25 +104,25 @@
 
         <router-link to="/customers" @click.native="activeItem = 8" v-if="permission == 'editor'">
           <mdb-list-group-item :action="true" :class="activeItem === 8 && 'active'">
-            <mdb-icon icon="user-secret" class="mr-3" />Quản lí khách hàng
+            <mdb-icon icon="users" class="mr-3" />Quản lí khách hàng
           </mdb-list-group-item>
         </router-link>
 
         <router-link to="/transactions" @click.native="activeItem = 9" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 9 && 'active'">
-            <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách giao dịch
+            <mdb-icon icon="exchange-alt" class="mr-3" />Danh sách giao dịch
           </mdb-list-group-item>
         </router-link>
 
         <router-link to="/banks" @click.native="activeItem = 10" v-if="permission == 'admin'">
           <mdb-list-group-item :action="true" :class="activeItem === 10 && 'active'">
-            <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách ngân hàng liên kết
+            <mdb-icon icon="list-alt" class="mr-3" />Danh sách ngân hàng liên kết
           </mdb-list-group-item>
         </router-link>
 
           <router-link to="/debt-remider" @click.native="activeItem = 11" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 11 && 'active'">
-            <mdb-icon icon="hand-holding-usd" class="mr-3" />Danh sách nhắc nợ
+            <mdb-icon icon="list-alt" class="mr-3"/>Danh sách nợ
           </mdb-list-group-item>
         </router-link>
         <!-- <router-link to="/maps" @click.native="activeItem = 6">
