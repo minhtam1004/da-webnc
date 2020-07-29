@@ -213,6 +213,7 @@ export default {
   },
   methods: {
     getReminder(accNum) {
+      console.log("ppp", accNum)
       this.accountNumber = accNum;
     },
     turnOnLoading(id) {

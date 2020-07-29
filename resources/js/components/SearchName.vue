@@ -112,11 +112,12 @@ export default {
       const idx = this.reminder.findIndex(u => u.name === result);
       if (idx >= 0) {
         this.accountNumber = this.reminder[idx].accountId;
-        this.$emit("user-reminder", this.accountNumber);
       }   
     },
     checkCustomerInfo() {
       this.$store.dispatch("setAccountNumber", this.accountNumber);
+      console.log("555", this.accountNumber)
+      this.$emit("user-reminder", this.accountNumber);
       this.closeModal();
     }
   }
