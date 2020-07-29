@@ -36,7 +36,7 @@
                   @click="checkAccountInfo"
                 >Kiểm tra</button>
               </div>
-              <SearchName v-if="showSearchName" @close-modal="showSearchName = false" />
+              <SearchName v-if="showSearchName" @close-modal="showSearchName = false" @user-reminder="getReminder" />
             </form>
 
             <form v-if="isShowingMoney && !isShowingOPT">
@@ -212,6 +212,9 @@ export default {
     },
   },
   methods: {
+    getReminder(accNum) {
+      this.accountNumber = accNum;
+    },
     turnOnLoading(id) {
       $(id)
         .html(
