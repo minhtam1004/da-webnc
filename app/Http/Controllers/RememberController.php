@@ -40,7 +40,7 @@ class RememberController extends Controller
         {
             $request->merge(['name'=> $acc->user()->name]);
         }
-        $request->merge(['ownerId', auth('api')->user()->id]);
+        $request->merge(['ownerId' => auth('api')->user()->id]);
         $r = RememberList::updateOrCreate(['ownerId'=>$request->ownerId,'accountId'=>$request->accountId],$request->all());
         return response()->json($r);
     }
