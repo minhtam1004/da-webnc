@@ -36,12 +36,12 @@ class DebtController extends Controller
             return response()->json(['error' => 'Parameter error'], 422);
         }
         $status = ['created','paid','deleted'];
-        if($request->status && array_reduce($request->status, function ($isHas, $num) use($status) {
+        if($request->status && $request->status[0] && array_reduce($request->status, function ($isHas, $num) use($status) {
             return $isHas || !in_array($num,$status);
         })){
             return response()->json(['error' => 'status not include'], 422);
         };
-        $request->status = $request->status ? $request->status : $status;
+        $request->status = $request->status && $request->status[0] ? $request->status : $status;
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
         $request->status = $request->status ? $request->status : [];

@@ -269,7 +269,7 @@ class BankController extends Controller
                 'X-HASH' => $hash
             ])
                 ->get('https://w-internet-banking.herokuapp.com/api/partner/accounts/' . $request->id);
-            return $response;
+            return response()->json($response->body(),$response->status() === '404' ? '204' : $response->status());
         } else {
             $time = $time * 1000;
             $response = Http::withHeaders([
@@ -278,7 +278,9 @@ class BankController extends Controller
                 'x-signature' => hash('sha256', $time . 'nhom19banking')
             ])
                 ->get('https://banking34.herokuapp.com/api/user/' . $request->id);
-            return $response;
+                $status = $response->status();
+                $name = $status === '204' ? null : json_decode($response->body())->fullname;
+                return response()->json(['result' => ['name' => $name]],$status);
         }
     }
     /**
