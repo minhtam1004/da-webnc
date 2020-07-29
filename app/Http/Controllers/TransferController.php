@@ -131,8 +131,8 @@ class TransferController extends Controller
         $user = $acc->user;
         if($transfer->debtId)
         {
-            $debt = DebtList::where('id',$transfer->debtId)->update(['ispaid' => true]);
-            $data = [ 'debtType'=>'paid','user' => $acc1->user,'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => 'thanh toán '.$transfer->note, 'debt' => $debt];
+            $debt = DebtList::where('id',$transfer->debtId)->update(['status' => 'paid']);
+            $data = [ 'debtType'=>'paid','user' => $acc1->user,'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => 'thanh toán '.$transfer->note, 'debtId' => $debt->id];
             $user->notify(new DebtNotification($data));   
         }
         return response()->json("success", 200);

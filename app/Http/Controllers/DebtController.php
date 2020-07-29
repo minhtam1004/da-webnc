@@ -12,6 +12,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Pusher\Pusher;
 
 class DebtController extends Controller
@@ -26,18 +27,49 @@ class DebtController extends Controller
     }
     public function index(Request $request)
     {
+        $validatedData = Validator::make($request->all(), [
+            'limit' => 'numeric|min:1',
+            'page' => 'numeric|min:1',
+            'status' => 'array'
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $status = ['created','paid','deleted'];
+        if($request->status && array_reduce($request->status, function ($isHas, $num) use($status) {
+            return $isHas || !in_array($num,$status);
+        })){
+            return response()->json(['error' => 'status not include'], 422);
+        };
+        $request->status = $request->status ? $request->status : $status;
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
+        $request->status = $request->status ? $request->status : [];
         $user = auth('api')->user();
         $acc = $user->account;
-        $debt = $acc->owndebts()->paginate($request->limit, ['*'], 'page', $request->page);
+        $debt = $acc->owndebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);
         return response()->json($debt, 200);
     }
     public function otherindex(Request $request)
     {
+        $validatedData = Validator::make($request->all(), [
+            'limit' => 'numeric|min:1',
+            'page' => 'numeric|min:1',
+            'status' => 'array'
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $status = ['created','paid','deleted'];
+        if($request->status && array_reduce($request->status, function ($isHas, $num) use($status) {
+            return $isHas || !in_array($num,$status);
+        })){
+            return response()->json(['error' => 'status not include'], 422);
+        };
+        $request->status = $request->status ? $request->status : $status;
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
-        $debt = auth('api')->user()->account->otherdebts()->paginate($request->limit, ['*'], 'page', $request->page);;
+        $debt = auth('api')->user()->account->otherdebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);;
         return response()->json($debt, 200);
     }
 
@@ -65,7 +97,7 @@ class DebtController extends Controller
         $request->merge(['ownerId' => $acc1->accountNumber]);
         $user = $acc->user;
         $debt = DebtList::create($request->all());
-        $data = ['debtType'=>'created','user' => $acc1->user, 'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => $request->note, 'debt' => $debt];
+        $data = ['debtType'=>'created','user' => $acc1->user, 'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => $request->note, 'debtId' => $debt->id];
         $user->notify(new DebtNotification($data));
         // $options = array(
         //     'cluster' => 'ap1',
@@ -100,17 +132,21 @@ class DebtController extends Controller
         $other = $debt->other->user;
         $data = null;
         if ($user->id === $owner->id) {
-            $data = ['debtType'=>'deleted', 'user' => $owner,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
+            $acc = $owner->account;
+            $data = ['debtType'=>'deleted', 'user' => $user,'account' => ['id'=>$acc->id,'accountNumber'=>$acc->accountNumber], 'deleteNote' => $request->note,'debtId' => $debt->id];
             $other->notify(new DebtNotification($data));
         }
         if ($user->id === $other->id) {
-            $data = ['debtType'=>'deleted','user' => $other,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
+            $acc = $other->account;
+            $data = ['debtType'=>'deleted','user' => $user,'account' => ['id'=>$acc->id,'accountNumber'=>$acc->accountNumber], 'deleteNote' => $request->note,'debtId' => $debt->id];
             $owner->notify(new DebtNotification($data));
         }
         if (!$data) {
             return response()->json(['error' => 'do not have permission'], 403);
         }
-        $debt->delete();
+        $debt->status = 'deleted';
+        $debt->deleteNote = $request->note;
+        $debt->save();
         return response()->json($debt->id, 200);
     }
     public function paid($id)

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DebtList extends Model
 {
     protected $primaryKey = 'id';
-    protected $fillable = ['ownerId','otherId','debt','ispaid','note'];
+    protected $fillable = ['ownerId','otherId','debt','status','note','deleteNote'];
     public function owner()
     {
         return $this->belongsTo('App\Account','ownerId','accountNumber');
