@@ -87,7 +87,7 @@
             </form>
 
             <form v-if="isShowingOPT">
-              <label for="accountnumber" class="grey-text">Nhập mã OPT</label>
+              <label for="accountnumber" class="grey-text">Nhập mã OTP</label>
               <input
                 type="text"
                 v-model="otpcode"
@@ -106,7 +106,7 @@
                   class="btn btn-warning"
                   v-if="minutes == 0 && seconds == 0"
                   type="button"
-                >Lấy lại mã OPT</button>
+                >Lấy lại mã OTP</button>
                 <button
                   class="btn btn-unique"
                   @click="sendOPT"
@@ -330,7 +330,7 @@ export default {
             this.showModal = true;
             this.typeModal = "success";
             this.messageModal =
-              "Khách hàng vui lòng kiểm tra mail và nhập mã OPT";
+              "Khách hàng vui lòng kiểm tra mail và nhập mã OTP";
             this.titleModal = "Thao tác thành công";
             this.transferId = response.data.transferId;
             this.isShowingOPT = true;

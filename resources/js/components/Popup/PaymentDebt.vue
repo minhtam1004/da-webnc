@@ -6,7 +6,7 @@
           <mdb-card cascade narrow>
             <mdb-card-body style="height:60vh;overflow: auto">
               <form data-toggle="validator" role="form" id="register-form">
-                <label for="otpcode" data-error data-success>Xác nhận mã OPT</label>
+                <label for="otpcode" data-error data-success>Xác nhận mã OTP</label>
                 <input
                   type="text"
                   id="otpcode"
