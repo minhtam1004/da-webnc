@@ -172,7 +172,7 @@ class UserController extends Controller
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->where('isDebt', false)->where('sendId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
+        $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNull('debtId')->where('sendId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
     public function showDebtTransfer($id, Request $request)
@@ -192,7 +192,7 @@ class UserController extends Controller
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->where('isDebt', true)->where(function ($query) use ($acc) {
+        $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNotNull('debtId')->where(function ($query) use ($acc) {
             $query->where('sendId', $acc->accountNumber)
                 ->orWhere('receivedId', $acc->accountNumber);
         })->paginate($request->limit, ['*'], 'page', $request->page);
@@ -215,7 +215,7 @@ class UserController extends Controller
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->where('isDebt', false)->where('receivedId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
+        $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNull('debtId')->where('receivedId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
     public function showNotify()
