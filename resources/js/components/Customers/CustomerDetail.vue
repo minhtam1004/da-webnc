@@ -90,11 +90,20 @@
               </div>
               <div
                 class="tab-pane fade"
+                id="pills-profile"
+                role="tabpanel"
+                aria-labelledby="pills-profile-tab"
+              >
+              <ListTransfer />
+              </div>
+
+               <div
+                class="tab-pane fade"
                 id="pills-contact"
                 role="tabpanel"
                 aria-labelledby="pills-contact-tab"
               >
-              <ListTransfer />
+              <DebtPayment />
               </div>
             </div>
           </mdb-card-body>
@@ -123,7 +132,8 @@ export default {
     PersonalInfo,
     ReceivingMoney,
     Transfer,
-    ListTransfer
+    ListTransfer,
+    DebtPayment
   },
   data() {
     return {};

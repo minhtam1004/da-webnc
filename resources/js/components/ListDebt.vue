@@ -8,7 +8,7 @@
               <!-- Navbar brand -->
               <a class="navbar-brand">
                 <div class="form-row">
-                  <div class="col-10">
+                  <div class="col-6">
                     <input
                       class="form-control"
                       type="text"
@@ -17,7 +17,20 @@
                       aria-label="Nhập từ khóa"
                     />
                   </div>
-                  <div class="col">
+
+                  <div class="col-4">
+                    <select
+                      class="browser-default custom-select"
+                      data-style="btn-info"
+                      v-model="selected"
+                    >
+                      <option value="2">Chưa thanh toán</option>
+                      <option value="3">Đã thanh toán</option>
+                      <option value="4">Đã hủy</option>
+                      <option value="1">Tất cả</option>
+                    </select>
+                  </div>
+                  <div class="col-2">
                     <button
                       type="button"
                       class="btn-floating purple-gradient px-3"
@@ -63,23 +76,8 @@
                     <th class="text-center">STK người nhắc nợ</th>
                     <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Nội dung</th>
-                    <th class="text-center" style="display:flex">
-                      Trạng thái
-                      <div class="dropdown">
-                        <button
-                          class="btn btn-outline-secondary dropdown-toggle"
-                          type="button"
-                          data-toggle="dropdown"
-                          aria-haspopup="true"
-                          aria-expanded="false"
-                        >Active</button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" href="#">Active</a>
-                          <a class="dropdown-item" href="#">Inactive</a>
-                        </div>
-                      </div>
-                    </th>
-                    <th class="text-center">Thời gian nhắc nợ</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center" style="width: 12vmin;">Thời gian nhắc nợ</th>
                     <th class="text-center">Thao tác</th>
                   </tr>
                 </thead>
@@ -90,14 +88,19 @@
                     <td class="pt-3-half">{{ item.debt }}</td>
                     <td class="pt-3-half">{{ item.note}}</td>
                     <td class="pt-3-half">
-                      <mdb-badge
-                        v-if="item.isConfirm == 1"
+                       <mdb-badge
+                        v-if="item.status ==  'paid'"
                         color="success-color"
                         pill
                         class="pull-right"
-                      >Thành công</mdb-badge>
-                      <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge>
-                      <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
+                      >Đã thanh toán</mdb-badge>
+                      <mdb-badge
+                        v-else-if="item.status == 'deleted'"
+                        color="danger-color"
+                        pill
+                        class="pull-right"
+                      >Đã hủy</mdb-badge>
+                      <mdb-badge v-else color="primary-color" pill class="pull-right">Chờ thanh toán</mdb-badge>
                     </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     <td>
@@ -162,6 +165,8 @@
   </section>
 </template>
 
+
+
 <script>
 import {
   mdbRow,
@@ -172,6 +177,7 @@ import {
   mdbTbl,
   mdbBadge,
 } from "mdbvue";
+import $ from "jquery";
 // import Popup from "./Popup"
 import RemoveDebt from "./Popup/RemoveDebt";
 import PaymentDebt from "./Popup/PaymentDebt";
@@ -192,6 +198,8 @@ export default {
   data() {
     return {
       data: [],
+      filter: "",
+      selected: 1,
       keyword: "",
       pagination: {
         data: [],
@@ -202,13 +210,6 @@ export default {
       showPayment: false,
       loading: false,
     };
-  },
-  mounted() {
-  
-   $(".dropdown-menu").on('click', 'a', function(){
-       $(this).parents('.dropdown').find('button').text($(this).text());
-   });
-
   },
   created() {
     this.load();
@@ -278,6 +279,19 @@ export default {
         },
       };
 
+      if (this.selected == 2) {
+        this.filter = "created";
+      }
+      if (this.selected == 3) {
+        this.filter = "paid";
+      }
+      if (this.selected == 4) {
+        this.filter = "deleted";
+      }
+
+      var data = {
+        status: this.filter,
+      };
       axios
         .get(
           "api/debt/other?limit=" +

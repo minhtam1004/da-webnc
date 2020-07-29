@@ -271,20 +271,19 @@ export default {
       if (notification.debtType == "paid") {
         this.$toast.open({
           message:
-            "STK" +
+            "STK: " +
             notification.account.accountNumber +
-            "đã thanh toán nhắc nợ",
+            " đã thanh toán nhắc nợ",
           type: "success",
         });
       }
 
-      if (notification.debtType == "paid") {
+      if (notification.debtType == "deleted") {
+        console.log("Da xoa")
         this.$toast.open({
           message:
-            "STK" +
-            notification.account.accountNumber +
-            "đã xóa nhắc nợ",
-          type: "danger",
+            "STK: " + notification.account.accountNumber + " đã xóa nhắc nợ",
+          type: "error",
         });
       }
 

@@ -8,7 +8,7 @@
               <!-- Navbar brand -->
               <a class="navbar-brand">
                 <div class="form-row">
-                  <div class="col-10">
+                  <div class="col-6">
                     <input
                       class="form-control"
                       type="text"
@@ -17,7 +17,19 @@
                       aria-label="Nhập từ khóa"
                     />
                   </div>
-                  <div class="col">
+                  <div class="col-4">
+                    <select
+                      class="browser-default custom-select"
+                      data-style="btn-info"
+                      v-model="selected"
+                    >
+                      <option value="2">Chưa thanh toán</option>
+                      <option value="3">Đã thanh toán</option>
+                      <option value="4">Đã hủy</option>
+                      <option value="1">Tất cả</option>
+                    </select>
+                  </div>
+                  <div class="col-2">
                     <button
                       type="button"
                       class="btn-floating purple-gradient px-3"
@@ -76,13 +88,18 @@
                     <td class="pt-3-half">{{ item.note}}</td>
                     <td class="pt-3-half">
                       <mdb-badge
-                        v-if="item.isConfirm == 1"
+                        v-if="item.status ==  'paid'"
                         color="success-color"
                         pill
                         class="pull-right"
-                      >Thành công</mdb-badge>
-                      <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge>
-                      <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
+                      >Đã thanh toán</mdb-badge>
+                      <mdb-badge
+                        v-else-if="item.status == 'deleted'"
+                        color="danger-color"
+                        pill
+                        class="pull-right"
+                      >Đã hủy</mdb-badge>
+                      <mdb-badge v-else color="primary-color" pill class="pull-right">Chờ thanh toán</mdb-badge>
                     </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     <td>
@@ -171,6 +188,8 @@ export default {
         current_page: 1,
       },
       showAddUser: false,
+      selected: 1,
+      filter: [],
     };
   },
   created() {
@@ -200,14 +219,28 @@ export default {
           Authorization: "bearer" + this.$store.state.user.access_token,
         },
       };
-
+      if (this.selected == 2) {
+        this.filter.push("created");
+      }
+      if (this.selected == 3) {
+        this.filter.push("paid");
+      }
+      if (this.selected == 4) {
+        this.filter.push("deleted");
+      }
+      var data = {
+        status: this.filter,
+      };
       axios
         .get(
           "api/debt?limit=" +
             this.pagination.per_page +
             "&page=" +
             this.pagination.current_page,
-          options
+          options,
+          { params: {
+            status: this.filter
+          } }
         )
         .then((response) => {
           console.log("nhac no: ", response);
