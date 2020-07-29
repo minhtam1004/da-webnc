@@ -40,7 +40,7 @@ class UserController extends Controller
             $query->where('users.username', 'LIKE', "%{$request->keyword}%")
                 ->orWhere('users.id', 'LIKE', "%{$request->keyword}%")
                 ->orWhere('accounts.accountNumber', 'LIKE', "%{$request->keyword}%");
-        })->join('accounts', 'users.id', '=', 'accounts.userId')->paginate($request->limit, ['*'], 'page', $request->page);
+        })->join('accounts', 'users.id', '=', 'accounts.userId')->paginate($request->limit, ['users.*','accounts.accountNumber'], 'page', $request->page);
     }
     public function employeeStore(Request $request)
     {
