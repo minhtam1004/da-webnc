@@ -65,7 +65,7 @@ class DebtController extends Controller
         $request->merge(['ownerId' => $acc1->accountNumber]);
         $user = $acc->user;
         $debt = DebtList::create($request->all());
-        $data = ['type'=>'created','user' => $acc1->user, 'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => $request->note, 'debt' => $debt];
+        $data = ['debtType'=>'created','user' => $acc1->user, 'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => $request->note, 'debt' => $debt];
         $user->notify(new DebtNotification($data));
         // $options = array(
         //     'cluster' => 'ap1',
@@ -100,11 +100,11 @@ class DebtController extends Controller
         $other = $debt->other->user;
         $data = null;
         if ($user->id === $owner->id) {
-            $data = ['type'=>'deleted', 'user' => $owner,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
+            $data = ['debtType'=>'deleted', 'user' => $owner,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
             $other->notify(new DebtNotification($data));
         }
         if ($user->id === $other->id) {
-            $data = ['type'=>'deleted','user' => $other,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
+            $data = ['debtType'=>'deleted','user' => $other,'account' => ['id'=>$owner->account->id,'accountNumber'=>$owner->account->accountNumber], 'note' => $request->note,'debt' => $debt];
             $owner->notify(new DebtNotification($data));
         }
         if (!$data) {
