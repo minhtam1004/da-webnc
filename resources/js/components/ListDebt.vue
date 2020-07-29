@@ -63,6 +63,22 @@
                     <th class="text-center">STK người nhắc nợ</th>
                     <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Nội dung</th>
+                    <th class="text-center" style="display:flex">
+                      Trạng thái
+                      <div class="dropdown">
+                        <button
+                          class="btn btn-outline-secondary dropdown-toggle"
+                          type="button"
+                          data-toggle="dropdown"
+                          aria-haspopup="true"
+                          aria-expanded="false"
+                        >Active</button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <a class="dropdown-item" href="#">Active</a>
+                          <a class="dropdown-item" href="#">Inactive</a>
+                        </div>
+                      </div>
+                    </th>
                     <th class="text-center">Thời gian nhắc nợ</th>
                     <th class="text-center">Thao tác</th>
                   </tr>
@@ -73,6 +89,16 @@
                     <td class="pt-3-half">{{ item.otherId }}</td>
                     <td class="pt-3-half">{{ item.debt }}</td>
                     <td class="pt-3-half">{{ item.note}}</td>
+                    <td class="pt-3-half">
+                      <mdb-badge
+                        v-if="item.isConfirm == 1"
+                        color="success-color"
+                        pill
+                        class="pull-right"
+                      >Thành công</mdb-badge>
+                      <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge>
+                      <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
+                    </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     <td>
                       <span class="table-remove">
@@ -137,7 +163,15 @@
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import {
+  mdbRow,
+  mdbCol,
+  mdbCard,
+  mdbView,
+  mdbCardBody,
+  mdbTbl,
+  mdbBadge,
+} from "mdbvue";
 // import Popup from "./Popup"
 import RemoveDebt from "./Popup/RemoveDebt";
 import PaymentDebt from "./Popup/PaymentDebt";
@@ -151,6 +185,8 @@ export default {
     mdbCardBody,
     mdbTbl,
     PaymentDebt,
+    RemoveDebt,
+    mdbBadge,
   },
 
   data() {
@@ -164,17 +200,27 @@ export default {
       },
       showAddUser: false,
       showPayment: false,
-      loading: false
+      loading: false,
     };
+  },
+  mounted() {
+  
+   $(".dropdown-menu").on('click', 'a', function(){
+       $(this).parents('.dropdown').find('button').text($(this).text());
+   });
+
   },
   created() {
     this.load();
   },
   methods: {
+    closeModalRemoveDebt() {
+      this.showAddUser = false;
+    },
     turnOnLoading() {
       $("#btn-one")
         .html(
-          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Thanh toán'
         )
         .addClass("disabled");
     },
@@ -183,6 +229,7 @@ export default {
       $("#btn-one span").remove();
     },
     showPopup(id) {
+      console.log("aa");
       this.showAddUser = true;
       this.idColum = id;
     },

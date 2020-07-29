@@ -22,11 +22,13 @@
               <mdb-icon icon="bell" />
             </mdb-btn>
 
-
-            <mdb-badge color="danger" class="ml-2" style="position: absolute;top: 0;right: 0">{{ notify.length }}</mdb-badge>
+            <mdb-badge
+              color="danger"
+              class="ml-2"
+              style="position: absolute;top: 0;right: 0"
+            >{{ notify.length }}</mdb-badge>
           </div>
 
-       
           <mdb-btn tag="a" gradient="blue" floating size="sm" @click="logout()">
             <mdb-icon icon="sign-out-alt" />
           </mdb-btn>
@@ -70,7 +72,7 @@
           </li>
         </ul>
       </div>
-    </nav> -->
+    </nav>-->
     <!--/.Navbar-->
     <!-- Sidebar -->
     <div class="sidebar-fixed position-fixed">
@@ -194,7 +196,7 @@ import {
   mdbListGroupItem,
   mdbFooter,
   mdbBadge,
-  waves
+  waves,
 } from "mdbvue";
 import {
   mdbDropdown,
@@ -202,8 +204,8 @@ import {
   mdbDropdownMenu,
   mdbDropdownToggle,
 } from "mdbvue";
-import Echo from 'laravel-echo';
-window.Pusher = require('pusher-js');
+import Echo from "laravel-echo";
+window.Pusher = require("pusher-js");
 
 export default {
   name: "AdminTemplate",
@@ -236,7 +238,7 @@ export default {
     },
     notify() {
       return this.$store.state.debt.notify;
-    }
+    },
   },
   created() {
     console.log("++++++", this.$store.state.user.authUser);
@@ -254,19 +256,41 @@ export default {
       },
     });
 
-    window.Echo.private("App.User." + this.$store.state.user.authUser.id).notification(
-      (notification) => {
-        if (notification.type.indexOf("DebtNotification") >= 0 ) {
-            this.$toast.open({
-          message: "Bạn đã nhận một nhắc nợ từ STK: " + notification.account.accountNumber,
+    window.Echo.private(
+      "App.User." + this.$store.state.user.authUser.id
+    ).notification((notification) => {
+      if (notification.debtType == "created") {
+        this.$toast.open({
+          message:
+            "Bạn đã nhận một nhắc nợ từ STK: " +
+            notification.account.accountNumber,
           type: "info",
         });
-        }
-      
-        this.$store.dispatch("setNotify", notification);
-        console.log(notification, "#notifications");
       }
-    );
+
+      if (notification.debtType == "paid") {
+        this.$toast.open({
+          message:
+            "STK" +
+            notification.account.accountNumber +
+            "đã thanh toán nhắc nợ",
+          type: "success",
+        });
+      }
+
+      if (notification.debtType == "paid") {
+        this.$toast.open({
+          message:
+            "STK" +
+            notification.account.accountNumber +
+            "đã xóa nhắc nợ",
+          type: "danger",
+        });
+      }
+
+      this.$store.dispatch("setNotify", notification);
+      console.log(notification, "#notifications");
+    });
   },
   methods: {
     logout() {

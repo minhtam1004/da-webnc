@@ -53,6 +53,15 @@
               <label for="reason" class="grey-text">Nội dung nhắc nợ</label>
               <textarea class="form-control rounded-0" v-model="reason" rows="3"></textarea>
 
+              <div style="display: flex;justify-content: flex-end;">
+                <div class="card" style="width: 50vmin;">
+                  <div class="card-body" style>
+                    <p class="card-text blue-text">- Số tiền tối thiếu nhắc nợ: 10.000 VNĐ</p>
+                    <p class="card-text blue-text">- Người nhắc nợ chịu phí giao dịch nhắc nợ</p>
+                    <p class="card-text blue-text">- Phí giao dịch nhắc nợ: 3.000 VNĐ</p>
+                  </div>
+                </div>
+              </div>
               <br />
               <div class="text-center mt-4">
                 <button class="btn btn-unique" type="button" @click="backTo">Quay lại</button>
@@ -72,7 +81,6 @@
               :message="messageModal"
               @close-modal="showModal = false"
             />
-
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
@@ -102,7 +110,7 @@ export default {
     mdbTbl,
     mdbBtn,
     Modal,
-    SearchName
+    SearchName,
   },
   data() {
     return {
@@ -249,7 +257,7 @@ export default {
           });
         });
     },
-  }
+  },
 };
 </script>
 

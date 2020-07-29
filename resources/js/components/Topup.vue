@@ -83,7 +83,7 @@
             </form>
 
             <form v-if="isShowingOPT">
-              <label for="accountnumber" class="grey-text">Nhập mã OPT</label>
+              <label for="accountnumber" class="grey-text">Nhập mã OTP</label>
               <input type="text" v-model="otpcode" :disabled="!showTime" class="form-control" />
               <div v-if="showTime">
                 <div id="timer" class="text-center">
@@ -216,17 +216,6 @@ export default {
       console.log("ppp", accNum)
       this.accountNumber = accNum;
     },
-    turnOnLoading(id) {
-      $(id)
-        .html(
-          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
-        )
-        .addClass("disabled");
-    },
-    turnOffLoading(id) {
-      $(id).removeClass("disabled");
-      $(id + " span").remove();
-    },
     backTo() {
       console.log("Vo");
       this.isShowingMoney = false;
@@ -235,7 +224,7 @@ export default {
       // lấy lại otp
     },
     checkAccountInfo() {
-      this.turnOnLoading("#btn-check");
+      this.turnOnLoadingBtnCheck();
       this.loading = true;
       const options = {
         headers: {
@@ -255,7 +244,7 @@ export default {
         )
         .then((response) => {
           this.loading = false;
-          this.turnOffLoading("#btn-check");
+          this.turnOffLoadingBtnCheck();
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.isShowingMoney = true;
@@ -269,7 +258,7 @@ export default {
         })
         .catch((error) => {
           this.loading = false;
-          this.turnOffLoading("#btn-check");
+          this.turnOffLoadingBtnCheck();
           this.disabled = false;
           console.log("AXIOS ERROR: ", error);
           this.showModal = true;
@@ -301,6 +290,17 @@ export default {
       $("#btn-one").removeClass("disabled");
       $("#btn-one span").remove();
     },
+    turnOnLoadingBtnCheck() {
+      $("#btn-check")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Kiểm tra'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoadingBtnCheck() {
+      $("#btn-check").removeClass("disabled");
+      $("#btn-check span").remove();
+    },
     transfers() {
       this.turnOnLoading();
       var data = {
@@ -324,7 +324,7 @@ export default {
             this.showModal = true;
             this.typeModal = "success";
             this.messageModal =
-              "Khách hàng vui lòng kiểm tra mail và nhập mã OPT";
+              "Khách hàng vui lòng kiểm tra mail và nhập mã OTP";
             this.titleModal = "Thao tác thành công";
             this.transferId = response.data.transferId;
             this.isShowingOPT = true;

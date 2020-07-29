@@ -164,6 +164,7 @@ export default {
               message: "Chỉnh sửa nhân viên thành công",
               type: "success"
             });
+            this.$router.push({ name: "ListEmployee" });
             this.$emit("close-modal");
           }
         })

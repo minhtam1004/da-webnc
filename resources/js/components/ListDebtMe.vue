@@ -63,6 +63,7 @@
                     <th class="text-center">STK người nợ</th>
                     <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Nội dung</th>
+                    <th class="text-center">Trạng thái</th>
                     <th class="text-center">Thời gian nhắc nợ</th>
                     <th class="text-center">Thao tác</th>
                   </tr>
@@ -73,6 +74,16 @@
                     <td class="pt-3-half">{{ item.otherId }}</td>
                     <td class="pt-3-half">{{ item.debt }}</td>
                     <td class="pt-3-half">{{ item.note}}</td>
+                    <td class="pt-3-half">
+                      <mdb-badge
+                        v-if="item.isConfirm == 1"
+                        color="success-color"
+                        pill
+                        class="pull-right"
+                      >Thành công</mdb-badge>
+                      <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge>
+                      <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
+                    </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     <td>
                       <span class="table-remove">
@@ -125,7 +136,15 @@
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import {
+  mdbRow,
+  mdbCol,
+  mdbCard,
+  mdbView,
+  mdbCardBody,
+  mdbTbl,
+  mdbBadge,
+} from "mdbvue";
 // import Popup from "./Popup"
 import RemoveDebt from "./Popup/RemoveDebt";
 export default {
@@ -138,6 +157,7 @@ export default {
     mdbCardBody,
     mdbTbl,
     RemoveDebt,
+    mdbBadge,
   },
 
   data() {
@@ -158,12 +178,12 @@ export default {
   },
   methods: {
     closeModalRemoveDebt() {
-    this.showAddUser=false;
-    this.reload();
+      this.showAddUser = false;
+      this.reload();
     },
     showPopup(id) {
-      this.showAddUser=true;
-      this.idColum=id;
+      this.showAddUser = true;
+      this.idColum = id;
     },
     formatTime(time) {
       const a = new Date(time);
