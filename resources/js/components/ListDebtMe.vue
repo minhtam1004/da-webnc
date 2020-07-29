@@ -213,12 +213,7 @@ export default {
       return a.getDate() + "/" + month + "/" + a.getFullYear();
     },
     reload() {
-      const options = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token,
-        },
-      };
+      this.filter = [];
       if (this.selected == 2) {
         this.filter.push("created");
       }
@@ -228,8 +223,15 @@ export default {
       if (this.selected == 4) {
         this.filter.push("deleted");
       }
-      var data = {
-        status: this.filter,
+
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+        params: {
+          status: this.filter
+        },
       };
       axios
         .get(
@@ -237,10 +239,7 @@ export default {
             this.pagination.per_page +
             "&page=" +
             this.pagination.current_page,
-          options,
-          { params: {
-            status: this.filter
-          } }
+          options
         )
         .then((response) => {
           console.log("nhac no: ", response);
