@@ -24,9 +24,7 @@ import BankDetail from "./components/InterBank/BankDetail";
 import CreateDebt from "./components/CreateDebt";
 export const routes = [
     { path: "/login", name: "Login", component: Login },
-    { path: "/customer/:id", name: "CustomerDetail", component: CustomerDetail },
-    { path: "/employee/:id", name: "EmployeeDetail", component: EmployeeDetail },
-    { path: "/banks/:id", name: "BankDetail", component: BankDetail },
+    
     {
         path: "",
         component: Container,
@@ -40,6 +38,9 @@ export const routes = [
                 meta: { role: 1 }
               
             },
+            { path: "/customer/:id", name: "CustomerDetail", component: CustomerDetail },
+            { path: "/employee/:id", name: "EmployeeDetail", component: EmployeeDetail },
+            { path: "/banks/:id", name: "BankDetail", component: BankDetail },
             {
                 path: "/profile",
                 name: "Profile",
