@@ -88,7 +88,7 @@
                     <td class="pt-3-half">{{ item.debt }}</td>
                     <td class="pt-3-half">{{ item.note}}</td>
                     <td class="pt-3-half">
-                       <mdb-badge
+                      <mdb-badge
                         v-if="item.status ==  'paid'"
                         color="success-color"
                         pill
@@ -198,7 +198,7 @@ export default {
   data() {
     return {
       data: [],
-      filter: "",
+      filter: [],
       selected: 1,
       keyword: "",
       pagination: {
@@ -272,32 +272,33 @@ export default {
       return a.getDate() + "/" + month + "/" + a.getFullYear();
     },
     reload() {
+      this.filter = [];
+      if (this.selected == 2) {
+        this.filter.push("created");
+      }
+      if (this.selected == 3) {
+        this.filter.push("paid");
+      }
+      if (this.selected == 4) {
+        this.filter.push("deleted");
+      }
       const options = {
         headers: {
           "Content-Type": "application/json",
           Authorization: "bearer" + this.$store.state.user.access_token,
         },
+        params: {
+          status: this.filter,
+        }
       };
 
-      if (this.selected == 2) {
-        this.filter = "created";
-      }
-      if (this.selected == 3) {
-        this.filter = "paid";
-      }
-      if (this.selected == 4) {
-        this.filter = "deleted";
-      }
-
-      var data = {
-        status: this.filter,
-      };
       axios
         .get(
           "api/debt/other?limit=" +
             this.pagination.per_page +
             "&page=" +
             this.pagination.current_page,
+
           options
         )
         .then((response) => {
