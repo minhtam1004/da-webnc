@@ -36,7 +36,11 @@
                   @click="checkAccountInfo"
                 >Kiểm tra</button>
               </div>
-              <SearchName v-if="showSearchName" @close-modal="showSearchName = false" @user-reminder="getReminder" />
+              <SearchName
+                v-if="showSearchName"
+                @close-modal="showSearchName = false"
+                @user-reminder="getReminder"
+              />
             </form>
 
             <form v-if="isShowingMoney && !isShowingOPT">
@@ -213,7 +217,7 @@ export default {
   },
   methods: {
     getReminder(accNum) {
-      console.log("ppp", accNum)
+      console.log("ppp", accNum);
       this.accountNumber = accNum;
     },
     backTo() {
@@ -246,7 +250,7 @@ export default {
           this.loading = false;
           this.turnOffLoadingBtnCheck();
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.isShowingMoney = true;
             this.name = response.data.name;
             this.showModal = true;
@@ -319,7 +323,7 @@ export default {
         .post("api/bank/transfers", data, options)
         .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.turnOffLoading();
             this.showModal = true;
             this.typeModal = "success";
@@ -363,10 +367,14 @@ export default {
       //get api/transfers/{id cua transfer}/refresh
       // /transfers/{id}/confirm
       axios
-        .post("api/bank/transfers/" + this.transferId + "/confirm", data, options)
+        .post(
+          "api/bank/transfers/" + this.transferId + "/confirm",
+          data,
+          options
+        )
         .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data) {
+          if (response.status == 200) {
             if (response.data === "success") {
               this.showModal = true;
               this.typeModal = "success";

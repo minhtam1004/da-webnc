@@ -6,6 +6,19 @@
           <mdb-card cascade narrow>
             <mdb-card-body style="height:60vh;overflow: auto">
               <form data-toggle="validator" role="form" id="register-form" v-if="isSendEmail">
+                <label for="username" data-error data-success>Nhập username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  v-model="username"
+                  class="form-control"
+                />
+                <br />
+                <label data-error data-success style="color: #33B5E5">hoặc</label>
+                <br />
+                <br />
+
                 <label for="email" data-error data-success>Nhập địa chỉ email</label>
                 <input
                   type="email"
@@ -123,7 +136,7 @@ export default {
     mdbCardBody,
     mdbTbl,
     Popup,
-    Modal
+    Modal,
   },
   data() {
     return {
@@ -143,16 +156,16 @@ export default {
       messageModal: "",
       otpcode: "",
       emailRight: "",
-      loading: false
+      loading: false,
     };
   },
   computed: {
-    minutes: function() {
+    minutes: function () {
       return this.padTime(Math.floor(this.totalTime / 60));
     },
-    seconds: function() {
+    seconds: function () {
       return this.padTime(this.totalTime - this.minutes * 60);
-    }
+    },
   },
   mounted() {
     $("#password-error").addClass("colorError");
@@ -163,40 +176,40 @@ export default {
       rules: {
         email: {
           required: true,
-          email: true
+          email: true,
         },
         newpassword: {
           required: true,
           minlength: 6,
-          maxlength: 255
+          maxlength: 255,
         },
         confirmpassword: {
           required: true,
           minlength: 5,
           maxlength: 255,
-          equalTo: "#newpassword"
-        }
+          equalTo: "#newpassword",
+        },
       },
       messages: {
         email: {
           required: "Vui lòng nhập địa chỉ email",
-          email: "Địa chỉ email không hợp lệ"
+          email: "Địa chỉ email không hợp lệ",
         },
         newpassword: {
           required: "Vui lòng nhập mật khẩu",
           minlength: "Mật khẩu từ 6 - 255 kí tự",
-          maxlength: "Mật khẩu từ 6 - 255 kí tự"
+          maxlength: "Mật khẩu từ 6 - 255 kí tự",
         },
         confirmpassword: {
           required: "Vui lòng nhập mật khẩu",
           minlength: "Mật khẩu từ 6 - 255 kí tự",
           maxlength: "Mật khẩu từ 6 - 255 kí tự",
-          equalTo: "Mật khẩu không khớp"
-        }
+          equalTo: "Mật khẩu không khớp",
+        },
       },
-      submitHandler: function(form) {
+      submitHandler: function (form) {
         form.submit();
-      }
+      },
     });
   },
   methods: {
@@ -219,7 +232,7 @@ export default {
       this.loading = true;
       axios
         .get("api/auth/resetPassword?email=" + this.email, {})
-        .then(response => {
+        .then((response) => {
           this.showModal = true;
           this.turnOffLoading();
           this.loading = false;
@@ -237,7 +250,7 @@ export default {
           this.isSendEmail = false;
           this.startTimer();
         })
-        .catch(error => {
+        .catch((error) => {
           this.turnOffLoading();
           this.loading = false;
           this.showModal = true;
@@ -251,28 +264,28 @@ export default {
       var data = {
         token: this.otpcode,
         email: this.emailRight,
-        password: this.newpassword
+        password: this.newpassword,
       };
       axios
         .post("api/auth/resetPassword", data, {})
-        .then(response => {
+        .then((response) => {
           this.turnOffLoading();
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.$toast.open({
               message: "Thay đổi mật khẩu thành công",
-              type: "success"
+              type: "success",
             });
             this.$emit("close-modal");
           }
         })
-        .catch(error => {
+        .catch((error) => {
           this.turnOffLoading();
           console.log("AXIOS ERROR: ", error);
           if (error.response.data.error === "password invalid") {
             return this.$toast.open({
               message: "Mật khẩu hiện tại không đúng",
-              type: "error"
+              type: "error",
             });
           }
           // if (error.response.data.error === "user exist") {
@@ -286,17 +299,17 @@ export default {
           console.log(error.response.data.error);
         });
     },
-    startTimer: function() {
+    startTimer: function () {
       this.timer = setInterval(() => this.countdown(), 1000);
       this.resetButton = true;
     },
-    padTime: function(time) {
+    padTime: function (time) {
       return (time < 10 ? "0" : "") + time;
     },
-    countdown: function() {
+    countdown: function () {
       this.totalTime--;
-    }
-  }
+    },
+  },
 };
 </script>
 
