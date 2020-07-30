@@ -32,9 +32,9 @@ Route::group([
     Route::post('resetPassword', 'AuthController@changePasswordWithMail');
     Route::get('resetPassword', 'AuthController@resetPassword');
     Route::get('me', 'AuthController@me');
-    Route::get('me/notify', 'UserController@showNotify');
 });
 Route::group([
+    'middleware' => 'auth',
     'prefix' => 'remembers'
 ], function ($router) {
     Route::post('add', 'RememberController@store');
@@ -61,6 +61,9 @@ Route::group([
     Route::get('/users/{id}/transfers', 'UserController@showTransfer');
     Route::get('/users/{id}/debt-transfers', 'UserController@showDebtTransfer');
     Route::get('/users/{id}/recharge-transfers', 'UserController@showRechargeTransfer');
+    Route::get('/users/me/notify', 'UserController@showNotify');
+    Route::post('/users/me/notify/{id}', 'UserController@readNotify');
+    Route::post('/users/me/notify', 'UserController@readAllNotify');
     Route::get('/customers', 'UserController@customerIndex');
     Route::get('/employees', 'UserController@employeeIndex');
     Route::post('/employees', 'UserController@employeeStore');
