@@ -218,12 +218,29 @@ class UserController extends Controller
         $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNull('debtId')->where('receivedId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
     }
-    public function showNotify()
+    public function showNotify(Request $request)
     {
+        $request->limit = $request->limit ? $request->limit : 10;
+        $request->page = $request->page ? $request->page : 1;  
         $user = auth('api')->user();
-        $nof = $user->notifications;
-        return $nof;
+        return $user->notifications()->orderBy('created_at','desc')->paginate($request->limit,['id','data','read_at as readAt'],'page',$request->page);
     }
+    public function readNotify($id)
+    {
+        $notification = auth('api')->user()->notifications()->find($id);
+        if(!$notification)
+        {
+            return response()->json(['error'=>'notify not exist'],200);
+        }
+        $notification->markAsRead();
+        return response()->json(['message'=>'success'],200);
+    }
+    public function readAllNotify()
+    {
+        auth('api')->user()->unreadNotifications->markAsRead();
+        return response()->json(['message'=>'success'],200);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

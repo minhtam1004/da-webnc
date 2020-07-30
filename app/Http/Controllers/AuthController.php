@@ -122,14 +122,23 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $validatedData = Validator::make($request->all(), [
-            'email' => 'required',
+            'email' => 'min:6|max:255',
+            'username' => 'max:255',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        $user = User::where('email', $request->email)->first();
+        if(!$request->email && !$request->username)
+        {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        if($request->email && $request->username)
+        {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $user = $request->email ? User::where('email', $request->email)->first() : User::where('username', $request->username)->first();
         if (!$user) {
-            return response()->json(['error' => 'email not exist'], 404);
+            return response()->json(['error' => 'user not exist'], 404);
         }
         $OTPCode = rand(0, 999999);
         $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
