@@ -131,11 +131,12 @@ class TransferController extends Controller
         $user = $acc->user;
         if($transfer->debtId)
         {
-            $debt = DebtList::where('id',$transfer->debtId)->update(['status' => 'paid']);
+            $debt = DebtList::find($transfer->debtId);
+            $debt->update(['status' => 'paid']);
             $data = [ 'debtType'=>'paid','user' => $acc1->user,'account' => ['id'=>$acc1->id,'accountNumber'=>$acc1->accountNumber], 'note' => 'thanh toán '.$transfer->note, 'debtId' => $debt->id];
             $user->notify(new DebtNotification($data));   
         }
-        return response()->json("success", 200);
+        return response()->json(["message" => "success"], 200);
     }
 
     public function getOTP($id)
