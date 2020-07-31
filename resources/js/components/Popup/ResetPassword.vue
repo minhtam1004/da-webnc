@@ -231,7 +231,7 @@ export default {
       this.turnOnLoading();
       this.loading = true;
       axios
-        .get("api/auth/resetPassword?email=" + this.email, {})
+        .get("api/auth/resetPassword?username=" + this.username, {})
         .then((response) => {
           this.showModal = true;
           this.turnOffLoading();

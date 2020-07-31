@@ -87,6 +87,7 @@ export default {
       axios
         .delete("api/debt/" + this.idDebt, options)
         .then((response) => {
+          if (response.status == 200) {
           this.turnOffLoading();
           this.loading = false;
           this.$toast.open({
@@ -94,6 +95,8 @@ export default {
             type: "success",
           });
           this.$emit("close-modal");
+          this.$router.push({ name: 'DebtReminder'});
+          }
         })
         .catch((error) => {
           this.turnOffLoading();

@@ -2,7 +2,7 @@
   <div class="flexible-content">
     <!--Navbar-->
     <nav class="mb-1 navbar navbar-expand-lg navbar-dark primary-color">
-      <a class="navbar-brand" href="#">Navbar</a>
+      <a class="navbar-brand" style="margin-left: 7vmin;color:white">KLXBank</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -16,7 +16,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent-333">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
+          <!-- <li class="nav-item active">
             <a class="nav-link" href="#">
               Home
               <span class="sr-only">(current)</span>
@@ -27,24 +27,8 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Pricing</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              id="navbarDropdownMenuLink-333"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >Dropdown</a>
-            <div
-              class="dropdown-menu dropdown-default"
-              aria-labelledby="navbarDropdownMenuLink-333"
-            >
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li>
+          </li> -->
+          
         </ul>
         <ul class="navbar-nav ml-auto nav-flex-icons">
           <li class="nav-item dropdown">
@@ -56,20 +40,65 @@
               aria-expanded="false"
             >
               <mdb-icon icon="bell" />
-              <div class="badge">{{ notify.length}}</div>
+              <div v-if="countNotify > 0" class="badge">{{ countNotify }}</div>
             </a>
             <div
-              class="dropdown-menu dropdown-menu-right dropdown-default"
+              class="dropdown-menu dropdown-menu-right dropdown-default notify"
               aria-labelledby="navbarDropdownMenuLink-333"
-              style="position: absolute!important;min-width: 30vmin;!important;max-width: 50vmin;!important"
             >
-              <a class="dropdown-item" v-for="item in notify" :key="item.id">
-                <div class="container" style="width: 100%;">
-                  <div class="row" style="width: 100%">
-                    <div class="col-sm-2">1s</div>
-                    <div class="col-sm-8" style="word-break: break-all;">{{ "Bạn đã nhận được 1 nhắc nợ từ STK: " + item.account.accountNumber }}</div>
-                  </div>
-                </div>
+              <a class="dropdown-item">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col"></th>
+
+                      <th
+                        scope="col"
+                        style="display: flex;justify-content: flex-end;margin-top: 0vmin; marrgin-bottom: 0vmin"
+                      >
+                        <a
+                          @click="readAll"
+                          style="color: #33B5E5;text-decoration: underline;"
+                        >Đánh dấu tất cả đã đọc</a>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="item in notify"
+                      :key="item.id"
+                      :class="item.readAt ? '' : 'background-colum'"
+                      @click="viewDebtDetail(item.id, item.data.debtId)"
+                    >
+                      <th scope="row">
+                        <button
+                          v-if="item.data.debtType == 'created'"
+                          type="button"
+                          class="btn btn-primary px-5"
+                        >
+                          <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                        </button>
+                        <button
+                          v-else-if="item.data.debtType == 'paid'"
+                          type="button"
+                          class="btn btn-success px-5"
+                        >
+                          <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        </button>
+                        <button v-else type="button" class="btn btn-danger px-5">
+                          <i class="fas fa-minus-circle" aria-hidden="true"></i>
+                        </button>
+                      </th>
+                      <td
+                        v-if="item.data.debtType == 'created'"
+                      >{{ "Bạn nhận được lời nhắc nợ từ STK: " + item.data.account.accountNumber }}</td>
+                      <td
+                        v-else-if="item.data.debtType == 'paid'"
+                      >{{ "STK: " + item.data.account.accountNumber + " đã thanh toán nợ" }}</td>
+                      <td v-else>{{ "STK: " + item.data.account.accountNumber + "đã xóa nhắc nợ" }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </a>
             </div>
           </li>
@@ -270,7 +299,7 @@
     </div>
     <!-- /Sidebar  -->
     <main>
-      <div class="p-5">
+      <div class="p-5" style="padding-top: 0vmin!important">
         <router-view></router-view>
       </div>
       <ftr color="primary-color-dark" class="text-center font-small darken-2"></ftr>
@@ -325,6 +354,17 @@ export default {
     return {
       activeItem: 1,
       isCustomer: false,
+      pagination: {
+        data: [],
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+      },
+      dataNotify: {
+        data: null,
+        id: 0,
+        readAt: null,
+      },
     };
   },
   computed: {
@@ -332,13 +372,22 @@ export default {
       return this.$store.state.user.authUser.permission;
     },
     notify() {
+      console.log("store", this.$store.state.debt.notify);
       return this.$store.state.debt.notify;
+    },
+    countNotify() {
+      console.log("store", this.$store.state.debt.notify);
+      let count = 0;
+      this.$store.state.debt.notify.forEach(u => {
+        if (u.readAt == null) {
+          count++;
+        }
+      });
+      return count;
     },
   },
   created() {
-    this.notify.push({account: { accountNumber: 1 } })
-    console.log("++++++", this.$store.state.user.authUser);
-    console.log("asd");
+    this.reload();
     window.Echo = new Echo({
       broadcaster: "pusher",
       key: process.env.MIX_PUSHER_APP_KEY,
@@ -382,12 +431,63 @@ export default {
           type: "error",
         });
       }
+      this.dataNotify.data = notification;
+      this.dataNotify.id = notification.id;
+      this.dataNotify.readAt = null;
 
-      this.$store.dispatch("setNotify", notification);
+      this.$store.dispatch("addNotify", this.dataNotify);
       console.log(notification, "#notifications");
     });
   },
   methods: {
+    viewDebtDetail(t, r) {
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+      };
+      axios
+        .post("api/bank/users/me/notify/" + t, {}, options)
+        .then((response) => {
+          if (response.status == 200) {
+            this.$router.push({ name: "DebtDetail", params: { id: r } });
+          }
+        })
+        .catch((error) => {
+          return this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error",
+          });
+        });
+    },
+    reload() {
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+        params: {
+          status: this.filter,
+        },
+      };
+      axios
+        .get(
+          "api/bank/users/me/notify?limit=" +
+            this.pagination.per_page +
+            "&page=" +
+            this.pagination.current_page,
+          options
+        )
+        .then((response) => {
+          console.log("thông báo: ", response);
+          if (response.data !== null) {
+            this.pagination = response.data;
+            this.$store.dispatch("setNotify", response.data.data);
+          }
+        })
+        .catch((error) => {});
+    },
     redirectProfile() {
       if (this.$router.history.current.name != "Profile") {
         this.$router.push({ name: "Profile" });
@@ -419,6 +519,28 @@ export default {
           });
         });
     },
+    readAll() {
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+      };
+      axios
+        .post("api/bank/users/me/notify", {}, options)
+        .then((response) => {
+          console.log("doc het", response);
+          if (response.status == 200) {
+            this.reload();
+          }
+        })
+        .catch((error) => {
+          return this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error",
+          });
+        });
+    },
   },
   mixins: [waves],
 };
@@ -440,6 +562,16 @@ export default {
   top: 0;
   right: 0;
   border-radius: 0.5vmin;
+}
+.background-colum {
+  background: #bbdefb;
+}
+.notify {
+  position: absolute !important;
+  min-width: 70vmin !important;
+  max-width: 70vmin !important;
+  height: 70vmin;
+  overflow: auto;
 }
 .edit-dropdown {
   max-height: 40px;

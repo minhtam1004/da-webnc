@@ -105,22 +105,22 @@
                     <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     <td>
                       <span class="table-remove">
-                        <button
+                        <!-- <button
                           type="button"
                           class="btn btn-danger btn-rounded btn-sm my-0"
                           @click="showPopup(item.id)"
                         >
                           <i class="far f-atrash-alt"></i> Xóa
-                        </button>
+                        </button>-->
 
                         <button
                           type="button"
                           id="btn-one"
                           :disabled="loading"
-                          class="btn btn-success btn-rounded btn-sm my-0"
-                          @click="paymentDebt(item.id)"
+                          class="btn btn-primary btn-rounded btn-sm my-0"
+                          @click="$router.push({name: 'DebtDetail', params: { id: item.id }})"
                         >
-                          <i class="far f-atrash-alt"></i> Thanh toán
+                          <i class="far f-atrash-alt"></i> Chi tiết
                         </button>
                       </span>
                     </td>
@@ -234,35 +234,6 @@ export default {
       this.showAddUser = true;
       this.idColum = id;
     },
-    paymentDebt(id) {
-      this.turnOnLoading();
-      this.loading = true;
-
-      const options = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token,
-        },
-      };
-
-      axios
-        // POST api/debt/{id}/paid
-        .post("api/debt/" + id + "/paid", {}, options)
-        .then((response) => {
-          this.turnOffLoading();
-          this.loading = false;
-          this.idPaid = response.data.transferId;
-          this.showPayment = true;
-        })
-        .catch((error) => {
-          this.turnOffLoading();
-          this.loading = false;
-          this.$toast.open({
-            message: "Có lỗi xảy ra",
-            type: "danger",
-          });
-        });
-    },
     formatTime(time) {
       const a = new Date(time);
       const month = a.getMonth() + 1;
@@ -289,7 +260,7 @@ export default {
         },
         params: {
           status: this.filter,
-        }
+        },
       };
 
       axios

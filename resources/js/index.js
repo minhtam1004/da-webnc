@@ -22,6 +22,7 @@ import ListBank from "./components/ListBank";
 import DebtReminder from "./components/DebtReminder";
 import BankDetail from "./components/InterBank/BankDetail";
 import CreateDebt from "./components/CreateDebt";
+import DebtDetail from "./components/DebtDetail";
 export const routes = [
     { path: "/login", name: "Login", component: Login },
     
@@ -41,6 +42,7 @@ export const routes = [
             { path: "/customer/:id", name: "CustomerDetail", component: CustomerDetail },
             { path: "/employee/:id", name: "EmployeeDetail", component: EmployeeDetail },
             { path: "/banks/:id", name: "BankDetail", component: BankDetail },
+            { path: "/debt/:id", name: "DebtDetail", component: DebtDetail },
             {
                 path: "/profile",
                 name: "Profile",

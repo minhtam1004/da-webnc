@@ -17,6 +17,7 @@
                       aria-label="Nhập từ khóa"
                     />
                   </div>
+
                   <div class="col-4">
                     <select
                       class="browser-default custom-select"
@@ -72,11 +73,11 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã nhắc nợ</th>
-                    <th class="text-center">STK người nợ</th>
+                    <th class="text-center">STK người nhắc nợ</th>
                     <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Nội dung</th>
                     <th class="text-center">Trạng thái</th>
-                    <th class="text-center">Thời gian nhắc nợ</th>
+                    <th class="text-center" style="width: 12vmin;">Thời gian nhắc nợ</th>
                     <th class="text-center">Thao tác</th>
                   </tr>
                 </thead>
@@ -104,12 +105,22 @@
                     <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     <td>
                       <span class="table-remove">
-                        <button
+                        <!-- <button
                           type="button"
                           class="btn btn-danger btn-rounded btn-sm my-0"
                           @click="showPopup(item.id)"
                         >
-                          <i class="far fa-trash-alt"></i> Xóa
+                          <i class="far f-atrash-alt"></i> Xóa
+                        </button>-->
+
+                        <button
+                          type="button"
+                          id="btn-one"
+                          :disabled="loading"
+                          class="btn btn-primary btn-rounded btn-sm my-0"
+                          @click="$router.push({name: 'DebtDetail', params: { id: item.id }})"
+                        >
+                          <i class="far f-atrash-alt"></i> Chi tiết
                         </button>
                       </span>
                     </td>
@@ -142,15 +153,19 @@
                 </ul>
               </nav>
             </div>
+
             <!-- Editable table -->
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
     </mdb-row>
 
+    <PaymentDebt :idPayment="idPaid" v-if="showPayment" @close-modal="showPayment=false" />
     <RemoveDebt :idDebt="idColum" v-if="showAddUser" @close-modal="closeModalRemoveDebt" />
   </section>
 </template>
+
+
 
 <script>
 import {
@@ -162,8 +177,10 @@ import {
   mdbTbl,
   mdbBadge,
 } from "mdbvue";
+import $ from "jquery";
 // import Popup from "./Popup"
 import RemoveDebt from "./Popup/RemoveDebt";
+import PaymentDebt from "./Popup/PaymentDebt";
 export default {
   name: "Tables",
   components: {
@@ -173,6 +190,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
+    PaymentDebt,
     RemoveDebt,
     mdbBadge,
   },
@@ -180,7 +198,8 @@ export default {
   data() {
     return {
       data: [],
-      idColum: null,
+      filter: [],
+      selected: 1,
       keyword: "",
       pagination: {
         data: [],
@@ -188,8 +207,8 @@ export default {
         current_page: 1,
       },
       showAddUser: false,
-      selected: 1,
-      filter: [],
+      showPayment: false,
+      loading: false,
     };
   },
   created() {
@@ -198,9 +217,20 @@ export default {
   methods: {
     closeModalRemoveDebt() {
       this.showAddUser = false;
-      this.reload();
+    },
+    turnOnLoading() {
+      $("#btn-one")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Thanh toán'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoading() {
+      $("#btn-one").removeClass("disabled");
+      $("#btn-one span").remove();
     },
     showPopup(id) {
+      console.log("aa");
       this.showAddUser = true;
       this.idColum = id;
     },
@@ -223,26 +253,27 @@ export default {
       if (this.selected == 4) {
         this.filter.push("deleted");
       }
-
       const options = {
         headers: {
           "Content-Type": "application/json",
           Authorization: "bearer" + this.$store.state.user.access_token,
         },
         params: {
-          status: this.filter
+          status: this.filter,
         },
       };
+
       axios
         .get(
           "api/debt?limit=" +
             this.pagination.per_page +
             "&page=" +
             this.pagination.current_page,
+
           options
         )
         .then((response) => {
-          console.log("nhac no: ", response);
+          console.log("nhac no 2: ", response);
           if (response.data !== null) {
             this.pagination = response.data;
           }
