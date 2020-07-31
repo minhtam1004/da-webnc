@@ -12,6 +12,7 @@
                   id="username"
                   name="username"
                   v-model="username"
+                  :disabled="disabledUsername"
                   class="form-control"
                 />
                 <br />
@@ -24,6 +25,7 @@
                   type="email"
                   id="email"
                   name="email"
+                  :disabled="disabledEmail"
                   v-model="email"
                   class="form-control validate"
                 />
@@ -35,7 +37,7 @@
                     type="button"
                     :disabled="loading"
                     id="btn-one"
-                    @click="sendEmail"
+                    @click="reset"
                   >
                     <i v-if="loading" class="fa fa-spinner fa-spin"></i>Xác nhận
                   </button>
@@ -87,24 +89,6 @@
                     id="btn-one"
                   >Xác nhận</button>
                 </div>
-                <!-- <label for="email" data-error data-success>Nhập địa chỉ email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  v-model="email"
-                  class="form-control validate"
-                />
-                <br />
-
-                <div class="text-center mt-4">
-                  <button
-                    class="btn btn-unique"
-                    type="button"
-                    id="btn-one"
-                    @click="sendEmail"
-                  >Xác nhận</button>
-                </div>-->
                 <Modal
                   v-if="showModal"
                   :type="typeModal"
@@ -157,7 +141,28 @@ export default {
       otpcode: "",
       emailRight: "",
       loading: false,
+      disabledEmail: false,
+      disabledUsername: false,
     };
+  },
+  watch: {
+    username() {
+      if (this.username != "") {
+        this.disabledEmail = true;
+        this.disabledUsername = false;
+      } else {
+        this.disabledEmail = false;
+      }
+    },
+
+    email() {
+      if (this.email != "") {
+        this.disabledEmail = false;
+        this.disabledUsername = true;
+      } else {
+        this.disabledUsername = false;
+      }
+    },
   },
   computed: {
     minutes: function () {
@@ -213,6 +218,15 @@ export default {
     });
   },
   methods: {
+    reset() {
+      if (this.email != "" && this.username == "") {
+        this.sendEmail();
+      }
+
+      if (this.email == "" && this.username != "") {
+        this.sendUsername();
+      }
+    },
     closeAll() {
       this.$emit("close-modal");
     },
@@ -228,6 +242,38 @@ export default {
       $("#btn-one span").remove();
     },
     sendEmail() {
+      this.turnOnLoading();
+      this.loading = true;
+      axios
+        .get("api/auth/resetPassword?email=" + this.email, {})
+        .then((response) => {
+          this.showModal = true;
+          this.turnOffLoading();
+          this.loading = false;
+          if (!response) {
+            this.typeModal = "danger";
+            this.messageModal = "Tài khoản không tồn tại";
+            this.titleModal = "Thao tác thất bại";
+            return;
+          }
+
+          this.emailRight = response.data.email;
+          this.typeModal = "success";
+          this.messageModal = "Địa chỉ email hợp lệ";
+          this.titleModal = "Thao tác thành công";
+          this.isSendEmail = false;
+          this.startTimer();
+        })
+        .catch((error) => {
+          this.turnOffLoading();
+          this.loading = false;
+          this.showModal = true;
+          this.typeModal = "danger";
+          this.messageModal = "Tài khoản không tồn tại";
+          this.titleModal = "Thao tác thất bại";
+        });
+    },
+    sendUsername() {
       this.turnOnLoading();
       this.loading = true;
       axios

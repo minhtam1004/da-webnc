@@ -147,6 +147,7 @@ export default {
             type: "success",
           });
           this.$emit("close-modal");
+          this.$router.push({ name: 'DebtReminder'});
           }
         })
         .catch((error) => {
