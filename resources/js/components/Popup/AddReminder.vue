@@ -53,6 +53,10 @@ export default {
       type: String,
       default: "",
     },
+    bankId: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -105,7 +109,11 @@ export default {
       var data = {
         name: this.name,
         accountId: this.accountId,
+        bankId: this.bankId
       };
+      if (!this.bankId) {
+        delete data.bankId;
+      }
       const options = {
         headers: {
           "Content-Type": "application/json",
