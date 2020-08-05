@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\Bank;
 use App\RememberList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -27,21 +28,37 @@ class RememberController extends Controller
         $validatedData = Validator::make($request->all(), [
             'name' => 'max:255',
             'accountId' => 'required|max:255',
+            'bankId' => 'max:255'
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        $acc = Account::where('accountNumber', $request->accountId)->first();
-        if(!$acc)
+        if($request->bankId)
         {
-            return response()->json(['error' => 'account do not exist'], 404);
+            $bank = Bank::find($request->bankId);
+            if(!$bank)
+            {
+                return response()->json(['error' => 'Bank not exist'], 422);
+            }
+            $req = new Request(['id'=> $request->accountId, 'bankId'=>$request->bankId]);
+            $res = app('App\Http\Controllers\BankController')->viewuser($req);
+            if($res->status() !== 200) return response()->json(['error' => 'user not exist'], 404);
+            $name =  $res->getData()->result->name;
+        }
+        else {
+            $acc = Account::where('accountNumber', $request->accountId)->first();
+            if(!$acc)
+            {
+                return response()->json(['error' => 'account do not exist'], 404);
+            }
+            $name = $acc->user()->name;
         }
         if(!$request->name) 
         {
-            $request->merge(['name'=> $acc->user()->name]);
+            $request->merge(['name'=> $name]);
         }
         $request->merge(['ownerId' => auth('api')->user()->id]);
-        $r = RememberList::updateOrCreate(['ownerId'=>$request->ownerId,'accountId'=>$request->accountId],$request->all());
+        $r = RememberList::updateOrCreate(['ownerId'=>$request->ownerId,'accountId'=>$request->accountId,'bankId'=>$request->bankId],$request->all());
         return response()->json($r);
     }
 }
