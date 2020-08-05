@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('name', 60);
             $table->string('email', 60)->unique();
             $table->string('phone')->nullable();
+            $table->text('refresh_token')->nullable();
             $table->integer('roleId')->default(3);
             $table->timestamps();
             $table->softDeletes();
