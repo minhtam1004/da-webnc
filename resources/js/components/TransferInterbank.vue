@@ -44,7 +44,11 @@
                   @click="checkAccountInfo"
                 >Kiểm tra</button>
               </div>
-              <SearchName v-if="showSearchName" @close-modal="showSearchName = false" />
+              <SearchName
+                v-if="showSearchName"
+                @close-modal="showSearchName = false"
+                @user-reminder="getReminder"
+              />
             </form>
 
             <form v-if="isShowingMoney && !isShowingOPT">
@@ -90,7 +94,7 @@
               </div>
             </form>
 
-          <form v-if="isShowingOPT">
+            <form v-if="isShowingOPT">
               <label for="accountnumber" class="grey-text">Nhập mã OTP</label>
               <input type="text" v-model="otpcode" :disabled="!showTime" class="form-control" />
               <div v-if="showTime">
@@ -138,8 +142,9 @@
               :message="messageModal"
               @close-modal="showModal = false"
             />
-             <AddReminder
+            <AddReminder
               :accountId="accountNumber"
+              :bankId="bankId"
               v-if="showAddReminder"
               @close-modal="showAddReminder = false"
             />
@@ -174,7 +179,7 @@ export default {
     mdbBtn,
     Modal,
     SearchName,
-    AddReminder
+    AddReminder,
   },
   data() {
     return {
@@ -227,6 +232,13 @@ export default {
     },
   },
   methods: {
+    getReminder(accNum, bankId) {
+      console.log("ppp", accNum);
+      console.log("ppp", bankId);
+      this.bankId = bankId
+      this.accountNumber = accNum;
+      bankId == 1 ? (this.selected = "nhom5") : (this.selected = "nhom19");
+    },
     backTo() {
       console.log("Vo");
       this.isShowingMoney = false;
@@ -245,7 +257,7 @@ export default {
           },
         })
         .then((response) => {
-          console.log("RESPONSE RECEIVED: ", response);
+          console.log("bank: ", response);
           if (response.data !== null) {
             this.listBank = response.data;
           }
