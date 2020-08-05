@@ -17,6 +17,7 @@ class CreateRememberListsTable extends Migration
             $table->id();
             $table->integer('ownerId');
             $table->integer('accountId');
+            $table->integer('bankId')->nullable()->unsigned()->default(null);
             $table->string('name');
             $table->timestamps();
         });
