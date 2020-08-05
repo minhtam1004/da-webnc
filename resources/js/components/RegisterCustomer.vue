@@ -7,7 +7,7 @@
             <h4 class="h4-responsive text-white">Đăng kí tài khoản khách hàng</h4>
           </mdb-view>
           <mdb-card-body>
-            <form v-on:submit.prevent="checkValidateRegisterForm">
+            <form>
               <label for="username" class="grey-text" required>Tên đăng nhập</label>
               <input type="text" id="username" v-model="username" class="form-control" />
               <br />
@@ -23,7 +23,15 @@
               <label for="phone" class="grey-text" required>Số điện thoại</label>
               <input type="text" id="phone" v-model="phone" class="form-control" />
               <div class="text-center mt-4">
-                <button class="btn btn-unique">Đăng kí</button>
+                <button
+                  class="btn btn-unique"
+                  :disabled="loading"
+                  id="btn-one"
+                  type="button"
+                  @click="checkValidateRegisterForm"
+                >
+                  <i v-if="loading" class="fa fa-spinner fa-spin"></i>Đăng kí
+                </button>
               </div>
             </form>
           </mdb-card-body>
@@ -38,7 +46,7 @@ import {
   required,
   minLength,
   maxLength,
-  numeric
+  numeric,
 } from "vuelidate/lib/validators";
 export default {
   name: "RegisterCustomer",
@@ -48,7 +56,7 @@ export default {
     mdbCard,
     mdbView,
     mdbCardBody,
-    mdbTbl
+    mdbTbl,
   },
   data() {
     return {
@@ -63,11 +71,22 @@ export default {
       msg: [],
       loginForm: {
         recaptchaVerified: false,
-        pleaseTickRecaptchaMessage: ""
-      }
+        pleaseTickRecaptchaMessage: "",
+      },
     };
   },
   methods: {
+    turnOnLoading() {
+      $("#btn-one")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Đăng kí'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoading() {
+      $("#btn-one").removeClass("disabled");
+      $("#btn-one span").remove();
+    },
     checkValidateRegisterForm() {
       this.register();
     },
@@ -79,47 +98,52 @@ export default {
         (this.phone = "");
     },
     register() {
+      this.turnOnLoading();
       this.loading = true;
       var data = {
         username: this.username,
         password: this.password,
         name: this.name,
         email: this.email,
-        phone: this.phone
+        phone: this.phone,
       };
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       const headers = {
         "Content-Type": "application/json",
-        Authorization: "bearer" + this.$store.state.user.access_token
+        Authorization: "bearer" + this.$store.state.user.access_token,
       };
       axios
         .post("api/auth/register", data, options)
-        .then(response => {
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.$toast.open({
               message: "Thêm mới khách hàng thành công",
-              type: "success"
+              type: "success",
             });
+            this.turnOffLoading();
+            this.loading = false;
           }
         })
-        .catch(error => {
+        .catch((error) => {
+          this.turnOffLoading();
+          this.loading = false;
           console.log("AXIOS ERROR: ", error);
           if (error.response.data.error === "Parameter error") {
             return this.$toast.open({
               message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
-              type: "error"
+              type: "error",
             });
           }
           if (error.response.data.error === "user exist") {
             return this.$toast.open({
               message: "Tài khoản khách hàng đã tồn tại",
-              type: "error"
+              type: "error",
             });
           }
           console.log(error.response.data);
@@ -131,21 +155,21 @@ export default {
       axios
         .get("api/auth/me", {
           headers: {
-            Authorization: "bearer" + this.$store.state.user.access_token
-          }
+            Authorization: "bearer" + this.$store.state.user.access_token,
+          },
         })
-        .then(response => {
+        .then((response) => {
           console.log(response);
           this.$store.dispatch("setUserObject", response.data);
         })
-        .catch(error => {
+        .catch((error) => {
           return this.$toast.open({
             message: "Có lỗi xảy ra",
-            type: "error"
+            type: "error",
           });
         });
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>

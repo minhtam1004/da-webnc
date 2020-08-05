@@ -53,7 +53,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    Popup
+    Popup,
   },
   data() {
     return {
@@ -68,8 +68,8 @@ export default {
       msg: [],
       loginForm: {
         recaptchaVerified: false,
-        pleaseTickRecaptchaMessage: ""
-      }
+        pleaseTickRecaptchaMessage: "",
+      },
     };
   },
   methods: {
@@ -105,46 +105,46 @@ export default {
         password: this.password,
         name: this.name,
         email: this.email,
-        phone: this.phone
+        phone: this.phone,
       };
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       const headers = {
         "Content-Type": "application/json",
-        Authorization: "bearer" + this.$store.state.user.access_token
+        Authorization: "bearer" + this.$store.state.user.access_token,
       };
       axios
         .post("api/auth/register", data, options)
-        .then(response => {
-          this.turnOffLoading();
-          this.loading = false;
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.$toast.open({
               message: "Thêm mới khách hàng thành công",
-              type: "success"
+              type: "success",
             });
+            this.turnOffLoading();
+            this.loading = false;
             this.$emit("close-modal");
           }
         })
-        .catch(error => {
+        .catch((error) => {
           this.turnOffLoading();
           this.loading = false;
           console.log("AXIOS ERROR: ", error);
           if (error.response.data.error === "Parameter error") {
             return this.$toast.open({
               message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
-              type: "error"
+              type: "error",
             });
           }
           if (error.response.data.error === "user exist") {
             return this.$toast.open({
               message: "Tài khoản khách hàng đã tồn tại",
-              type: "error"
+              type: "error",
             });
           }
           console.log(error.response.data);
@@ -156,21 +156,21 @@ export default {
       axios
         .get("api/auth/me", {
           headers: {
-            Authorization: "bearer" + this.$store.state.user.access_token
-          }
+            Authorization: "bearer" + this.$store.state.user.access_token,
+          },
         })
-        .then(response => {
+        .then((response) => {
           console.log(response);
           this.$store.dispatch("setUserObject", response.data);
         })
-        .catch(error => {
+        .catch((error) => {
           return this.$toast.open({
             message: "Có lỗi xảy ra",
-            type: "error"
+            type: "error",
           });
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

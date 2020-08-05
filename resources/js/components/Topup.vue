@@ -117,10 +117,10 @@
                     type="button"
                     @click="$router.push({ name: 'Dashboard'})"
                   >
-                    <i class="fas fa-arrow-circle-left"></i>Thực hiện giao dịch khác
+                    <i class="fas fa-arrow-circle-left pr-2"></i>Thực hiện giao dịch khác
                   </button>
                   <button class="btn btn-indigo" type="button" @click="showAddReminder = true">
-                    <i class="far fa-address-book"></i>Thêm vào gợi nhớ
+                    <i class="far fa-address-book pr-2"></i>Thêm vào gợi nhớ
                   </button>
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default {
         .post("api/bank/transfers", data, options)
         .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.status == 200) {
+          if (response.status == 201) {
             this.turnOffLoading();
             this.showModal = true;
             this.typeModal = "success";
