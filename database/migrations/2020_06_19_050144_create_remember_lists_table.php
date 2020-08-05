@@ -16,7 +16,7 @@ class CreateRememberListsTable extends Migration
         Schema::create('remember_lists', function (Blueprint $table) {
             $table->id();
             $table->integer('ownerId');
-            $table->integer('accountId');
+            $table->string('accountId');
             $table->integer('bankId')->nullable()->unsigned()->default(null);
             $table->string('name');
             $table->timestamps();
