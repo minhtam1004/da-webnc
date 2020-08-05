@@ -14,6 +14,8 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class AuthController extends Controller
 {
@@ -43,9 +45,21 @@ class AuthController extends Controller
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
+        $user = User::where('username', $request->username)->get()->first();
+        if(!$user)
+        {
+            return response()->json(['error'=>'user does not exist'], 404);
+        }
+        if(!Hash::check($request->password, $user->password))
+        {
+            return response()->json(['error'=>'password incorrect'], 401);
+        }
         $credentials = $request->only('username', 'password');
         if ($token = auth('api')->attempt($credentials)) {
-            return $this->respondWithToken($token);
+            $refreshToken = auth('api')->setTTL(11)->attempt($credentials);
+            $user->refresh_token = $refreshToken;
+            $user->save();
+            return $this->respondWithToken($token,$refreshToken);
         }
         return response()->json(['error' => 'wrong username or password'], 401);
     }
@@ -197,9 +211,31 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function refresh()
+    public function refresh(Request $request)
     {
-        return $this->respondWithToken(auth('api')->refresh());
+        $validatedData = Validator::make($request->all(), [
+            'refreshToken' => 'required',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $user = auth('api')->user();
+        if(!$user)
+        {
+            return response()->json(['error'=>'token expires'],403);
+        }
+        if($user->refresh_token !== $request->refreshToken)
+        {
+            return response()->json(['error' => 'wrong refreshToken'], 422);
+        }
+        try {
+            $token = auth('api')->refresh();
+        } catch (TokenExpiredException $e) {
+            return response()->json(['error'=>'token expires'],403);
+        } catch (JWTException $e) {
+            return response()->json(['error'=>'token invalid'],403);
+        }
+        return $this->respondWithToken($token,$request->refreshToken);
     }
 
     /**
@@ -209,10 +245,11 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token)
+    protected function respondWithToken($token, $refreshToken)
     {
         return response()->json([
             'access_token' => $token,
+            'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);

@@ -51,7 +51,7 @@ class RememberController extends Controller
             {
                 return response()->json(['error' => 'account do not exist'], 404);
             }
-            $name = $acc->user()->name;
+            $name = $acc->user->name;
         }
         if(!$request->name) 
         {
