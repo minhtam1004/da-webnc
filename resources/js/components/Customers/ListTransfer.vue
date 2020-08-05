@@ -51,8 +51,7 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã giao dịch</th>
-                    <th class="text-center">Số tài khoản gửi</th>
-                    <th class="text-center">Tên chủ tài khoản</th>
+                    <th class="text-center">Số tài khoản nhận</th>
                     <th class="text-center">Tên ngân hàng</th>
                     <th class="text-center">Số tiền</th>
                     <th class="text-center">Trạng thái</th>
@@ -63,18 +62,14 @@
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
                     <td class="pt-3-half">{{ item.sendId }}</td>
-                    <td class="pt-3-half">{{ item.sendId }}</td>
-                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.receivedBank ? item.receivedBank : "" }}</td>
                     <td class="pt-3-half">{{ item.amount }}</td>
                     <td class="pt-3-half">
                       <mdb-badge
-                        v-if="item.isConfirm == 1"
                         color="success-color"
                         pill
                         class="pull-right"
                       >Thành công</mdb-badge>
-                      <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge>
-                      <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
                     </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at) }}</td>
                   </tr>

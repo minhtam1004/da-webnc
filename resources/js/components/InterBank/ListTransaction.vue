@@ -53,15 +53,6 @@
                   >
                     <i class="fas fa-redo mr-1"></i>Tải lại
                   </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-success"
-                    style="border-radius: 1vmin"
-                    @click="showAddUser=true"
-                  >
-                    <i class="fas fa-plus-circle mr-1"></i>Xem biểu đồ
-                  </button>
                 </form>
               </div>
 
@@ -127,7 +118,15 @@
   </section>
 </template>
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl, mdbIcon } from "mdbvue";
+import {
+  mdbRow,
+  mdbCol,
+  mdbCard,
+  mdbView,
+  mdbCardBody,
+  mdbTbl,
+  mdbIcon,
+} from "mdbvue";
 
 import $ from "jquery";
 
@@ -140,7 +139,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
-    mdbIcon
+    mdbIcon,
   },
 
   data() {
@@ -166,12 +165,24 @@ export default {
     const a = new Date();
     const month = a.getMonth() + 1;
     if (a.getMonth() < 10) {
-      this.startDate = a.getFullYear() + "-0" + month + "-" + a.getDate();
-      this.endDate = a.getFullYear() + "-0" + month + "-" + a.getDate();
+      if (a.getDate() < 10) {
+        this.startDate = a.getFullYear() + "-0" + month + "-0" + a.getDate();
+        this.endDate = a.getFullYear() + "-0" + month + "-0" + a.getDate();
+      } else {
+        this.startDate = a.getFullYear() + "-0" + month + "-" + a.getDate();
+        this.endDate = a.getFullYear() + "-0" + month + "-" + a.getDate();
+      }
     } else {
-      this.startDate = a.getFullYear() + "-" + month + "-" + a.getDate();
-      this.endDate = a.getFullYear() + "-" + month + "-" + a.getDate();
+      if (a.getDate() < 10) {
+        this.startDate = a.getFullYear() + "-" + month + "-0" + a.getDate();
+        this.endDate = a.getFullYear() + "-" + month + "-0" + a.getDate();
+      } else {
+        this.startDate = a.getFullYear() + "-" + month + "-" + a.getDate();
+        this.endDate = a.getFullYear() + "-" + month + "-" + a.getDate();
+      }
     }
+    console.log(this.startDate);
+    console.log(this.endDate);
   },
   methods: {
     formatTime(time) {
@@ -248,7 +259,7 @@ export default {
         )
         .then((response) => {
           console.log("RESPONSE RECEIVED 2: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.pagination = response.data;
             this.$store.dispatch("setDataChart", response.data);
             if (this.pagination.data.length > 0) {

@@ -27,16 +27,20 @@
 
               <label for="bank" class="grey-text" style="margin-botttom: 3vmin">Chọn ngân hàng</label>
               <br />
-              <select class="browser-default custom-select" data-style="btn-info" v-model="selected">
+              <select
+                class="browser-default custom-select"
+                data-style="btn-info"
+                v-model="selected"
+              >
                 <option v-for="option in listBank" v-bind:key="option.id">{{ option.name }}</option>
               </select>
 
               <div class="text-center mt-4">
                 <button
                   class="btn btn-unique"
-                  data-toggle="modal"
-                  data-target="#centralModalSuccess"
+                  id="btn-check"
                   type="button"
+                  :disabled="loading"
                   @click="checkAccountInfo"
                 >Kiểm tra</button>
               </div>
@@ -86,15 +90,10 @@
               </div>
             </form>
 
-            <form v-if="isShowingOPT">
+          <form v-if="isShowingOPT">
               <label for="accountnumber" class="grey-text">Nhập mã OTP</label>
-              <input
-                type="text"
-                v-model="otpcode"
-                :disabled="minutes == 0 && seconds == 0"
-                class="form-control"
-              />
-              <div v-if="minutes !== 0 && seconds !== 0">
+              <input type="text" v-model="otpcode" :disabled="!showTime" class="form-control" />
+              <div v-if="showTime">
                 <div id="timer" class="text-center">
                   <span id="minute">Thời gian còn lại: {{ minutes }}</span>
                   <span id="colon">:</span>
@@ -102,31 +101,34 @@
                 </div>
               </div>
               <div class="text-center mt-4">
-                <button
-                  class="btn btn-warning"
-                  v-if="minutes == 0 && seconds == 0"
-                  type="button"
-                >Lấy lại mã OTP</button>
-                <button
-                  class="btn btn-unique"
-                  @click="sendOPT"
-                  type="button"
-                  v-if="!showAddList"
-                >Chuyển tiền</button>
-                <button
-                  class="btn btn-default"
-                  v-if="showAddList"
-                  type="button"
-                  @click="addToListReminder"
-                >
-                  <i class="fab fa-mdb"></i>Thêm vào gợi nhớ
-                </button>
-                <button
-                  class="btn btn-warning"
-                  v-if="showAddList"
-                  type="button"
-                  @click="$router.push({ name: 'Dashboard'})"
-                >Thực hiện giao dịch khác</button>
+                <div v-if="!showAddList">
+                  <button
+                    class="btn btn-unique"
+                    @click="sendOTP"
+                    type="button"
+                    id="btn-otp"
+                    :disabled="loading"
+                    v-if="showTime"
+                  >Chuyển tiền</button>
+                  <button
+                    class="btn btn-warning"
+                    v-else
+                    type="button"
+                    @click="regetOTP()"
+                  >Lấy lại mã OTP</button>
+                </div>
+                <div v-else>
+                  <button
+                    class="btn btn-unique"
+                    type="button"
+                    @click="$router.push({ name: 'Profile'})"
+                  >
+                    <i class="fas fa-arrow-circle-left pr-2"></i>Thực hiện giao dịch khác
+                  </button>
+                  <button class="btn btn-indigo" type="button" @click="showAddReminder = true">
+                    <i class="far fa-address-book pr-2"></i>Thêm vào gợi nhớ
+                  </button>
+                </div>
               </div>
             </form>
             <Modal
@@ -136,6 +138,11 @@
               :message="messageModal"
               @close-modal="showModal = false"
             />
+             <AddReminder
+              :accountId="accountNumber"
+              v-if="showAddReminder"
+              @close-modal="showAddReminder = false"
+            />
           </mdb-card-body>
         </mdb-card>
       </mdb-col>
@@ -144,6 +151,7 @@
 </template>
 <script>
 import Modal from "./Modal";
+import AddReminder from "./Popup/AddReminder";
 import SearchName from "./SearchName";
 import {
   mdbRow,
@@ -152,7 +160,7 @@ import {
   mdbView,
   mdbCardBody,
   mdbTbl,
-  mdbBtn
+  mdbBtn,
 } from "mdbvue";
 export default {
   name: "AccountInfo",
@@ -165,16 +173,19 @@ export default {
     mdbTbl,
     mdbBtn,
     Modal,
-    SearchName
+    SearchName,
+    AddReminder
   },
   data() {
     return {
       account: this.$store.state.user.authUser.account,
+      showTime: true,
       isShowingMoney: false,
+      showAddReminder: false,
       isShowingOPT: false,
       accountNumber: this.$store.state.transfer.accountNumber,
       reason: "",
-      amount: 0,
+      amount: 50000,
       name: "",
       otpcode: "",
       timer: null,
@@ -191,22 +202,29 @@ export default {
       showAddList: false,
       listBank: [],
       selected: 0,
-      bankId: 0
+      bankId: 0,
     };
   },
   computed: {
-    minutes: function() {
+    minutes: function () {
       return this.padTime(Math.floor(this.totalTime / 60));
     },
-    seconds: function() {
+    seconds: function () {
       return this.padTime(this.totalTime - this.minutes * 60);
     },
-    accountNum: function() {
+    accountNum: function () {
       return this.$store.state.transfer.accountNumber;
-    }
+    },
   },
   created() {
     this.getListBank();
+  },
+  watch: {
+    seconds() {
+      if (this.seconds == 0) {
+        this.showTime = false;
+      }
+    },
   },
   methods: {
     backTo() {
@@ -217,22 +235,22 @@ export default {
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       axios
         .get("api/banks", {
           headers: {
-            Authorization: "bearer" + this.$store.state.user.access_token
-          }
+            Authorization: "bearer" + this.$store.state.user.access_token,
+          },
         })
-        .then(response => {
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.listBank = response.data;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response.status === 422) {
             this.messageModal = "Bạn không có quyền thực hiện thao tác";
             return;
@@ -240,40 +258,42 @@ export default {
         });
     },
     checkAccountInfo() {
-    
-      const index = this.listBank.findIndex(u => u.name === this.selected);
+      const index = this.listBank.findIndex((u) => u.name === this.selected);
       if (index >= 0) {
         this.bankId = this.listBank[index].id;
       }
-    
-      this.turnOnLoading();
+
+      this.turnOnLoadingCheck();
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       var data = {
         id: this.accountNumber,
-        bankId: this.bankId
+        bankId: this.bankId,
       };
-      console.log(data)
+      console.log(data);
       axios
-        .get("api/viewuser?id=" + this.accountNumber + "&bankId=" + this.bankId , options)
-        .then(response => {
+        .get(
+          "api/viewuser?id=" + this.accountNumber + "&bankId=" + this.bankId,
+          options
+        )
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.isShowingMoney = true;
             this.name = response.data.result.name;
             this.showModal = true;
             this.typeModal = "success";
             this.messageModal = "Số tài khoản hợp lệ";
             this.titleModal = "Thao tác thành công";
-            this.turnOffLoading();
+            this.turnOffLoadingCheck();
           }
         })
-        .catch(error => {
-          this.turnOffLoading();
+        .catch((error) => {
+          this.turnOffLoadingCheck();
           this.loading = false;
           this.disabled = false;
           console.log("AXIOS ERROR: ", error);
@@ -283,7 +303,6 @@ export default {
           if (error.response.status === 404) {
             this.messageModal =
               "Số tài khoản không hợp lệ! Vui lòng kiểm tra lại";
-
             return;
           }
           if (error.response.status === 422) {
@@ -305,6 +324,30 @@ export default {
       $("#btn-one").removeClass("disabled");
       $("#btn-one span").remove();
     },
+
+    turnOnLoadingCheck() {
+      $("#btn-check")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Kiểm tra'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoadingCheck() {
+      $("#btn-check").removeClass("disabled");
+      $("#btn-check span").remove();
+    },
+
+    turnOnLoadingOTP() {
+      $("#btn-otp")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Chuyển tiền'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoadingOTP() {
+      $("#btn-otp").removeClass("disabled");
+      $("#btn-otp span").remove();
+    },
     transfers() {
       this.turnOnLoading();
       var data = {
@@ -313,19 +356,19 @@ export default {
         receivedBank: this.bankId,
         amount: this.amount,
         reason: this.reason,
-        payer: true
+        payer: true,
       };
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       axios
         .post("api/sendMoney", data, options)
-        .then(response => {
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.turnOffLoading();
             this.showModal = true;
             this.typeModal = "success";
@@ -337,7 +380,7 @@ export default {
             this.startTimer();
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("AXIOS ERROR: ", error);
           this.turnOffLoading();
           this.showModal = true;
@@ -354,38 +397,39 @@ export default {
         });
     },
 
-    sendOPT() {
-      this.turnOnLoading();
+    sendOTP() {
       var data = {
         transferId: this.transferId,
-        OTPCode: this.otpcode
+        OTPCode: this.otpcode,
       };
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
+      this.turnOnLoadingOTP();
+      this.loading = true;
       axios
         .post("api/confirm", data, options)
-        .then(response => {
+        .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data) {
-            if (response.data.status === 200) {
+            if (response.status == 200) {
               this.showModal = true;
               this.typeModal = "success";
               this.messageModal = "Khách hàng đã chuyển tiền thành công";
               this.titleModal = "Thao tác thành công";
+              this.turnOffLoadingOTP();
+              this.showTime = false;
+              this.loading = false;
+              this.showAddList = true;
             }
-            this.turnOffLoading();
-            // this.isShowingOPT = false;
-            // this.isShowingMoney = false;
-            this.showAddList = true;
-            // this.$router.push({ name: "Topup" });
           }
         })
-        .catch(error => {
-          this.turnOffLoading();
+        .catch((error) => {
+          this.turnOffLoadingOTP();
+          this.loading = false;
           this.showModal = true;
           this.typeModal = "danger";
           this.titleModal = "Thao tác thất bại";
@@ -403,17 +447,17 @@ export default {
 
     addToListReminder() {},
 
-    startTimer: function() {
+    startTimer: function () {
       this.timer = setInterval(() => this.countdown(), 1000);
       this.resetButton = true;
     },
-    padTime: function(time) {
+    padTime: function (time) {
       return (time < 10 ? "0" : "") + time;
     },
-    countdown: function() {
+    countdown: function () {
       this.totalTime--;
-    }
-  }
+    },
+  },
 };
 </script>
 

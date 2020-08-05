@@ -58,7 +58,6 @@
                     <th class="text-center">Số tiền nợ</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center">Ghi chú</th>
-                    <th class="text-center">Loại giao dịch</th>
                     <th class="text-center">Thời gian giao dịch</th>
                   </tr>
                 </thead>
@@ -66,10 +65,16 @@
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
                     <td class="pt-3-half">{{ item.sendId }}</td>
-                    <td class="pt-3-half">{{ item.sendId }}</td>
-                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.receivedId }}</td>
                     <td class="pt-3-half">{{ item.amount }}</td>
-                    <td class="pt-3-half">{{ item.isConfirm == 1 ? 'Thành công' : 'Chờ xác nhận' }}</td>
+                    <td class="pt-3-half">
+                       <mdb-badge
+                        color="success-color"
+                        pill
+                        class="pull-right"
+                      >Đã thanh toán</mdb-badge>
+                    </td>
+                    <td class="pt-3-half">{{ item.reason }}</td>
                     <td class="pt-3-half">{{ formatTime(item.created_at) }}</td>
                   </tr>
                 </tbody>
@@ -110,7 +115,7 @@
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl, mdbBadge } from "mdbvue";
 // import Popup from "./Popup"
 
 export default {
@@ -122,6 +127,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
+    mdbBadge
   },
 
   data() {

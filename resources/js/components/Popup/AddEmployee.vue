@@ -1,52 +1,57 @@
 <template>
-<Popup @close-modal="closeAll" title="Thêm mới nhân viên">
-  <section id="profile">
-    <mdb-row>
-      <mdb-col md="12">
-        <mdb-card cascade narrow>
-       
-          <mdb-card-body style="height:80vh;overflow: auto">
-            <form>
-              <label for="username" class="grey-text">Tên đăng nhập</label>
-              <input type="text" v-model="username" class="form-control" />
-              <br />
-              <label for="password" class="grey-text">Mật khẩu</label>
-              <input type="password" v-model="password" class="form-control" />
-              <br />
-              <label for="name" class="grey-text">Họ và tên</label>
-              <input type="text" v-model="name" class="form-control" />
-              <br />
-              <label for="phone" class="grey-text">Số điện thoại</label>
-              <input type="text" v-model="phone" class="form-control" />
-              <br />
-              <label for="email" class="grey-text">Địa chỉ email</label>
-              <input type="email" v-model="email" class="form-control" />
+  <Popup @close-modal="closeAll" title="Thêm mới nhân viên">
+    <section id="profile">
+      <mdb-row>
+        <mdb-col md="12">
+          <mdb-card cascade narrow>
+            <mdb-card-body style="height:80vh;overflow: auto">
+              <form>
+                <label for="username" class="grey-text">Tên đăng nhập</label>
+                <input type="text" v-model="username" class="form-control" />
+                <br />
+                <label for="password" class="grey-text">Mật khẩu</label>
+                <input type="password" v-model="password" class="form-control" />
+                <br />
+                <label for="name" class="grey-text">Họ và tên</label>
+                <input type="text" v-model="name" class="form-control" />
+                <br />
+                <label for="phone" class="grey-text">Số điện thoại</label>
+                <input type="text" v-model="phone" class="form-control" />
+                <br />
+                <label for="email" class="grey-text">Địa chỉ email</label>
+                <input type="email" v-model="email" class="form-control" />
 
-               <div class="text-center mt-4">
-                <button class="btn btn-unique" type="button" id="btn-one" @click="registerEmployee">Đăng kí</button>
-              </div>
-            </form>
-          </mdb-card-body>
-        </mdb-card>
-      </mdb-col>
-    </mdb-row>
-  </section>
-</Popup>
+                <div class="text-center mt-4">
+                  <button
+                    class="btn btn-unique"
+                    type="button"
+                    id="btn-one"
+                    :disabled="loading"
+                    @click="registerEmployee"
+                  ><i v-if="loading" class="fa fa-spinner fa-spin"></i>Đăng kí</button>
+                </div>
+              </form>
+            </mdb-card-body>
+          </mdb-card>
+        </mdb-col>
+      </mdb-row>
+    </section>
+  </Popup>
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from 'mdbvue'
-import Popup from "./Popup"
+import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import Popup from "./Popup";
 export default {
   name: "Profile",
- components: {
+  components: {
     mdbRow,
     mdbCol,
     mdbCard,
     mdbView,
     mdbCardBody,
     mdbTbl,
-    Popup
+    Popup,
   },
   data() {
     return {
@@ -54,17 +59,18 @@ export default {
       username: "",
       password: "",
       email: "",
-      phone: ""
+      phone: "",
+      loading: false,
     };
   },
   methods: {
     closeAll() {
       this.$emit("close-modal");
     },
-      turnOnLoading() {
+    turnOnLoading() {
       $("#btn-one")
         .html(
-          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Đăng kí'
         )
         .addClass("disabled");
     },
@@ -73,56 +79,56 @@ export default {
       $("#btn-one span").remove();
     },
     registerEmployee() {
-     this.turnOnLoading();
-    
+      this.turnOnLoading();
+      this.loading = true;
       var data = {
         username: this.username,
         password: this.password,
         name: this.name,
         email: this.email,
-        phone: this.phone
+        phone: this.phone,
       };
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "bearer" + this.$store.state.user.access_token
-        }
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
       };
       axios
         .post("api/bank/employees", data, options)
-        .then(response => {
-          this.turnOffLoading();
-          console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+        .then((response) => {
+          if (response.status == 200) {
             this.$toast.open({
               message: "Thêm mới nhân viên thành công",
-              type: "success"
+              type: "success",
             });
             this.$emit("close-modal");
+            this.turnOffLoading();
+            this.loading = false;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           this.turnOffLoading();
+          this.loading = false;
           console.log("AXIOS ERROR: ", error);
           if (error.response.data.error === "Parameter error") {
             return this.$toast.open({
               message: "Dữ liệu không hợp lệ vui lòng kiểm tra lại",
-              type: "error"
+              type: "error",
             });
           }
           if (error.response.data.error === "user exist") {
             return this.$toast.open({
               message: "Tài khoản khách hàng đã tồn tại",
-              type: "error"
+              type: "error",
             });
           }
           console.log(error.response.data);
           console.log(error.response.status);
           console.log(error.response.headers);
         });
-
-    }
-  }
+    },
+  },
 };
 </script>
 
