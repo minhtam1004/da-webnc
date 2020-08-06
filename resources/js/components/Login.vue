@@ -171,8 +171,9 @@ export default {
           password: this.password
         })
         .then(response => {
-          console.log(response);
+          console.log("aaa", response);
           this.$store.dispatch("setAccessToken", response.data.access_token);
+          this.$store.dispatch("setRefreshToken", response.data.refresh_token);
           this.loading = false;
           this.getUser();
           this.$toast.open({

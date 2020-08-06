@@ -18,14 +18,14 @@
 import Modal from "./components/Modal";
 export default {
   components: {
-    Modal
+    Modal,
   },
   data() {
     return {
       showModal: false,
       typeModal: "",
       titleModal: "",
-      messageModal: ""
+      messageModal: "",
     };
   },
   computed: {
@@ -39,7 +39,7 @@ export default {
       console.log("Do");
       console.log(this.$route);
       return this.$route;
-    }
+    },
   },
   // watch: {
   //   currentRoute() {
@@ -52,12 +52,13 @@ export default {
     this.redirectPage();
   },
   created() {
+    this.reloadUser();
     axios.interceptors.response.use(
-      function(response) {
+      function (response) {
         // Do something with response data
         return response;
       },
-      error => {
+      (error) => {
         console.log("app", error.response.data);
         if (error.response.data === "unauthorization") {
           this.$store.dispatch("logOut");
@@ -90,8 +91,38 @@ export default {
         console.log("Vo 2");
         this.$router.push({ name: "Login" });
       }
-    }
-  }
+    },
+    reloadUser() {
+      if (this.accessToken && this.$store.state.user.refresh_token) {
+        if (isExpiredToken(this.accessToken)) {
+          return this.$router.push({
+            name: "RefreshToken",
+            query: { redirect: this.$route.fullPath },
+          });
+        }
+        return this.loadUser(this.accessToken);
+      }
+    },
+    loadUser(accessToken) {
+      const { pathname, search } = { ...window.location };
+
+      axios
+        .get("api/auth/me", {
+          headers: {
+            Authorization: "bearer" + accessToken,
+          },
+        })
+        .then((response) => {
+          this.$store.dispatch("setUserObject", result);
+        })
+        .catch((error) => {
+          return this.$router.push({
+            name: "RefreshToken",
+            query: { redirect: pathname + search },
+          });
+        });
+    },
+  },
 };
 </script>
 <style scoped>

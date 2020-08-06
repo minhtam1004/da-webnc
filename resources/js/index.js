@@ -23,9 +23,10 @@ import DebtReminder from "./components/DebtReminder";
 import BankDetail from "./components/InterBank/BankDetail";
 import CreateDebt from "./components/CreateDebt";
 import DebtDetail from "./components/DebtDetail";
+import RefreshToken from "./components/401";
 export const routes = [
     { path: "/login", name: "Login", component: Login },
-    
+    { path: "/refresh", name: "RefreshToken", component: RefreshToken },
     {
         path: "",
         component: Container,
