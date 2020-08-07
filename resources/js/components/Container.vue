@@ -31,7 +31,7 @@
           
         </ul>
         <ul class="navbar-nav ml-auto nav-flex-icons">
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown" style="position:relative">
             <a
               class="nav-link dropdown-toggle"
               id="navbarDropdownMenuLink-333"
@@ -40,8 +40,9 @@
               aria-expanded="false"
             >
               <mdb-icon icon="bell" />
-              <div v-if="countNotify > 0" class="badge">{{ countNotify }}</div>
+              
             </a>
+            <div v-if="countNotify > 0" class="badge">{{ countNotify }}</div>
             <div
               class="dropdown-menu dropdown-menu-right dropdown-default notify"
               aria-labelledby="navbarDropdownMenuLink-333"
@@ -451,6 +452,8 @@ export default {
         .post("api/bank/users/me/notify/" + t, {}, options)
         .then((response) => {
           if (response.status == 200) {
+            console.log("gggg")
+            this.$store.dispatch("setRead", t);
             this.$router.push({ name: "DebtDetail", params: { id: r } });
           }
         })

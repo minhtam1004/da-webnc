@@ -27,7 +27,7 @@
                     class="btn btn-primary"
                     type="button"
                     :disabled="loading"
-                    id="btn-one"
+                    id="btn-payment"
                     @click="paymentDebt"
                   >
                     <i v-if="loading" class="fa fa-spinner fa-spin"></i>Xác nhận
@@ -109,15 +109,15 @@ export default {
       this.$emit("close-modal");
     },
     turnOnLoading() {
-      $("#btn-one")
+      $("#btn-payment")
         .html(
           '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Xác nhận'
         )
         .addClass("disabled");
     },
     turnOffLoading() {
-      $("#btn-one").removeClass("disabled");
-      $("#btn-one span").remove();
+      $("#btn-payment").removeClass("disabled");
+      $("#btn-payment span").remove();
     },
     paymentDebt() {
       this.turnOnLoading();
