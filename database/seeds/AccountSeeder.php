@@ -18,6 +18,7 @@ class AccountSeeder extends Seeder
                 'userId' => $i+3,
                 'accountNumber' =>  '123456789'.$i,
                 'excess' => ($i+1)*1000000,
+                'type' => 1
             ]);
         }
     }

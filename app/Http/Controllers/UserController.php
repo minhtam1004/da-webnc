@@ -168,12 +168,31 @@ class UserController extends Controller
             return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
-        $acc = $user->account;
+        $acc = $user->account[0];
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
         $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNull('debtId')->where('sendId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
         return $transfer;
+    }
+    public function showAccount($id, Request $request)
+    {
+        $request->limit = $request->limit ? $request->limit : 10;
+        $request->page = $request->page ? $request->page : 1;
+        $authUser = auth('api')->user();
+        if ($id === 'me') {
+            $id = $authUser->id;
+        }
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'user not exist'], 404);
+        }
+        if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
+        $acc = $user->account()->paginate($request->limit, ['accountNumber','type', 'excess'], 'page', $request->page);
+        if (!$acc) {
+            return response()->json(['error' => 'user not have account'], 404);
+        }
+        return $acc;
     }
     public function showDebtTransfer($id, Request $request)
     {
@@ -188,7 +207,7 @@ class UserController extends Controller
             return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
-        $acc = $user->account;
+        $acc = $user->account[0];
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
@@ -211,7 +230,7 @@ class UserController extends Controller
             return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
-        $acc = $user->account;
+        $acc = $user->account[0];
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }

@@ -58,6 +58,8 @@ Route::group([
     Route::get('/users/{id}/transfers', 'UserController@showTransfer');
     Route::get('/users/{id}/debt-transfers', 'UserController@showDebtTransfer');
     Route::get('/users/{id}/recharge-transfers', 'UserController@showRechargeTransfer');
+    Route::get('/users/{id}/accounts', 'UserController@showAccount');
+    Route::post('/users/{id}/accounts', 'AccountController@store');
     Route::get('/users/me/notify', 'UserController@showNotify');
     Route::post('/users/me/notify/{id}', 'UserController@readNotify');
     Route::post('/users/me/notify', 'UserController@readAllNotify');
@@ -67,7 +69,6 @@ Route::group([
     Route::put('/employees/{id}', 'UserController@employeeUpdate');
     Route::delete('/employees/{id}', 'UserController@employeeDestroy');
     Route::post('/transfers', 'TransferController@store');
-    //change
     Route::post('/transfers/{id}/confirm', 'TransferController@confirm')->middleware('logtransfer');
     Route::get('/transfers/{id}/refresh', 'TransferController@getOTP');
 });

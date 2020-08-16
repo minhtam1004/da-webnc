@@ -93,8 +93,9 @@ export default {
       }
     },
     reloadUser() {
-      if (this.accessToken && this.$store.state.user.refresh_token) {
-        if (isExpiredToken(this.accessToken)) {
+      console.log('as');
+      if (this.$store.state.user.accessToken && this.$store.state.user.refresh_token) {
+        if (isExpiredToken(this.$store.state.user.accessToken)) {
           return this.$router.push({
             name: "RefreshToken",
             query: { redirect: this.$route.fullPath },

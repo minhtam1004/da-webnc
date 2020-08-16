@@ -104,7 +104,8 @@ class BankController extends Controller
         }
         $trans->isConfirm = true;
         $trans->save();
-        $user = $trans->sender->user;
+        $acc = $trans->sender;
+        $user = User::find($acc->userId);
         $time = Carbon::now('Asia/Ho_Chi_Minh')->timestamp;
         $bank = $trans->ReceivedBank;
         $trans->amount = $trans->payer ? $trans->amount : $trans->amount - 10000;
@@ -128,7 +129,8 @@ class BankController extends Controller
                     ['amount' => $trans->amount, 'name' => $user->name, 'note' => $trans->reason]
                 );
             if ($response->status() === 200) {
-                $user->excess -= $trans->amount + 10000;
+                $acc->excess -= $trans->amount + 10000;
+                $acc->save();
                 return $response;
             }
             return $response;
@@ -239,7 +241,8 @@ class BankController extends Controller
             //         ['data' => [ 'moneyAmount' => $trans->amount, 'accNum' => $trans->receivedId]]
             //     );
             if ($httpCode === 200) {
-                $user->excess -= $trans->amount + 10000;
+                $acc->excess -= $trans->amount + 10000;
+                $acc->save();
                 return $response;
             }
             return response()->json($response,$httpCode);

@@ -8,7 +8,7 @@ class Account extends Model
 {
     protected $primaryKey = 'id';
     protected $fillable = [
-        'userId', 'accountNumber', 'excess',
+        'userId', 'accountNumber', 'excess', 'type'
     ];
     protected $hidden = [
         'created_at','updated_at'

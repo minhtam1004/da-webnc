@@ -56,7 +56,7 @@ class AuthController extends Controller
         }
         $credentials = $request->only('username', 'password');
         if ($token = auth('api')->attempt($credentials)) {
-            $refreshToken = auth('api')->setTTL(11)->attempt($credentials);
+            $refreshToken = auth('api')->setTTL(20160)->attempt($credentials);
             $user->refresh_token = $refreshToken;
             $user->save();
             return $this->respondWithToken($token,$refreshToken);
@@ -82,6 +82,7 @@ class AuthController extends Controller
             'name' => 'required|min:6|max:255',
             'email' => 'required|min:6|max:255',
             'phone' => 'required|digits:10',
+            'amount' => 'required|numeric|min:50000'
         ]);
 
         if ($validatedData->fails()) {
@@ -98,7 +99,7 @@ class AuthController extends Controller
         while (Account::where('accountNumber', $rand)->first()) {
             $rand = ($rand + 200) % 10000000000;
         }
-        $data = ['userId' => $user->id, 'accountNumber' => $rand, 'excess' => 0];
+        $data = ['userId' => $user->id, 'accountNumber' => $rand, 'excess' => $request->amount, 'type' => 1];
         $acc = Account::create($data);
         $user->account = $acc;
         return response()->json($user);
@@ -111,7 +112,6 @@ class AuthController extends Controller
     public function me()
     {
         $user = auth('api')->user();
-        $user->account;
         $user->permission = $user->role->name;
         return response()->json($user,200);
     }
