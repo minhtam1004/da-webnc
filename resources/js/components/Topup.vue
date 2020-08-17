@@ -101,7 +101,9 @@
                   <button
                     class="btn btn-unique"
                     @click="sendOPT"
+                    :disabled="loading"
                     type="button"
+                    id="btn-otp"
                     v-if="showTime"
                   >Chuyển tiền</button>
                   <button
@@ -115,7 +117,8 @@
                   <button
                     class="btn btn-unique"
                     type="button"
-                    @click="$router.push({ name: 'Dashboard'})"
+                    id="btn-back"
+                    @click="$router.push({ name: 'Profile'})"
                   >
                     <i class="fas fa-arrow-circle-left pr-2"></i>Thực hiện giao dịch khác
                   </button>
@@ -294,6 +297,17 @@ export default {
       $("#btn-one").removeClass("disabled");
       $("#btn-one span").remove();
     },
+     turnOnLoadingOTP() {
+      $("#btn-otp")
+        .html(
+          '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Chuyển tiền'
+        )
+        .addClass("disabled");
+    },
+    turnOffLoadingOTP() {
+      $("#btn-otp").removeClass("disabled");
+      $("#btn-otp span").remove();
+    },
     turnOnLoadingBtnCheck() {
       $("#btn-check")
         .html(
@@ -325,11 +339,15 @@ export default {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.status == 201) {
             this.turnOffLoading();
-            this.showModal = true;
-            this.typeModal = "success";
-            this.messageModal =
-              "Khách hàng vui lòng kiểm tra mail và nhập mã OTP";
-            this.titleModal = "Thao tác thành công";
+            // this.showModal = true;
+            // this.typeModal = "success";
+            // this.messageModal =
+            //   "Khách hàng vui lòng kiểm tra mail và nhập mã OTP";
+            // this.titleModal = "Thao tác thành công";
+             this.$toast.open({
+              message: "Khách hàng vui lòng kiểm tra mail và nhập mã OTP",
+              type: "success",
+            });
             this.transferId = response.data.transferId;
             this.isShowingOPT = true;
             this.startTimer();
@@ -353,7 +371,7 @@ export default {
     },
 
     sendOPT() {
-      this.turnOnLoading();
+      this.turnOnLoadingOTP();
       var data = {
         // transferId: this.transferId,
         OTPCode: this.otpcode,
@@ -375,19 +393,19 @@ export default {
         .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.status == 200) {
-            if (response.data === "success") {
+            if (response.data.message === "success") {
               this.showModal = true;
               this.typeModal = "success";
               this.messageModal = "Khách hàng đã chuyển tiền thành công";
               this.titleModal = "Thao tác thành công";
+              this.turnOffLoadingOTP();
+              this.showAddList = true;
+              
             }
-            this.turnOffLoading();
-            this.showTime = false;
-            this.showAddList = true;
           }
         })
         .catch((error) => {
-          this.turnOffLoading();
+          this.turnOffLoadingOTP();
           this.showModal = true;
           this.typeModal = "danger";
           this.titleModal = "Thao tác thất bại";

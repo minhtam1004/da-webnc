@@ -64,6 +64,7 @@ export default {
           this.$store.dispatch("logOut");
           localStorage.removeItem(this.$store.state.user.authUser);
           localStorage.removeItem(this.$store.state.user.access_token);
+          console.log("A", this.$router)
           this.$router.push({ name: "Login" });
           return;
         }
@@ -89,6 +90,7 @@ export default {
         (this.roleId && this.roleId > this.$route.meta.role)
       ) {
         console.log("Vo 2");
+        console.log("B", this.$router)
         this.$router.push({ name: "Login" });
       }
     },
