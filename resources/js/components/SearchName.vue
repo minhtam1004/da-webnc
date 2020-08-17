@@ -44,6 +44,7 @@
                   <button
                     style="margin-left:1vmin!important"
                     type="button"
+                    @click="deleteReminder(result)"
                     class="btn btn-danger px-4"
                   >
                     <i class="fas fa-times-circle" aria-hidden="true"></i>
@@ -56,7 +57,13 @@
         <div class="modal-footer d-flex justify-content-center">
           <button class="btn btn-default" type="button" @click="checkCustomerInfo()">Xác nhận</button>
         </div>
-        <UpdateReminder :name="nameReminder" :id="idReminder" v-if="showAddReminder" @close-modal="showAddReminder = false" />
+        <UpdateReminder
+          :name="nameReminder"
+          :id="idReminder"
+          v-if="showAddReminder"
+          @close-modal="showAddReminder = false"
+          @update-success="closeModal"
+        />
       </div>
     </div>
   </div>
@@ -77,7 +84,7 @@ export default {
     message: {
       tyle: String,
       default: "",
-    }
+    },
   },
   components: {
     Autocomplete,
@@ -106,6 +113,37 @@ export default {
     closeModal() {
       this.$emit("close-modal", false);
     },
+    deleteReminder(t) {
+      console.log("&&&", t);
+      const index = this.reminder.findIndex((u) => u.name == t);
+      var idReminder;
+      if (index >= 0) {
+        idReminder = this.reminder[index].id;
+      }
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "bearer" + this.$store.state.user.access_token,
+        },
+      };
+
+      axios
+        .delete("api/remembers/" + idReminder, options)
+        .then((response) => {
+          console.log("====", response);
+          this.$toast.open({
+            message: "Xóa thành công",
+            type: "success",
+          });
+          this.getReminderList(1, 10);
+        })
+        .catch((error) => {
+          this.$toast.open({
+            message: "Có lỗi xảy ra",
+            type: "error",
+          });
+        });
+    },
     update(t) {
       const index = this.reminder.findIndex((u) => u.name == t);
       if (index >= 0) {
@@ -113,6 +151,9 @@ export default {
         this.nameReminder = this.reminder[index].name;
         this.idReminder = this.reminder[index].id;
       }
+    },
+    updateSuccess() {
+     this.$emit("update-success");
     },
     getReminderList(page, limit) {
       const options = {

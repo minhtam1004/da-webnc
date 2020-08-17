@@ -40,6 +40,7 @@
                 v-if="showSearchName"
                 @close-modal="showSearchName = false"
                 @user-reminder="getReminder"
+                @update-success="getReminder"
               />
             </form>
 

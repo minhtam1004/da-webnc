@@ -128,17 +128,18 @@ export default {
       };
       axios
         // api/remembers/{id}
-        .put("api/bank/remembers/" + this.id, data, options)
+        .put("api/remembers/" + this.id, data, options)
         .then((response) => {
           console.log("**** ", response);
           if (response.data !== null) {
             this.turnOffLoading();
             this.$toast.open({
-              message: "Đã thêm vào danh sách gợi nhớ",
+              message: "Đã chỉnh sửa thành công",
               type: "success",
             });
 
             this.$emit("close-modal");
+            this.$emit("update-success");
           }
         })
         .catch((error) => {
