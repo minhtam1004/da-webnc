@@ -111,18 +111,18 @@ class TransferController extends Controller
         if (!$transfer || $transfer->isConfirm) {
             return response()->json('confirm error', 422);
         }
-        if ($transfer->sendId !== auth('api')->user()->account->accountNumber) {
-            return response()->json('do not have permission', 403);
+        $acc1 = Account::where('accountNumber',$transfer->sendId)->first();
+        if ($acc1->userId !== auth('api')->user()->id) {
+            return response()->json(['error'=>'do not have permission'], 403);
         }
         if ($transfer->OTPCode !== $request->OTPCode) {
-            return response()->json('wrong code', 403);
+            return response()->json(['error'=>'wrong code'], 422);
         }
         if (Carbon::parse($transfer->expiresAt, 'Asia/Ho_Chi_Minh')->timestamp < Carbon::now('Asia/Ho_Chi_Minh')->timestamp) {
-            return response()->json('code is expires', 403);
+            return response()->json(['error' => 'code is expires'], 422);
         }
         $transfer->isConfirm = true;
         $transfer->save();
-        $acc1 = Account::find($transfer->sender->id);
         $acc1->excess -= $transfer->amount + 3000;
         $acc1->save();
         $acc = Account::find($transfer->receiver->id);
@@ -149,7 +149,8 @@ class TransferController extends Controller
             return response()->json('transfer is confirm', 422);
         }
         $user = auth('api')->user();
-        if ($transfer->sendId !== $user->account->accountNumber) {
+        $acc = Account::where('accountNumber',$transfer->sendId)->first();
+        if ($acc->user->id !== $user->id) {
             return response()->json('do not have permission', 403);
         }
         $OTPCode = rand(0, 999999);
@@ -158,7 +159,7 @@ class TransferController extends Controller
         $transfer->expiresAt = time() + 60;
         $transfer->save();
         Mail::to($user->email)->send(new OTPMail($OTPString));
-        return response()->json(['message' => 'OTP is refresh', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $transfer->sender->user->email], 201);
+        return response()->json(['message' => 'OTP is refresh', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $user->email], 201);
     }
     /**
      * Display the specified resource.

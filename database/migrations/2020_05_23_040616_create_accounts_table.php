@@ -18,6 +18,8 @@ class CreateAccountsTable extends Migration
             $table->foreignId('userId');
             $table->string('accountNumber',10)->unique();
             $table->bigInteger('excess');
+            $table->integer('type')->default(2);
+            
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\Transfer;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -35,9 +36,31 @@ class AccountController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store($id ,Request $request)
     {
-        //
+        $validatedData = Validator::make($request->all(), [
+            'amount' => 'required|numeric|min:50000',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => 'Parameter error'], 422);
+        }
+        $user = User::find($id);
+        $authUser = auth('api')->user();
+        if(!$user)
+        {
+            return response()->json(['error'=>'user does not exist'],404);
+        }
+        if($authUser->roleId > 2 || $authUser->roleId > $user->roleId )
+        {
+            return response()->json(['error'>'do not have permission'],403);
+        }
+        $rand = $id + 1134567890;
+        while (Account::where('accountNumber', $rand)->first()) {
+            $rand = ($rand + 200) % 10000000000;
+        }
+        $data = ['userId' => $id, 'accountNumber' => $rand, 'excess' => $request->amount];
+        $acc = Account::create($data);
+        return response()->json($acc);
     }
 
     /**
@@ -51,7 +74,11 @@ class AccountController extends Controller
         $account = Account::where('accountNumber',$id)->first();
         if(!$account) return response()->json(['error' => 'account doest exist'],404);
         $user = $account->user;
-        return  response()->json(['name'=> $user->name, 'email' => $user->email],200);
+        if(!auth('api')->check())
+        {
+            return response()->json(['name'=> $user->name, 'email' => $user->email],200);
+        }
+        return response()->json($account);
     }
     public function recharge($id, Request $request)
     {
