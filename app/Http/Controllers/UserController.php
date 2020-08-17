@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\User as UserResource;
 use App\Transfer;
+use DateTime;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -17,6 +18,9 @@ class UserController extends Controller
      */
     public function index()
     {
+        if(auth('api')->user()->roleId != 1) {
+            return response()->json(['error'=>'do not have permission'],403);
+        }
         return User::all();
     }
     public function employeeIndex(Request $request)
@@ -168,11 +172,17 @@ class UserController extends Controller
             return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
-        $acc = $user->account[0];
+        $acc = $user->account()->first();
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
-        $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNull('debtId')->where('sendId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
+        if($authUser->roleId === 3) {
+            $day = (new DateTime())->modify('-30 day')->format('Y-m-d');
+            $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNull('debtId')->where('sendId',$acc->accountNumber)->whereDate('created_at', '>=', $day)->paginate($request->limit, ['*'], 'page', $request->page);
+        }
+        else {
+            $transfer = Transfer::with(['sendBank:id,name','ReceivedBank:id,name'])->where('isConfirm', true)->whereNull('debtId')->where('sendId',$acc->accountNumber)->paginate($request->limit, ['*'], 'page', $request->page);
+        }
         return $transfer;
     }
     public function showAccount($id, Request $request)
@@ -207,7 +217,7 @@ class UserController extends Controller
             return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
-        $acc = $user->account[0];
+        $acc = $user->account()->first();
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }
@@ -230,7 +240,7 @@ class UserController extends Controller
             return response()->json(['error' => 'user not exist'], 404);
         }
         if ($authUser->roleId >= $user->roleId && $authUser->id !== $user->id) return response()->json(['error' => 'do not have permission'], 403);
-        $acc = $user->account[0];
+        $acc = $user->account()->first();
         if (!$acc) {
             return response()->json(['error' => 'user not have account'], 404);
         }

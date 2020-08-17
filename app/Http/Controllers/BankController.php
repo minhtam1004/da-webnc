@@ -65,7 +65,7 @@ class BankController extends Controller
         $request->merge(['OTPCode' => $OTPString]);
         $request->merge(['expiresAt' => time() + 60]);
         $request->merge(['creator' => $user->id]);
-        Mail::to($email)->send(new OTPMail($OTPString));
+        Mail::to($email)->send(new OTPMail($OTPString, $request->sendId, $user->name));
         $transfer = Transfer::updateOrCreate(['sendId'=>$request->sendId,'isConfirm' =>false],$request->all());
         //$transfer = Transfer::where('sendId', $request->sendId)->where('isConfirm', false)->first();
         // if ($transfer) {

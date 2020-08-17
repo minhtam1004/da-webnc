@@ -78,7 +78,7 @@ class TransferController extends Controller
                 return response()->json(['error' => 'do not have permission'], 403);
             }
             $email = $user->email;
-            Mail::to($email)->send(new OTPMail($OTPString));
+            Mail::to($email)->send(new OTPMail($OTPString,$request->sendId,$user->name ));
             $transfer = Transfer::updateOrCreate(['sendId' => $acc->accountNumber,'isConfirm' => false],[
                 'sendBank' => $request->sendBank,
                 'receivedId' => $request->receivedId,
@@ -158,7 +158,7 @@ class TransferController extends Controller
         $transfer->OTPCode = $OTPString;
         $transfer->expiresAt = time() + 60;
         $transfer->save();
-        Mail::to($user->email)->send(new OTPMail($OTPString));
+        Mail::to($user->email)->send(new OTPMail($OTPString, $transfer->sendId,$user->name));
         return response()->json(['message' => 'OTP is refresh', 'transferId' => $transfer->id, 'OTPCode' => 'send to ' . $user->email], 201);
     }
     /**

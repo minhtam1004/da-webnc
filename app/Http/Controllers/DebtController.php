@@ -41,12 +41,16 @@ class DebtController extends Controller
         })){
             return response()->json(['error' => 'status not include'], 422);
         };
+        $user = auth('api')->user();
+        $acc = $user->account()->first();
+        if(!$acc)
+        {
+            return response()->json(['error'=>'user do not have account'],404);
+        }
         $request->status = $request->status && $request->status[0] ? $request->status : $status;
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
         $request->status = $request->status ? $request->status : [];
-        $user = auth('api')->user();
-        $acc = $user->account[0];
         $debt = $acc->owndebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);
         return response()->json($debt, 200);
     }
@@ -66,10 +70,16 @@ class DebtController extends Controller
         })){
             return response()->json(['error' => 'status not include'], 422);
         };
+        $user = auth('api')->user();
+        $acc = $user->account()->first();
+        if(!$acc)
+        {
+            return response()->json(['error'=>'user do not have account'],404);
+        }
         $request->status = $request->status ? $request->status : $status;
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
-        $debt = auth('api')->user()->account[0]->otherdebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);;
+        $debt = $acc->otherdebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);;
         return response()->json($debt, 200);
     }
 
@@ -87,7 +97,7 @@ class DebtController extends Controller
         if (!$acc) {
             return response()->json(['error' => 'account not exist'], 404);
         }
-        $acc1 = auth('api')->user()->account[0];
+        $acc1 = auth('api')->user()->account()->first();
         if (!$acc1) {
             return response()->json(['error' => 'do not have account'], 404);
         }
@@ -156,7 +166,11 @@ class DebtController extends Controller
             return response()->json(['error' => 'debt is not exist'], 404);
         }
         $user = auth('api')->user();
-        $acc = $user->account[0];
+        $acc = $user->account()->first();
+        if(!$acc)
+        {
+            return response()->json(['error' => 'user do not have account'], 403);
+        }
         if($acc->accountNumber != $debt->otherId)
         {
             return response()->json(['error' => 'do not have permission'], 403);
@@ -165,7 +179,7 @@ class DebtController extends Controller
         $OTPString = str_repeat(0, 5 - floor(log10($OTPCode))) . strval($OTPCode);
         if ($acc->excess < $debt->debt) return response(['error' => 'not enoungh money'], 422);
         $email = $user->email;
-        Mail::to($email)->send(new OTPMail($OTPString));
+        Mail::to($email)->send(new OTPMail($OTPString,$acc->accountNumber,$user->name));
         $transfer = Transfer::updateOrCreate(['sendId' => $acc->accountNumber,'isConfirm' => false],[
             'sendBank' => false,
             'receivedId' => $debt->ownerId,
