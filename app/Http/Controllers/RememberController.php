@@ -64,7 +64,7 @@ class RememberController extends Controller
     public function update($id,Request $request)
     {
         $validatedData = Validator::make($request->all(), [
-            'name' => 'required|max:255',
+            'name' => 'max:255',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
