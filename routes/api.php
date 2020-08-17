@@ -34,8 +34,10 @@ Route::group([
     'middleware' => 'auth',
     'prefix' => 'remembers'
 ], function ($router) {
-    Route::post('add', 'RememberController@store');
+    Route::post('', 'RememberController@store');
     Route::post('search', 'RememberController@show');
+    Route::put('/{id}', 'RememberController@update');
+    Route::delete('/{id}', 'RememberController@destroy');
 });
 Route::group([
     'middleware' => 'auth',
