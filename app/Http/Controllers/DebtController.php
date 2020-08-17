@@ -46,7 +46,7 @@ class DebtController extends Controller
         $request->page = $request->page ? $request->page : 1;
         $request->status = $request->status ? $request->status : [];
         $user = auth('api')->user();
-        $acc = $user->account;
+        $acc = $user->account[0];
         $debt = $acc->owndebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);
         return response()->json($debt, 200);
     }
@@ -69,7 +69,7 @@ class DebtController extends Controller
         $request->status = $request->status ? $request->status : $status;
         $request->limit = $request->limit ? $request->limit : 10;
         $request->page = $request->page ? $request->page : 1;
-        $debt = auth('api')->user()->account->otherdebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);;
+        $debt = auth('api')->user()->account[0]->otherdebts()->whereIn('status', $request->status)->paginate($request->limit, ['*'], 'page', $request->page);;
         return response()->json($debt, 200);
     }
 
@@ -87,7 +87,7 @@ class DebtController extends Controller
         if (!$acc) {
             return response()->json(['error' => 'account not exist'], 404);
         }
-        $acc1 = auth('api')->user()->account;
+        $acc1 = auth('api')->user()->account[0];
         if (!$acc1) {
             return response()->json(['error' => 'do not have account'], 404);
         }
@@ -127,17 +127,17 @@ class DebtController extends Controller
         if (!$debt) {
             return response()->json(['error' => 'debt is not exist'], 404);
         }
-        $user = auth()->user();
+        $user = auth('api')->user();
         $owner = $debt->owner->user;
         $other = $debt->other->user;
         $data = null;
         if ($user->id === $owner->id) {
-            $acc = $owner->account;
+            $acc = $owner->account[0];
             $data = ['debtType'=>'deleted', 'user' => $user,'account' => ['id'=>$acc->id,'accountNumber'=>$acc->accountNumber], 'deleteNote' => $request->note,'debtId' => $debt->id];
             $other->notify(new DebtNotification($data));
         }
         if ($user->id === $other->id) {
-            $acc = $other->account;
+            $acc = $other->account[0];
             $data = ['debtType'=>'deleted','user' => $user,'account' => ['id'=>$acc->id,'accountNumber'=>$acc->accountNumber], 'deleteNote' => $request->note,'debtId' => $debt->id];
             $owner->notify(new DebtNotification($data));
         }
@@ -156,7 +156,7 @@ class DebtController extends Controller
             return response()->json(['error' => 'debt is not exist'], 404);
         }
         $user = auth('api')->user();
-        $acc = $user->account;
+        $acc = $user->account[0];
         if($acc->accountNumber != $debt->otherId)
         {
             return response()->json(['error' => 'do not have permission'], 403);
