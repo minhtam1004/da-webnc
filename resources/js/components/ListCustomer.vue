@@ -101,7 +101,7 @@
                   </li>
                   <li class="page-item active" id="page2">
                     <a class="page-link user-select">
-                      {{ pagination.current_page }}
+                      {{ pagination.current_page || 1 }}
                       <span class="sr-only"></span>
                     </a>
                   </li>

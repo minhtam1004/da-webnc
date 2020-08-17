@@ -12,7 +12,7 @@
               <input
                 v-if="data.account"
                 type="text"
-                v-model="data.account.accountNumber"
+                v-model="data.account[0].accountNumber"
                 class="form-control"
                 readonly
               />
@@ -178,7 +178,7 @@ export default {
       };
       axios
         .post(
-          "api/bank/accounts/" + this.data.account.accountNumber + "/recharge",
+          "api/bank/accounts/" + this.data.account[0].accountNumber + "/recharge",
           data,
           options
         )

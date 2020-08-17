@@ -74,7 +74,7 @@
                   <tr>
                     <th class="text-center">Mã nhắc nợ</th>
                     <th class="text-center">STK người nhắc nợ</th>
-                    <th class="text-center">Số tiền nợ</th>
+                    <th class="text-center">Số tiền nợ (VNĐ)</th>
                     <th class="text-center">Nội dung</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center" style="width: 12vmin;">Thời gian nhắc nợ</th>
@@ -139,7 +139,7 @@
                   </li>
                   <li class="page-item active" id="page2">
                     <a class="page-link user-select">
-                      {{ pagination.current_page }}
+                      {{ pagination.current_page || 1 }}
                       <span class="sr-only"></span>
                     </a>
                   </li>

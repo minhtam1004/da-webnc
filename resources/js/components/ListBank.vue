@@ -70,7 +70,7 @@
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.name == 'nhom19' ? 'Ngân hàng nhóm 19' : 'Ngân hàng nhóm 5' }}</td>
+                    <td class="pt-3-half">{{ item.name == 'nhom19' ? 'Ngân hàng nhóm 34 (PGP)' : 'Ngân hàng nhóm 5 (RSA)' }}</td>
                     <td>
                       <span class="table-remove">
                         <button

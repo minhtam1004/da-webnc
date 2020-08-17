@@ -6,15 +6,6 @@
             
             <mdb-card-body style="height:80vh;overflow: auto">
               <form>
-                <label for="username" class="grey-text">Tên đăng nhập</label>
-                <input type="text" v-model="data.username" class="form-control" readonly />
-                <br />
-                <label for="accountNumber" class="grey-text">Số tài khoản</label>
-                <input v-if="data.account" type="text" v-model="data.account.accountNumber" class="form-control" readonly />
-                <br />
-                <label for="excess" class="grey-text">Số dư</label>
-                <input v-if="data.account" type="text" v-model="data.account.excess" class="form-control" readonly />
-                <br />
                 <label for="password" class="grey-text">Tên khách hàng</label>
                 <input type="text" v-model="data.name" class="form-control" readonly />
                 <br />

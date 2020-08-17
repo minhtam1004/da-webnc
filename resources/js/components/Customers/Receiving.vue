@@ -55,7 +55,7 @@
                     <th class="text-center">Mã giao dịch</th>
                     <th class="text-center">Số tài khoản gửi</th>
                     <th class="text-center">Tên ngân hàng</th>
-                    <th class="text-center">Số tiền</th>
+                    <th class="text-center">Số tiền (VNĐ)</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center">Thời gian giao dịch</th>
                   </tr>
@@ -89,7 +89,7 @@
                   </li>
                   <li class="page-item active" id="page2">
                     <a class="page-link user-select">
-                      {{ pagination.current_page }}
+                      {{ pagination.current_page || 1 }}
                       <span class="sr-only"></span>
                     </a>
                   </li>
