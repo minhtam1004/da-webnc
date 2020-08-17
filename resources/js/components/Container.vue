@@ -217,8 +217,7 @@
         </router-link>
         <router-link to="/account-info" @click.native="activeItem = 3" v-if="permission == 'user'">
           <mdb-list-group-item :action="true" :class="activeItem === 3 && 'active'">
-            <mdb-icon icon="user-md" class="mr-3" />Thông tin tài
-            khoản
+            <mdb-icon icon="user-md" class="mr-3" />Danh sách tài khoản
           </mdb-list-group-item>
         </router-link>
         <router-link to="/transfers" @click.native="activeItem = 4" v-if="permission == 'user'">
@@ -291,11 +290,11 @@
             khoản
           </mdb-list-group-item>
         </router-link>
-        <router-link to="/404" @click.native="activeItem = 13">
+        <!-- <router-link to="/404" @click.native="activeItem = 13">
           <mdb-list-group-item :action="true" :class="activeItem === 13 && 'active'">
             <mdb-icon icon="exclamation" class="mr-3" />404
           </mdb-list-group-item>
-        </router-link>
+        </router-link> -->
       </mdb-list-group>
     </div>
     <!-- /Sidebar  -->

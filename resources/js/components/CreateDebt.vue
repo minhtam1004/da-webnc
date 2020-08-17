@@ -31,6 +31,7 @@
                   data-toggle="modal"
                   data-target="#centralModalSuccess"
                   type="button"
+                  id="btn-one"
                   @click="checkAccountInfo"
                 >Kiểm tra</button>
               </div>
@@ -180,7 +181,7 @@ export default {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.data !== null) {
             this.isShowingMoney = true;
-            this.name = response.data.name;
+            this.name = response.data.user.name;
             this.showModal = true;
             this.typeModal = "success";
             this.messageModal = "Số tài khoản hợp lệ";

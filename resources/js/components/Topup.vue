@@ -48,7 +48,7 @@
               <input type="text" v-model="accountNumber" readonly class="form-control" />
               <br />
 
-              <label for="accountnumber" class="grey-text">Tên chủ tài khoản</label>
+              <label for="name" class="grey-text">Tên chủ tài khoản</label>
               <input type="text" v-model="name" class="form-control" readonly />
               <br />
 
@@ -103,7 +103,6 @@
                     @click="sendOPT"
                     :disabled="loading"
                     type="button"
-                    id="btn-otp"
                     v-if="showTime"
                   >Chuyển tiền</button>
                   <button
@@ -208,6 +207,7 @@ export default {
       return this.padTime(this.totalTime - this.minutes * 60);
     },
     accountNum: function () {
+      console.log("âsdaad", this.$store.state.transfer.accountNumber);
       return this.$store.state.transfer.accountNumber;
     },
   },
@@ -255,7 +255,7 @@ export default {
           console.log("RESPONSE RECEIVED: ", response);
           if (response.status == 200) {
             this.isShowingMoney = true;
-            this.name = response.data.name;
+            this.name = response.data.user.name;
             this.showModal = true;
             this.typeModal = "success";
             this.messageModal = "Số tài khoản hợp lệ";
@@ -297,7 +297,7 @@ export default {
       $("#btn-one").removeClass("disabled");
       $("#btn-one span").remove();
     },
-     turnOnLoadingOTP() {
+    turnOnLoadingOTP() {
       $("#btn-otp")
         .html(
           '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Chuyển tiền'
@@ -344,7 +344,7 @@ export default {
             // this.messageModal =
             //   "Khách hàng vui lòng kiểm tra mail và nhập mã OTP";
             // this.titleModal = "Thao tác thành công";
-             this.$toast.open({
+            this.$toast.open({
               message: "Khách hàng vui lòng kiểm tra mail và nhập mã OTP",
               type: "success",
             });
@@ -391,17 +391,14 @@ export default {
           options
         )
         .then((response) => {
-          console.log("RESPONSE RECEIVED: ", response);
+          console.log("chuyen: ", response);
           if (response.status == 200) {
-            if (response.data.message === "success") {
-              this.showModal = true;
-              this.typeModal = "success";
-              this.messageModal = "Khách hàng đã chuyển tiền thành công";
-              this.titleModal = "Thao tác thành công";
-              this.turnOffLoadingOTP();
-              this.showAddList = true;
-              
-            }
+            this.showModal = true;
+            this.typeModal = "success";
+            this.messageModal = "Khách hàng đã chuyển tiền thành công";
+            this.titleModal = "Thao tác thành công";
+            this.turnOffLoadingOTP();
+            this.showAddList = true;
           }
         })
         .catch((error) => {

@@ -17,9 +17,21 @@
                   role="tab"
                   aria-controls="pills-home"
                   aria-selected="true"
-                >Thông tin cá nhân và tài khoản</a>
+                >Thông tin cá nhân</a>
               </li>
-             
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="pills-account-list-tab"
+                  data-toggle="pill"
+                  href="#pills-account-list"
+                  role="tab"
+                  aria-controls="pills-account-list"
+                  aria-selected="false"
+                >Danh sách tài khoản</a>
+              </li>
+
+            
               <li class="nav-item">
                 <a
                   class="nav-link"
@@ -74,19 +86,32 @@
               >
                 <PersonalInfo />
               </div>
-               <div
+             
+
+              <div
+                class="tab-pane fade"
+                id="pills-account-list"
+                role="tabpanel"
+                aria-labelledby="pills-account-list-tab"
+              >
+                <AccountList />
+              </div>
+
+              <div
                 class="tab-pane fade"
                 id="pills-transfer"
                 role="tabpanel"
                 aria-labelledby="pills-transfer-tab"
-              ><Transfer />
+              >
+                <Transfer />
               </div>
               <div
                 class="tab-pane fade"
                 id="pills-receive-money"
                 role="tabpanel"
                 aria-labelledby="pills-receive-money-tab"
-              ><ReceivingMoney />
+              >
+                <ReceivingMoney />
               </div>
               <div
                 class="tab-pane fade"
@@ -94,16 +119,16 @@
                 role="tabpanel"
                 aria-labelledby="pills-profile-tab"
               >
-              <ListTransfer />
+                <ListTransfer />
               </div>
 
-               <div
+              <div
                 class="tab-pane fade"
                 id="pills-contact"
                 role="tabpanel"
                 aria-labelledby="pills-contact-tab"
               >
-              <DebtPayment />
+                <DebtPayment />
               </div>
             </div>
           </mdb-card-body>
@@ -120,6 +145,7 @@ import ReceivingMoney from "./Receiving";
 import Transfer from "./Transfer";
 import DebtPayment from "./DebtPayment";
 import ListTransfer from "./ListTransfer";
+import AccountList from "./AccountList";
 export default {
   name: "Tables",
   components: {
@@ -133,11 +159,12 @@ export default {
     ReceivingMoney,
     Transfer,
     ListTransfer,
-    DebtPayment
+    DebtPayment,
+    AccountList
   },
   data() {
     return {};
-  }
+  },
 };
 </script>
 
