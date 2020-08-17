@@ -34,7 +34,7 @@
                 <div class="wiki-title">
                   {{ result }}
                   <button
-                    style="margin-left:28vmin!important"
+                    style="margin-left:23vmin!important"
                     type="button"
                     class="btn btn-primary px-4"
                     @click="update(result)"
@@ -42,7 +42,7 @@
                     <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                   </button>
                   <button
-                    style="margin-left:1vmin!important"
+                    style="margin-left:0.5vmin!important"
                     type="button"
                     @click="deleteReminder(result)"
                     class="btn btn-danger px-4"
@@ -136,6 +136,7 @@ export default {
             type: "success",
           });
           this.getReminderList(1, 10);
+          this.search("");
         })
         .catch((error) => {
           this.$toast.open({
@@ -168,9 +169,12 @@ export default {
           console.log("RESPONSE RECEIVED: ", response);
 
           this.reminder = response.data.data;
-          for (const idx in response.data.data) {
-            this.users.push(response.data.data[idx].name);
-          }
+          // for (const idx in response.data.data) {
+          //   this.users.push(response.data.data[idx].name);
+          // }
+          this.reminder.forEach(d => {
+            this.users.push(d.name);
+          });
           this.lastPage = response.data.last_page;
         })
         .catch((error) => {
