@@ -11,14 +11,18 @@ class OTPMail extends Mailable
 {
     use Queueable, SerializesModels;
     public $OTPCode;
+    public $accountNumber;
+    public $name;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($OTPCode)
+    public function __construct($OTPCode,$accountNumber,$name)
     {
         $this->OTPCode = $OTPCode;
+        $this->accountNumber = $accountNumber;
+        $this->name = $name;
     }
 
     /**

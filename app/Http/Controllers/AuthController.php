@@ -161,7 +161,7 @@ class AuthController extends Controller
         $email = $user->email;
         $PasswordReset = PasswordReset::updateOrCreate(['email' => $email], ['token' => $OTPString]);
         if ($PasswordReset) {
-            Mail::to($email)->send(new ResetPasswordMail($OTPString));
+            Mail::to($email)->send(new ResetPasswordMail($OTPString,$email));
         }
         return response()->json(['message' => 'send OTPCode to ' . $email, 'email' => $email, 'username' => $user->username], 200);
     }
