@@ -47,6 +47,15 @@ class UserSeeder extends Seeder
                 'email' => 'email'.$i.'@gmail.com',
                 'phone' => '123123123',
             ]);
-        }        
+        };
+        DB::table('users')->insert([
+            'username' => 'user9',
+            'password' =>  bcrypt('123456'),
+            'name' => 'test1',
+            'email' => 'charatsu98@gmail.com',
+            'phone' => '123123123',
+            'roleId'=> 3,
+        ]);
+        
     }
 }
