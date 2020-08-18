@@ -106,6 +106,7 @@ export default {
         name: this.name,
         email: this.email,
         phone: this.phone,
+        amount: 50000
       };
       const options = {
         headers: {

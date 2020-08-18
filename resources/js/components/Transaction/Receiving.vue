@@ -53,10 +53,10 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã giao dịch</th>
-                    <th class="text-center">Số tài khoản nhận</th>
-                    <th class="text-center">Tên chủ tài khoản</th>
+                    <th class="text-center">Số tài khoản gửi</th>
                     <th class="text-center">Tên ngân hàng</th>
                     <th class="text-center">Số tiền (VNĐ)</th>
+                    <th class="text-center">Ghi chú</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center">Thời gian giao dịch</th>
                   </tr>
@@ -64,11 +64,19 @@
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
-                    <td class="pt-3-half">{{ item.receivedId }}</td>
+                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.sendBank ? (item.sendBank == 1 ? "Ngân hàng nhóm 5" : "Ngân hàng nhóm 34") : ""}}</td>
                     <td class="pt-3-half">{{ item.amount }}</td>
-                    <td class="pt-3-half">{{ item.isConfirm == 1 ? 'Thành công' : 'Chờ xác nhận' }}</td>
+                    <td class="pt-3-half">{{ item.reason }}</td>
+                     <td class="pt-3-half">
+                      <mdb-badge
+                        color="success-color"
+                        pill
+                        class="pull-right"
+                      >Thành công</mdb-badge>
+                      <!-- <mdb-badge v-else color="danger-color" pill class="pull-right">Chờ xác nhận</mdb-badge> -->
+                      <!-- <mdb-badge color="primary-color" pill class="pull-right">14</mdb-badge> -->
+                    </td>
                     <td class="pt-3-half">{{ formatTime(item.created_at) }}</td>
                   </tr>
                 </tbody>
@@ -109,7 +117,7 @@
 </template>
 
 <script>
-import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl } from "mdbvue";
+import { mdbRow, mdbCol, mdbCard, mdbView, mdbCardBody, mdbTbl, mdbBadge } from "mdbvue";
 // import Popup from "./Popup"
 
 export default {
@@ -121,6 +129,7 @@ export default {
     mdbView,
     mdbCardBody,
     mdbTbl,
+    mdbBadge
   },
 
   data() {

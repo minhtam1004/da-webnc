@@ -77,7 +77,10 @@
                       <td class="pt-3-half">{{ item.sendId }}</td>
                       <td class="pt-3-half">{{ item.receivedId }}</td>
                       <td class="pt-3-half">{{ item.amount }}</td>
-                      <td class="pt-3-half">{{ item.isConfirm == 1 ? 'Thành công' : 'Thất bại' }}</td>
+                     
+                      <td class="pt-3-half">
+                        <mdb-badge color="success-color" pill class="pull-right">Thành công</mdb-badge>
+                      </td>
                       <td class="pt-3-half">{{ formatTime(item.created_at)}}</td>
                     </tr>
                   </tbody>
@@ -126,6 +129,7 @@ import {
   mdbCardBody,
   mdbTbl,
   mdbIcon,
+  mdbBadge
 } from "mdbvue";
 
 import $ from "jquery";
@@ -140,6 +144,7 @@ export default {
     mdbCardBody,
     mdbTbl,
     mdbIcon,
+    mdbBadge
   },
 
   data() {

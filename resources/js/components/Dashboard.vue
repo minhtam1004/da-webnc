@@ -266,7 +266,7 @@ export default {
                 } else {
                   if (!u.sendBank) {
                     this.totalTransfer += u.amount;
-                    this.barChartData.datasets[0].data[index] = u.amount;
+                    this.barChartData.datasets[0].data[index] = this.totalTransfer;
                   }
                   if (!u.receivedBank) {
                     this.barChartData.datasets[1].data[index] = u.amount;

@@ -122,7 +122,7 @@
       </mdb-col>
     </mdb-row>
 
-    <AddCustomer v-if="showAddUser" @close-modal="showAddUser=false" />
+    <AddCustomer v-if="showAddUser" @close-modal="showAddUser=false" @add-success="reload" />
   </section>
 </template>
 

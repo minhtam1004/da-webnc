@@ -31,24 +31,26 @@
           >
             <template #result="{ result, props }">
               <li v-bind="props">
-                <div class="wiki-title">
-                  {{ result }}
-                  <button
-                    style="margin-left:23vmin!important"
-                    type="button"
-                    class="btn btn-primary px-4"
-                    @click="update(result)"
-                  >
-                    <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-                  </button>
-                  <button
-                    style="margin-left:0.5vmin!important"
-                    type="button"
-                    @click="deleteReminder(result)"
-                    class="btn btn-danger px-4"
-                  >
-                    <i class="fas fa-times-circle" aria-hidden="true"></i>
-                  </button>
+                <div class="wiki-title row">
+                  <div class="col-8">{{ result }}</div>
+                  <div>
+                    <button
+                   
+                      type="button"
+                      class="btn btn-primary px-4"
+                      @click="update(result)"
+                    >
+                      <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      style="margin-left:0.5vmin!important"
+                      type="button"
+                      @click="deleteReminder(result)"
+                      class="btn btn-danger px-4"
+                    >
+                      <i class="fas fa-times-circle" aria-hidden="true"></i>
+                    </button>
+                  </div>
                 </div>
               </li>
             </template>
@@ -154,7 +156,7 @@ export default {
       }
     },
     updateSuccess() {
-     this.$emit("update-success");
+      this.$emit("update-success");
     },
     getReminderList(page, limit) {
       const options = {
@@ -172,7 +174,7 @@ export default {
           // for (const idx in response.data.data) {
           //   this.users.push(response.data.data[idx].name);
           // }
-          this.reminder.forEach(d => {
+          this.reminder.forEach((d) => {
             this.users.push(d.name);
           });
           this.lastPage = response.data.last_page;

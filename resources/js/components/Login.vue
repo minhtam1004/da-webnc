@@ -151,14 +151,14 @@ export default {
       this.loginForm.recaptchaVerified = true;
     },
     checkIfRecaptchaVerified() {
-      // if (!this.loginForm.recaptchaVerified) {
-      //   this.showModal = true;
+      if (!this.loginForm.recaptchaVerified) {
+        this.showModal = true;
 
-      //   this.typeModal = "danger";
-      //   this.messageModal = "Vui lòng nhập captcha";
-      //   this.titleModal = "Thao tác không thành công";
-      //   return true;
-      // }
+        this.typeModal = "danger";
+        this.messageModal = "Vui lòng nhập captcha";
+        this.titleModal = "Thao tác không thành công";
+        return true;
+      }
       this.login();
     },
     login() {
