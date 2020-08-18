@@ -96,7 +96,7 @@ class TransferController extends Controller
         $acc->excess += $request->amount;
         $acc->save();
         $transfer = Transfer::create($request->all());
-        return response()->json(['message' => 'Transfer has been added'], 201);
+        return response()->json(['message' => 'Transfer has been added'], 200);
     }
 
     public function confirm($id, Request $request)

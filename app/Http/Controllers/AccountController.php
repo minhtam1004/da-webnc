@@ -72,7 +72,7 @@ class AccountController extends Controller
     public function show($id)
     {
         $account = Account::where('accountNumber',$id)->first();
-        if(!$account) return response()->json(['error' => 'account doest exist'],404);
+        if(!$account) return response()->json(['error' => 'account doest exist'],204);
         $user = $account->user;
         if(!auth('api')->check())
         {
