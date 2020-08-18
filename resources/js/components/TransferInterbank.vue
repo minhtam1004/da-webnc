@@ -207,7 +207,7 @@ export default {
       showAddList: false,
       listBank: [],
       selected: 0,
-      bankId: 0,
+      bankId: "",
     };
   },
   computed: {
@@ -235,7 +235,7 @@ export default {
     getReminder(accNum, bankId) {
       console.log("ppp", accNum);
       console.log("ppp", bankId);
-      this.bankId = bankId
+      this.bankId = bankId;
       this.accountNumber = accNum;
       bankId == 1 ? (this.selected = "nhom5") : (this.selected = "nhom19");
     },
@@ -293,7 +293,7 @@ export default {
           options
         )
         .then((response) => {
-          console.log("RESPONSE RECEIVED: ", response);
+          console.log("tttt: ", response);
           if (response.status == 200) {
             this.isShowingMoney = true;
             this.name = response.data.result.name;
@@ -302,6 +302,17 @@ export default {
             this.messageModal = "Số tài khoản hợp lệ";
             this.titleModal = "Thao tác thành công";
             this.turnOffLoadingCheck();
+          }
+          if (response.status == 204) {
+            console.log("fff")
+            this.showModal = true;
+            this.typeModal = "danger";
+            this.messageModal = "Số tài khoản tồn tại";
+            this.titleModal = "Thao tác thất bại";
+
+            this.turnOffLoadingCheck();
+            this.loading = false;
+            this.disabled = false;
           }
         })
         .catch((error) => {

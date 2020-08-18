@@ -47,7 +47,7 @@
               <input type="text" v-model="name" class="form-control" readonly />
               <br />
 
-              <label for="excess" class="grey-text">Số tiền chuyển</label>
+              <label for="excess" class="grey-text">Số tiền nợ</label>
               <input type="number" v-model="amount" class="form-control" />
 
               <br />

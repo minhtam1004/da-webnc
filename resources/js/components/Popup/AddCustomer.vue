@@ -20,6 +20,7 @@
                 <br />
                 <label for="phone" class="grey-text" required>Số điện thoại</label>
                 <input type="text" id="phone" v-model="phone" class="form-control" />
+
                 <div class="text-center mt-4">
                   <button
                     class="btn btn-unique"
@@ -106,6 +107,7 @@ export default {
         name: this.name,
         email: this.email,
         phone: this.phone,
+        amount: 50000
       };
       const options = {
         headers: {
@@ -129,6 +131,7 @@ export default {
             this.turnOffLoading();
             this.loading = false;
             this.$emit("close-modal");
+            this.$emit("add-success");
           }
         })
         .catch((error) => {

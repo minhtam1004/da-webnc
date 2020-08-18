@@ -51,10 +51,10 @@
                 <thead>
                   <tr>
                     <th class="text-center">Mã giao dịch</th>
-                    <th class="text-center">Số tài khoản gửi</th>
-                    <th class="text-center">Tên chủ tài khoản</th>
+                    <th class="text-center">Số tài khoản nhận</th>
                     <th class="text-center">Tên ngân hàng</th>
                     <th class="text-center">Số tiền (VNĐ)</th>
+                    <th class="text-center">Ghi chú</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center">Thời gian giao dịch</th>
                   </tr>
@@ -62,10 +62,10 @@
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.sendId }}</td>
-                    <td class="pt-3-half">{{ item.sendId }}</td>
-                    <td class="pt-3-half">{{ item.sendId }}</td>
+                    <td class="pt-3-half">{{ item.receivedId }}</td>
+                    <td class="pt-3-half">{{ item.receivedBank ? (item.receivedBank == 1 ? "Ngân hàng nhóm 34" : "Ngân hàng nhóm 5") : ""}}</td>
                     <td class="pt-3-half">{{ item.amount }}</td>
+                    <td class="pt-3-half">{{ item.reason }}</td>
                     <td class="pt-3-half">
                       <mdb-badge
                         color="success-color"

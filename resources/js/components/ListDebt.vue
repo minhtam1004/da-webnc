@@ -84,7 +84,7 @@
                 <tbody>
                   <tr v-for="(item, index) in pagination.data" :key="index">
                     <td class="pt-3-half">{{ item.id }}</td>
-                    <td class="pt-3-half">{{ item.otherId }}</td>
+                    <td class="pt-3-half">{{ item.ownerId }}</td>
                     <td class="pt-3-half">{{ item.debt }}</td>
                     <td class="pt-3-half">{{ item.note}}</td>
                     <td class="pt-3-half">
