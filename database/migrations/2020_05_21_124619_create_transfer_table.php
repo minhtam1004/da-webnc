@@ -26,7 +26,7 @@ class CreateTransferTable extends Migration
             $table->boolean('payer')->default(true);
             $table->integer('creator')->nullable()->unsigned();
             $table->boolean('debtId')->nullable()->default(null);
-            $table->timestamp('expiresAt');
+            $table->timestamp('expiresAt')->nullable();
             $table->timestamps();
         });
     }
