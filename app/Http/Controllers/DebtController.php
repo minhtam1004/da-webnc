@@ -185,7 +185,7 @@ class DebtController extends Controller
             'receivedId' => $debt->ownerId,
             'receivedBank' => null,
             'amount' => $debt->debt,
-            'reason' => $debt->note,
+            'reason' => $debt->note ? $debt->note : 'thanh toán nhắc nợ',
             'OTPCode' => $OTPString,
             'expiresAt' => time() + 60,
             'payer' => true,
