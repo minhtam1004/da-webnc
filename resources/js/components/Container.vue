@@ -290,6 +290,12 @@
             khoản
           </mdb-list-group-item>
         </router-link>
+
+        <router-link to="/reminders" @click.native="activeItem = 15" v-if="permission == 'user'">
+          <mdb-list-group-item :action="true" :class="activeItem === 15 && 'active'">
+            <mdb-icon icon="user-md" class="mr-3" />Danh sách gợi nhớ
+          </mdb-list-group-item>
+        </router-link>
         <!-- <router-link to="/404" @click.native="activeItem = 13">
           <mdb-list-group-item :action="true" :class="activeItem === 13 && 'active'">
             <mdb-icon icon="exclamation" class="mr-3" />404
@@ -453,7 +459,9 @@ export default {
           if (response.status == 200) {
             console.log("gggg")
             this.$store.dispatch("setRead", t);
+            if(this.$route.params.id != r) {
             this.$router.push({ name: "DebtDetail", params: { id: r } });
+            }
           }
         })
         .catch((error) => {

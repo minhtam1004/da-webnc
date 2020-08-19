@@ -140,6 +140,16 @@ export default {
   created() {
     this.load();
   },
+  computed: {
+    currentRoute() {
+      return this.$route;
+    },
+  },
+  watch: {
+    currentRoute() {
+      this.load();
+    },
+  },
   methods: {
     paymentDebt() {
       this.turnOnLoading();
@@ -154,6 +164,7 @@ export default {
 
       axios
         // POST api/debt/{id}/paid
+        
         .post("api/debt/" + this.id + "/paid", {}, options)
         .then((response) => {
           this.turnOffLoading();
@@ -203,11 +214,13 @@ export default {
         },
       };
       axios
-        .get("api/debt/" + this.id, options)
+        .get("api/debt/" + this.$route.params.id, options)
         .then((response) => {
+          if (response.status == 200) {
           this.data = response.data;
           this.data.created_at = this.formatTime(this.data.created_at);
-          console.log("RESPONSE RECEIVED: ", response);
+          console.log("ttttt: ", response);
+          }
         })
         .catch((error) => {
           console.log("AXIOS ERROR: ", error);
