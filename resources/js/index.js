@@ -24,6 +24,7 @@ import BankDetail from "./components/InterBank/BankDetail";
 import CreateDebt from "./components/CreateDebt";
 import DebtDetail from "./components/DebtDetail";
 import RefreshToken from "./components/401";
+import ReminderList from "./components/Customers/ReminderList"
 export const routes = [
     { path: "/login", name: "Login", component: Login },
     { path: "/refresh", name: "RefreshToken", component: RefreshToken },
@@ -118,6 +119,12 @@ export const routes = [
                 name: "DebtReminder",
                 props: { page: 12 },
                 component: DebtReminder
+            },
+            {
+                path: "/reminders",
+                name: "ReminderList",
+                props: { page: 15 },
+                component: ReminderList
             },
             {
                 path: "/404",

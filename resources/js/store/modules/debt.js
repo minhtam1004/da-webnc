@@ -4,7 +4,7 @@ const state = {
 
 const mutations = {
     ADD_NOTIFY(state, notify) {
-        state.notify.push(notify);
+        state.notify.unshift(notify);
     },
     SET_NOTIFY(state, notify) {
         state.notify = notify;

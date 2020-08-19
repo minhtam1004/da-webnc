@@ -140,6 +140,7 @@ export default {
 
             this.$emit("close-modal");
             this.$emit("update-success");
+            this.$emit("update-list");
           }
         })
         .catch((error) => {

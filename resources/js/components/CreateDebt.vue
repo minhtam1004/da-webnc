@@ -179,13 +179,22 @@ export default {
         )
         .then((response) => {
           console.log("RESPONSE RECEIVED: ", response);
-          if (response.data !== null) {
+          if (response.status == 200) {
             this.isShowingMoney = true;
             this.name = response.data.user.name;
             this.showModal = true;
             this.typeModal = "success";
             this.messageModal = "Số tài khoản hợp lệ";
             this.titleModal = "Thao tác thành công";
+            this.turnOffLoading();
+          }
+          if (response.status == 204) {
+            
+        
+            this.showModal = true;
+            this.typeModal = "danger";
+            this.messageModal = "Số tài khoản không tồn tại";
+            this.titleModal = "Thao tác thất bại";
             this.turnOffLoading();
           }
         })
