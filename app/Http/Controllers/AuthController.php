@@ -46,20 +46,18 @@ class AuthController extends Controller
             return response()->json(['error' => 'Parameter error'], 422);
         }
         $user = User::where('username', $request->username)->get()->first();
-        if(!$user)
-        {
-            return response()->json(['error'=>'user does not exist'], 404);
+        if (!$user) {
+            return response()->json(['error' => 'user does not exist'], 404);
         }
-        if(!Hash::check($request->password, $user->password))
-        {
-            return response()->json(['error'=>'password incorrect'], 401);
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['error' => 'password incorrect'], 401);
         }
         $credentials = $request->only('username', 'password');
         if ($token = auth('api')->attempt($credentials)) {
             $refreshToken = auth('api')->setTTL(20160)->attempt($credentials);
             $user->refresh_token = $refreshToken;
             $user->save();
-            return $this->respondWithToken($token,$refreshToken);
+            return $this->respondWithToken($token, $refreshToken);
         }
         return response()->json(['error' => 'wrong username or password'], 401);
     }
@@ -113,9 +111,9 @@ class AuthController extends Controller
     {
         $user = auth('api')->user();
         $user->permission = $user->role->name;
-        $acc = Account::where('userId',$user->id)->first();
+        $acc = Account::where('userId', $user->id)->first();
         $user->account = $acc;
-        return response()->json($user,200);
+        return response()->json($user, 200);
     }
     public function changePassword(Request $request)
     {
@@ -144,12 +142,10 @@ class AuthController extends Controller
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        if(!$request->email && !$request->username)
-        {
+        if (!$request->email && !$request->username) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        if($request->email && $request->username)
-        {
+        if ($request->email && $request->username) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
         $user = $request->email ? User::where('email', $request->email)->first() : User::where('username', $request->username)->first();
@@ -161,7 +157,7 @@ class AuthController extends Controller
         $email = $user->email;
         $PasswordReset = PasswordReset::updateOrCreate(['email' => $email], ['token' => $OTPString]);
         if ($PasswordReset) {
-            Mail::to($email)->send(new ResetPasswordMail($OTPString,$email));
+            Mail::to($email)->send(new ResetPasswordMail($OTPString, $email));
         }
         return response()->json(['message' => 'send OTPCode to ' . $email, 'email' => $email, 'username' => $user->username], 200);
     }
@@ -176,8 +172,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Parameter error'], 422);
         }
         $passwordReset = PasswordReset::findOrFail($request->email);
-        if($passwordReset->token !== $request->token)
-        {
+        if ($passwordReset->token !== $request->token) {
             return response()->json([
                 'message' => 'This password reset token is invalid.',
             ], 422);
@@ -221,23 +216,31 @@ class AuthController extends Controller
         if ($validatedData->fails()) {
             return response()->json(['error' => 'Parameter error'], 422);
         }
-        $user = auth('api')->user();
-        if(!$user)
-        {
-            return response()->json(['error'=>'token expires'],403);
+        $token = explode('.', $request->refreshToken);
+        if (count($token) != 3) {
+            return response()->json(['error' => 'wrong code'], 422);
         }
-        if($user->refresh_token !== $request->refreshToken)
-        {
+        $code = base64_decode($token[1]);
+        $json = json_decode($code);
+        if (!$json || !$json->sub) {
+            return response()->json(['error' => 'wrong code'], 422);
+        }
+        $id = $json->sub;
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'token expires'], 403);
+        }
+        if ($user->refresh_token !== $request->refreshToken) {
             return response()->json(['error' => 'wrong refreshToken'], 422);
         }
         try {
             $token = auth('api')->refresh();
         } catch (TokenExpiredException $e) {
-            return response()->json(['error'=>'token expires'],403);
+            return response()->json(['error' => 'token expires'], 403);
         } catch (JWTException $e) {
-            return response()->json(['error'=>'token invalid'],403);
+            return response()->json(['error' => 'token invalid'], 403);
         }
-        return $this->respondWithToken($token,$request->refreshToken);
+        return $this->respondWithToken($token, $request->refreshToken);
     }
 
     /**

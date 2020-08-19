@@ -61,12 +61,40 @@ export default {
       (error) => {
         console.log("app", error.response.data);
         if (error.response.data === "unauthorization") {
-          this.$store.dispatch("logOut");
-          localStorage.removeItem(this.$store.state.user.authUser);
-          localStorage.removeItem(this.$store.state.user.access_token);
-          console.log("A", this.$router)
-          this.$router.push({ name: "Login" });
-          return;
+          axios
+            .post(
+              "api/auth/refresh",
+              { refreshToken: this.$store.state.user.refresh_token},
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "bearer" + this.$store.state.user.access_token,
+                },
+              }
+            )
+            .then((response) => {
+              this.$store.dispatch(
+                "setAccessToken",
+                response.data.access_token
+              );
+              this.$store.dispatch(
+                "setRefreshToken",
+                response.data.refresh_token
+              );
+            })
+            .catch((error) => {
+              this.$store.dispatch("logOut");
+              localStorage.removeItem(this.$store.state.user.authUser);
+              localStorage.removeItem(this.$store.state.user.access_token);
+              this.$router.push({ name: "Login" });
+              return;
+            });
+          // this.$store.dispatch("logOut");
+          // localStorage.removeItem(this.$store.state.user.authUser);
+          // localStorage.removeItem(this.$store.state.user.access_token);
+          // console.log("A", this.$router);
+          // this.$router.push({ name: "Login" });
+          // return;
         }
         this.showModal = true;
         this.typeModal = "danger";
@@ -90,7 +118,7 @@ export default {
         (this.roleId && this.roleId > this.$route.meta.role)
       ) {
         console.log("Vo 2");
-        console.log("B", this.$router)
+        console.log("B", this.$router);
         this.$router.push({ name: "Login" });
       }
     },
