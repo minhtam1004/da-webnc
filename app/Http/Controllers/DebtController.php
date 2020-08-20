@@ -180,12 +180,16 @@ class DebtController extends Controller
         if ($acc->excess < $debt->debt) return response(['error' => 'not enoungh money'], 422);
         $email = $user->email;
         Mail::to($email)->send(new OTPMail($OTPString,$acc->accountNumber,$user->name));
+        if(!$debt->note || strlen($debt->note) === 0)
+        {
+            $debt->note = 'thanh toán nhắc nợ';
+        }
         $transfer = Transfer::updateOrCreate(['sendId' => $acc->accountNumber,'isConfirm' => false],[
             'sendBank' => false,
             'receivedId' => $debt->ownerId,
             'receivedBank' => null,
             'amount' => $debt->debt,
-            'reason' => strlen($debt->note) === 0 ? $debt->note : 'thanh toán nhắc nợ',
+            'reason' => $debt->note,
             'OTPCode' => $OTPString,
             'expiresAt' => time() + 60,
             'payer' => true,
